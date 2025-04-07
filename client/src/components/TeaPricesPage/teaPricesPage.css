@@ -1,0 +1,143 @@
+.teaPricesPage {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.teaPricesPage h2 {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.subheading {
+  color: #a0aec0;
+  margin-bottom: 24px;
+  font-size: 16px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  color: white;
+  font-weight: 500;
+}
+
+.monthSelect {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 8px;
+  background-color: #1e1e2d;
+  border: 1px solid #2d2d3d;
+  color: white;
+  font-size: 16px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 15px;
+  cursor: pointer;
+}
+
+.monthSelect:focus {
+  border-color: #10b981;
+  outline: none;
+}
+
+.priceInputContainer {
+  position: relative;
+}
+
+.priceInput {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 8px;
+  background-color: #1e1e2d;
+  border: 1px solid #2d2d3d;
+  color: white;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.priceInput:focus {
+  border-color: #10b981;
+}
+
+.priceInput::placeholder {
+  color: #6b7280;
+}
+
+.updateButton {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  margin-bottom: 30px;
+}
+
+.updateButton:hover {
+  background-color: #0e9f6e;
+}
+
+.updateButton:disabled {
+  background-color: #6b7280;
+  cursor: not-allowed;
+}
+
+.successMessage {
+  background-color: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #10b981;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  animation: fadeOut 3s forwards;
+}
+
+.priceInfoCard {
+  background-color: #1e1e2d;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #2d2d3d;
+}
+
+.priceInfoCard h3 {
+  color: white;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.priceInfoCard p {
+  color: #a0aec0;
+  margin-bottom: 15px;
+}
+
+.highlight {
+  color: #10b981;
+  font-weight: 600;
+}
+
+.infoText {
+  font-size: 14px;
+  color: #8b8c99 !important;
+  line-height: 1.5;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+} 

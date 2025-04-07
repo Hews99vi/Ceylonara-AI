@@ -1,0 +1,147 @@
+.announcementPage {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.announcementPage h2 {
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.subheading {
+  color: #a0aec0;
+  margin-bottom: 24px;
+  font-size: 16px;
+}
+
+.announcementTextarea {
+  width: 100%;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #1e1e2d;
+  border: 1px solid #2d2d3d;
+  color: white;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 180px;
+  margin-bottom: 20px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.announcementTextarea:focus {
+  border-color: #10b981;
+}
+
+.announcementTextarea::placeholder {
+  color: #6b7280;
+}
+
+/* Image Upload Styles */
+.imageUploadSection {
+  margin-bottom: 20px;
+}
+
+.imageUploadLabel {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #1e1e2d;
+  border: 1px dashed #4b5563;
+  color: #a0aec0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.imageUploadLabel:hover {
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.uploadIcon {
+  margin-right: 8px;
+  font-size: 20px;
+}
+
+.imageInput {
+  display: none;
+}
+
+.imagePreviewContainer {
+  margin-top: 15px;
+  position: relative;
+  display: inline-block;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #2d2d3d;
+}
+
+.imagePreview {
+  max-height: 200px;
+  max-width: 100%;
+  display: block;
+}
+
+.removeImageBtn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+
+.removeImageBtn:hover {
+  background: rgba(255, 0, 0, 0.7);
+}
+
+.postButton {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+}
+
+.postButton:hover {
+  background-color: #0e9f6e;
+}
+
+.postButton:disabled {
+  background-color: #6b7280;
+  cursor: not-allowed;
+}
+
+.successMessage {
+  background-color: rgba(16, 185, 129, 0.2);
+  border: 1px solid #10b981;
+  color: #10b981;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  animation: fadeOut 3s forwards;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; }
+} 

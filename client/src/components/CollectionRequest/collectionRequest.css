@@ -1,0 +1,70 @@
+.collectionRequest {
+  padding: 30px;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 15px;
+}
+
+.collectionRequest h2 {
+  color: #ececec;
+  margin-bottom: 30px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  color: #ececec;
+  margin-bottom: 8px;
+  font-size: 16px;
+}
+
+.formGroup select,
+.formGroup input {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(44, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ececec;
+  font-size: 14px;
+  outline: none;
+}
+
+.formGroup select option {
+  background-color: #1a1a1a;
+  color: #ececec;
+}
+
+.formGroup input[type="date"] {
+  color-scheme: dark;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 12px;
+  background-color: #23ce7e;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button[type="submit"]:hover {
+  background-color: #1fa167;
+}
+
+@media (max-width: 768px) {
+  .collectionRequest {
+    padding: 20px;
+    margin: 15px;
+  }
+}

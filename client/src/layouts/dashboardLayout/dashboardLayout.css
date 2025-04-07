@@ -1,0 +1,156 @@
+.dashboardLayout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  padding: 15px;
+  height: calc(100vh - 120px);
+  overflow: hidden;
+}
+
+.sidebar {
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 50px;
+  padding: 15px;
+  overflow-y: auto;
+  height: calc(100vh - 150px);
+  position: sticky;
+  top: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Add this new style for the AI experience section */
+.ai-experience {
+  margin-top: auto;
+  padding: 15px;
+  background: linear-gradient(to right, rgba(33, 134, 8, 0.1), rgba(35, 206, 126, 0.1));
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px;
+  transition: all 0.3s ease;
+}
+
+.ai-experience:hover {
+  background: linear-gradient(to right, rgba(33, 134, 8, 0.2), rgba(35, 206, 126, 0.2));
+  transform: translateY(-2px);
+}
+
+.ai-experience img {
+  width: 20px;
+  height: 20px;
+}
+
+.ai-experience span {
+  color: #ececec;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.ai-experience img {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Style for the new send button */
+.send-button {
+  background: linear-gradient(to right, rgba(33, 134, 8, 0.8), rgba(35, 206, 126, 0.8));
+  border: none;
+  border-radius: 12px;
+  padding: 8px 16px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 2px 8px rgba(35, 206, 126, 0.2);
+}
+
+.send-button:hover {
+  background: linear-gradient(to right, rgba(33, 134, 8, 0.9), rgba(35, 206, 126, 0.9));
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(35, 206, 126, 0.3);
+}
+
+.send-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(35, 206, 126, 0.2);
+}
+
+.send-button img {
+  width: 16px;
+  height: 16px;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+/* Remove these styles as they're no longer needed */
+/* .ai-experience and related styles have been removed */
+
+.main-content {
+  padding: 15px;
+  overflow-y: auto;
+  height: calc(100vh - 150px);
+  border-radius: 50px;
+}
+
+.main-content h1 {
+  color: #ececec;
+  margin-bottom: 30px;
+  font-size: 28px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.feature-card {
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 50px; /* Increased from 12px to match homepage style */
+  padding: 20px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  background-color: rgba(44, 41, 55, 0.5);
+}
+
+.feature-card img {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 15px;
+}
+
+.feature-card h3 {
+  color: #ececec;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.feature-card p {
+  color: #b0b0b0;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .dashboardLayout {
+    grid-template-columns: 1fr;
+  }
+  
+  .sidebar {
+    display: none;
+  }
+}

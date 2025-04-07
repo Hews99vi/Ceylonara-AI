@@ -1,0 +1,437 @@
+/* Base styles for the harvest plan page */
+.harvestPlanPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.harvestPlanContainer {
+  background-color: #1a1a1a;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 1200px;
+  height: 100%;
+  overflow-y: auto;
+  position: relative;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.closeButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.harvestPlanHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-top: 10px;
+}
+
+.harvestPlanHeader img {
+  width: 40px;
+  height: 40px;
+  margin-right: 15px;
+}
+
+.harvestPlanHeader h1 {
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.harvestPlanLayout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 20px;
+  height: calc(100% - 80px);
+}
+
+.controlPanel {
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.regionSelector, .monthSelector {
+  margin-bottom: 20px;
+}
+
+.regionSelector h3, .monthSelector h3 {
+  color: #ececec;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.regionSelector select {
+  width: 100%;
+  padding: 10px;
+  background-color: rgba(44, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ececec;
+  font-size: 14px;
+  outline: none;
+}
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.monthGrid div {
+  padding: 8px;
+  text-align: center;
+  background-color: rgba(44, 41, 55, 0.5);
+  border-radius: 6px;
+  color: #b0b0b0;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.monthGrid div:hover {
+  background-color: rgba(44, 41, 55, 0.8);
+}
+
+.monthGrid div.selected {
+  background-color: #23ce7e;
+  color: #fff;
+}
+
+.contentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+}
+
+.harvestInfoCard {
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.harvestInfoCard h2 {
+  color: #ececec;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.statusIndicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.statusDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.statusDot.peak {
+  background-color: #23ce7e;
+}
+
+.statusDot.good {
+  background-color: #3498db;
+}
+
+.statusDot.average {
+  background-color: #f39c12;
+}
+
+.statusDot.low {
+  background-color: #e74c3c;
+}
+
+.statusText {
+  color: #ececec;
+  font-size: 14px;
+}
+
+.harvestTip {
+  background-color: rgba(35, 206, 126, 0.1);
+  border-left: 3px solid #23ce7e;
+  padding: 15px;
+  margin: 15px 0;
+  color: #b0b0b0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.weatherForecast {
+  margin-top: 20px;
+}
+
+.weatherForecast h3 {
+  color: #ececec;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.forecastGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+}
+
+.forecastDay {
+  background-color: rgba(44, 41, 55, 0.5);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.forecastDay .date {
+  color: #ececec;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+.forecastDay .icon {
+  font-size: 24px;
+  margin: 5px 0;
+}
+
+.forecastDay .temp {
+  color: #ececec;
+  font-size: 14px;
+}
+
+.yieldPrediction {
+  margin-top: 20px;
+}
+
+.yieldPrediction h3 {
+  color: #ececec;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.predictionDetails {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.predictionPercentage {
+  font-size: 24px;
+  font-weight: 600;
+  color: #23ce7e;
+  margin-right: 15px;
+}
+
+.predictionTrend {
+  display: flex;
+  align-items: center;
+  color: #b0b0b0;
+  font-size: 14px;
+}
+
+.predictionTrend.increasing::before {
+  content: "↑";
+  color: #23ce7e;
+  margin-right: 5px;
+}
+
+.predictionTrend.decreasing::before {
+  content: "↓";
+  color: #e74c3c;
+  margin-right: 5px;
+}
+
+.predictionTrend.stable::before {
+  content: "→";
+  color: #3498db;
+  margin-right: 5px;
+}
+
+.predictionRecommendation {
+  background-color: rgba(52, 152, 219, 0.1);
+  border-left: 3px solid #3498db;
+  padding: 15px;
+  color: #b0b0b0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.actionButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  background-color: rgba(44, 41, 55, 0.5);
+  border: none;
+  border-radius: 6px;
+  padding: 10px 15px;
+  color: #ececec;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.actionButton:hover {
+  background-color: rgba(44, 41, 55, 0.8);
+  transform: translateY(-2px);
+}
+
+.actionIcon {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* Add the existing form styles here */
+.dataFormContainer {
+  padding: 20px;
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 12px;
+  margin-top: 20px;
+}
+
+.dataFormContainer h2 {
+  color: #ececec;
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+.formDescription {
+  color: #b0b0b0;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.harvestDataForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.formRow {
+  display: flex;
+  gap: 15px;
+}
+
+.formRow .formGroup {
+  flex: 1;
+}
+
+.harvestDataForm label {
+  color: #ececec;
+  font-size: 14px;
+}
+
+.harvestDataForm input,
+.harvestDataForm select,
+.harvestDataForm textarea {
+  padding: 10px;
+  background-color: rgba(44, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ececec;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.harvestDataForm input:focus,
+.harvestDataForm select:focus,
+.harvestDataForm textarea:focus {
+  border-color: #23ce7e;
+  box-shadow: 0 0 0 2px rgba(35, 206, 126, 0.2);
+}
+
+.harvestDataForm textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.formButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.cancelButton,
+.submitButton {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancelButton {
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #b0b0b0;
+}
+
+.submitButton {
+  background-color: #23ce7e;
+  border: none;
+  color: #fff;
+}
+
+.cancelButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ececec;
+}
+
+.submitButton:hover {
+  background-color: #1fb36d;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .harvestPlanLayout {
+    grid-template-columns: 1fr;
+  }
+  
+  .formRow {
+    flex-direction: column;
+    gap: 15px;
+  }
+}

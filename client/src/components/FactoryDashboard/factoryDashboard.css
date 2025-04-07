@@ -1,0 +1,179 @@
+.factoryDashboard {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.priceSection {
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.priceSection h2 {
+  color: #ececec;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.priceInput {
+  display: flex;
+  gap: 15px;
+}
+
+.priceInput input {
+  flex: 1;
+  padding: 12px;
+  background-color: rgba(44, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ececec;
+  font-size: 16px;
+  outline: none;
+}
+
+.priceInput button {
+  padding: 12px 24px;
+  background-color: #23ce7e;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.priceInput button:hover {
+  background-color: #1fa167;
+}
+
+.requestsSection {
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.requestsSection h2 {
+  color: #ececec;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.requestsList {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.requestCard {
+  background-color: rgba(44, 41, 55, 0.5);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.requestInfo h3 {
+  color: #ececec;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.requestInfo p {
+  color: #b0b0b0;
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.requestActions {
+  display: flex;
+  gap: 10px;
+}
+
+.acceptBtn, .declineBtn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.acceptBtn {
+  background-color: #23ce7e;
+  color: white;
+}
+
+.acceptBtn:hover {
+  background-color: #1fa167;
+}
+
+.declineBtn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.declineBtn:hover {
+  background-color: #c0392b;
+}
+
+@media (max-width: 768px) {
+  .factoryDashboard {
+    padding: 15px;
+  }
+
+  .requestCard {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .requestActions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+.announcementSection {
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.announcementSection h2 {
+  color: #ececec;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.announcementSection textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  background-color: rgba(44, 41, 55, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #ececec;
+  font-size: 16px;
+  resize: vertical;
+  margin-bottom: 15px;
+}
+
+.announcementSection button {
+  padding: 12px 24px;
+  background-color: #23ce7e;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.announcementSection button:hover {
+  background-color: #1fa167;
+}

@@ -1,0 +1,122 @@
+.manageStatePage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.manageStateContainer {
+  position: relative;
+  width: 90%;
+  max-width: 1400px;
+  background-color: #1e1e2d;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.closeButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  color: #b0b0b0;
+  font-size: 28px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ececec;
+}
+
+.manageStateHeader {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.manageStateHeader img {
+  width: 48px;
+  height: 48px;
+}
+
+.manageStateHeader h1 {
+  font-size: 32px;
+  background: linear-gradient(to right, #218608, #23ce7e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+}
+
+.stateGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+.stateCard {
+  background-color: rgba(44, 41, 55, 0.3);
+  padding: 25px;
+  border-radius: 12px;
+  display: flex;
+  gap: 20px;
+  transition: transform 0.3s ease;
+}
+
+.stateCard:hover {
+  transform: translateY(-5px);
+}
+
+.stateIcon {
+  font-size: 24px;
+  min-width: 45px;
+  height: 45px;
+  background-color: rgba(35, 206, 126, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stateContent h3 {
+  color: #ececec;
+  margin: 0 0 10px 0;
+  font-size: 18px;
+}
+
+.stateContent p {
+  color: #b0b0b0;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 992px) {
+  .stateGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .manageStateContainer {
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .manageStateHeader h1 {
+    font-size: 28px;
+  }
+}

@@ -1,0 +1,71 @@
+.endChat{
+  padding-bottom: 70px; /* Reduced from 100px to bring the form up */
+}
+  .newForm{
+    width: 50%;
+    position: absolute;
+    bottom: 20px; /* Increased from 0 to move the form up */
+    background-color: #2c2937;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0px 20px;
+
+
+    input{
+      flex:1;
+      padding:20px;
+      border: none;
+      outline: none;
+      background-color: transparent;
+      color: #ececec;
+    }
+
+    button,label{
+      border-radius: 50%;
+      background-color: #605e68;
+      border: none;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+
+      img{
+        width: 16px;
+        height: 16px;
+      }
+    }
+
+    .send-button {
+      background: #23ce7e;
+      border-radius: 8px;
+      padding: 8px 12px;  /* reduced horizontal padding */
+      display: flex;
+      align-items: center;
+      gap: 4px;          /* reduced gap */
+      color: white;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(35, 206, 126, 0.15);
+      width: fit-content;  /* ensure button only takes needed width */
+      min-width: 60px;    /* set minimum width */
+    }
+
+    .send-button:hover {
+      background: #1fb76f;
+      transform: translateY(-1px);
+    }
+
+    .send-button:active {
+      transform: translateY(0);
+      background: #1aa062;
+    }
+
+    .send-button img {
+      width: 12px;
+      height: 12px;
+      filter: brightness(0) invert(1);
+    }  }

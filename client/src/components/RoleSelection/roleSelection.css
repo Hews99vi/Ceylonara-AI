@@ -1,0 +1,101 @@
+.roleSelection {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.roleSelection h2 {
+  color: #ececec;
+  font-size: 32px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.roleCards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  width: 100%;
+}
+
+.roleCard {
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 15px;
+  padding: 30px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.roleCard:hover {
+  transform: translateY(-5px);
+  background-color: rgba(44, 41, 55, 0.5);
+}
+
+.roleCard.selected {
+  background-color: rgba(35, 206, 126, 0.1);
+  border-color: #23ce7e;
+}
+
+.roleCard img {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 10px;
+}
+
+.roleCard h3 {
+  color: #ececec;
+  font-size: 24px;
+  margin-bottom: 15px;
+}
+
+.roleCard p {
+  color: #b0b0b0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.continueButton {
+  margin-top: 40px;
+  padding: 15px 40px;
+  background-color: #23ce7e;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.continueButton:hover {
+  background-color: #1fa167;
+}
+
+.errorMessage {
+  background-color: rgba(231, 76, 60, 0.1);
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.continueButton:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+  .roleCards {
+    grid-template-columns: 1fr;
+  }
+}

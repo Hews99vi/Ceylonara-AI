@@ -1,0 +1,156 @@
+.analyzeTeaPage {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.analyzeTeaContainer {
+  position: relative;
+  width: 90%;
+  max-width: 800px;
+  background-color: #1e1e2d;
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.closeButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #b0b0b0;
+  font-size: 24px;
+  cursor: pointer;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.closeButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ececec;
+}
+
+.analyzeTeaHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.analyzeTeaHeader img {
+  width: 40px;
+  height: 40px;
+}
+
+.analyzeTeaHeader h1 {
+  font-size: 28px;
+  background: linear-gradient(to right, #218608, #23ce7e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.analyzeTeaLayout {
+  display: flex;
+  justify-content: center;
+}
+
+.analyzeSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+
+.uploadCard {
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.uploadCard:hover {
+  background-color: rgba(44, 41, 55, 0.5);
+}
+
+.uploadIcon {
+  font-size: 24px;
+  background-color: rgba(35, 206, 126, 0.1);
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+.uploadContent {
+  flex: 1;
+}
+
+.uploadContent h3 {
+  margin-bottom: 8px;
+  color: #ececec;
+  font-size: 18px;
+}
+
+.uploadContent p {
+  color: #b0b0b0;
+  margin-bottom: 15px;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .analyzeTeaContainer {
+    width: 95%;
+    padding: 20px;
+  }
+  
+  .uploadCard {
+    padding: 15px;
+  }
+  
+  .uploadContent h3 {
+    font-size: 16px;
+  }
+  
+  .uploadContent p {
+    font-size: 12px;
+  }
+}
+.uploadContent label img {
+        width: 20px;
+        height: 20px;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+      }
+      
+      .uploadContent label {
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        background-color: rgba(35, 206, 126, 0.1);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .uploadContent label:hover {
+        background-color: rgba(35, 206, 126, 0.2);
+      }
+      
+      .uploadContent label:hover img {
+        opacity: 1;
+      }
+      

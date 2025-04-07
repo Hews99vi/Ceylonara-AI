@@ -1,0 +1,253 @@
+.contactPage {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.contactContainer {
+  position: relative;
+  width: 90%;
+  max-width: 1400px;
+  background-color: #1e1e2d;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 1; /* Add this */
+}
+
+.closeButton {
+  position: absolute;
+  top: -15px;
+  right: -15px;
+  background: #2c2937;
+  border: 2px solid #1e1e2d;
+  color: #b0b0b0;
+  font-size: 28px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 2; /* Add this */
+}
+
+.closeButton:hover {
+  background-color: #3a3648;
+  color: #ececec;
+  transform: scale(1.05);
+}
+
+.contactHeader {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.contactHeader img {
+  width: 48px;
+  height: 48px;
+}
+
+.contactHeader h1 {
+  font-size: 32px;
+  background: linear-gradient(to right, #218608, #23ce7e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin: 0;
+}
+
+.contactLayout {
+  display: flex;
+  gap: 60px;
+  margin-top: 20px;
+}
+
+.contactFormSection {
+  flex: 2;
+}
+
+.contactDescription {
+  color: #ececec;
+  margin-bottom: 30px;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  color: #ececec;
+  font-size: 14px;
+}
+
+.formGroup input,
+.formGroup textarea {
+  padding: 12px;
+  border: 1px solid #2c2937;
+  border-radius: 8px;
+  background-color: rgba(44, 41, 55, 0.3);
+  color: #ececec;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #23ce7e;
+  background-color: rgba(44, 41, 55, 0.5);
+}
+
+.submitButton {
+  background: linear-gradient(to right, #218608, #23ce7e);
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+  font-size: 16px;
+}
+
+.submitButton:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.successMessage {
+  background-color: rgba(35, 206, 126, 0.2);
+  border-left: 4px solid #23ce7e;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  color: #ececec;
+}
+
+.errorMessage {
+  background-color: rgba(255, 76, 76, 0.2);
+  border-left: 4px solid #ff4c4c;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  color: #ececec;
+}
+
+.contactDetailsSection {
+  flex: 1;
+  background-color: rgba(44, 41, 55, 0.3);
+  padding: 40px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  height: fit-content;
+}
+
+.contactDetailsSection h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  background: linear-gradient(to right, #218608, #23ce7e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.contactDetailsItem {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+}
+
+.contactIcon {
+  font-size: 24px;
+  min-width: 40px;
+  height: 40px;
+  background-color: rgba(35, 206, 126, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contactInfo h3 {
+  color: #ececec;
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+
+.contactInfo p {
+  color: #b0b0b0;
+  margin: 0 0 5px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1200px) {
+  .contactContainer {
+    width: 95%;
+    padding: 30px;
+  }
+  
+  .contactLayout {
+    gap: 40px;
+  }
+}
+
+@media (max-width: 992px) {
+  .contactLayout {
+    flex-direction: column;
+  }
+  
+  .contactDetailsSection {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contactContainer {
+    width: 100%;
+    padding: 20px;
+  }
+  
+  .contactHeader h1 {
+    font-size: 28px;
+  }
+  
+  .closeButton {
+    top: -12px;
+    right: -12px;
+    font-size: 24px;
+    width: 35px;
+    height: 35px;
+  }
+  
+  .contactDetailsSection {
+    padding: 20px;
+  }
+}
