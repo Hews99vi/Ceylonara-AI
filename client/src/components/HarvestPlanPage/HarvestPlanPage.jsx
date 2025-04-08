@@ -2,6 +2,7 @@ import "./harvestPlanPage.css";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
+import { OPENWEATHER_API_KEY } from './api-key';
 
 const teaRegions = [
   "Uva",
@@ -58,8 +59,15 @@ const HarvestPlanPage = () => {
           throw new Error('Region coordinates not found');
         }
   
+        // Use direct API key import instead of env variable
+        console.log("Using direct API key:", OPENWEATHER_API_KEY);
+        
+        if (!OPENWEATHER_API_KEY) {
+          throw new Error('OpenWeatherMap API key is missing');
+        }
+  
         const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/forecast?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${import.meta.env.VITE_OPENWEATHER_API_KEY}`
+          `https://api.openweathermap.org/data/2.5/forecast?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${OPENWEATHER_API_KEY}`
         );
   
         if (!response.ok) {
@@ -274,9 +282,40 @@ const HarvestPlanPage = () => {
               <h3>{t('harvestPlan.weatherForecast')}</h3>
               <div className="forecastGrid">
                 {error ? (
-                  <div className="error-message">{t('harvestPlan.loading')}: {error}</div>
+                  <div className="error-message">
+                    <p>Failed to fetch weather data</p>
+                    <button 
+                      className="retry-button"
+                      onClick={() => {
+                        setError(null);
+                        setLoading(true);
+                        // Trigger a re-fetch
+                        const coords = regionCoordinates[selectedRegion];
+                        console.log("Retrying with direct API key:", OPENWEATHER_API_KEY);
+                        
+                        fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${OPENWEATHER_API_KEY}`)
+                          .then(res => {
+                            if (!res.ok) throw new Error(`Weather API error: ${res.status}`);
+                            return res.json();
+                          })
+                          .then(data => {
+                            setWeatherData(data.list);
+                            setError(null);
+                          })
+                          .catch(err => {
+                            console.error('Error on retry:', err);
+                            setError(err.message);
+                          })
+                          .finally(() => {
+                            setLoading(false);
+                          });
+                      }}
+                    >
+                      Retry
+                    </button>
+                  </div>
                 ) : loading ? (
-                  <div className="loading-message">{t('harvestPlan.loading')}</div>
+                  <div className="loading-message">Loading weather data...</div>
                 ) : weatherData ? (
                   weatherData
                     .filter((item, index) => index % 8 === 0)
@@ -299,7 +338,7 @@ const HarvestPlanPage = () => {
                       </div>
                     ))
                 ) : (
-                  <div>{t('harvestPlan.noWeatherData')}</div>
+                  <div className="no-data-message">{t('harvestPlan.noWeatherData')}</div>
                 )}
               </div>
             </div>

@@ -61,12 +61,7 @@ app.use('/api/*', (req, res, next) => {
   console.log('Incoming request:', req.method, req.path);
   console.log('Auth header:', req.headers.authorization);
   
-  // Temporarily bypass authentication for testing
-  req.auth = { userId: "user_2VA4gMpwxAK2iLAyB2FQSp04YAf" }; // Use a fake user ID
-  return next();
-  
-  // Commented out for testing
-  /*
+  // Use actual authentication from Clerk
   try {
     clerkMiddleware(req, res, (err) => {
       if (err) {
@@ -79,7 +74,6 @@ app.use('/api/*', (req, res, next) => {
     console.error('Clerk middleware error:', error);
     res.status(401).json({ error: 'Authentication failed', details: error.message });
   }
-  */
 });
 
 // Add error handling middleware
@@ -109,7 +103,9 @@ app.get("/api/userchats", async (req, res) => {
     console.log('Auth object:', req.auth); // Add this line for debugging
     const userId = req.auth.userId;
     console.log('Fetching chats for userId:', userId); // Add this line for debugging
-    const userChats = await UserChats.findOne({ userId });
+    
+    // Make sure we're only fetching the chats for this specific user
+    const userChats = await UserChats.findOne({ userId: userId });
     
     if (!userChats) {
       console.log('No chats found for userId:', userId); // Add this line for debugging
@@ -156,7 +152,7 @@ app.post("/api/chats", async (req, res) => {
     const { text } = req.body;
 
     const newChat = new Chat({
-      userId,
+      userId: userId,
       title: text.substring(0, 30),
     });
 
@@ -171,11 +167,11 @@ app.post("/api/chats", async (req, res) => {
     await newMessage.save();
 
     // Add the chat to userChats
-    let userChats = await UserChats.findOne({ userId });
+    let userChats = await UserChats.findOne({ userId: userId });
     
     if (!userChats) {
       userChats = new UserChats({
-        userId,
+        userId: userId,
         chats: [],
       });
     }
@@ -200,29 +196,38 @@ app.delete("/api/chats/:id", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const chatId = req.params.id;
+    
+    console.log('Delete request for chatId:', chatId, 'from userId:', userId);
 
     const chat = await Chat.findById(chatId);
 
     if (!chat) {
+      console.log('Chat not found:', chatId);
       return res.status(404).json({ error: "Chat not found" });
     }
 
     if (chat.userId !== userId) {
+      console.log('Unauthorized delete attempt. Chat belongs to:', chat.userId);
       return res.status(403).json({ error: "Unauthorized" });
     }
 
     await Chat.findByIdAndDelete(chatId);
+    console.log('Chat deleted from Chat collection');
+    
     await Message.deleteMany({ chatId });
+    console.log('Messages deleted for chatId:', chatId);
     
     // Remove from userChats
-    await UserChats.updateOne(
-      { userId },
+    const result = await UserChats.updateOne(
+      { userId: userId },
       { $pull: { chats: { _id: chatId } } }
     );
+    
+    console.log('UserChats update result:', result);
 
     res.status(200).json({ message: "Chat deleted successfully" });
   } catch (error) {
-    console.error(error);
+    console.error('Error in delete chat endpoint:', error);
     res.status(500).json({ error: "Failed to delete chat" });
   }
 });
@@ -300,7 +305,7 @@ app.post("/api/chats/:id/messages", async (req, res) => {
       const messagesCount = await Message.countDocuments({ chatId });
       if (messagesCount <= 2) {
         await UserChats.updateOne(
-          { userId, "chats._id": chatId },
+          { userId: userId, "chats._id": chatId },
           { $set: { "chats.$.title": text.substring(0, 30) } }
         );
       }

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "./chatList.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
 
 const ChatList = () => {
@@ -20,7 +20,7 @@ const ChatList = () => {
   console.log("Is factory:", isFactory); // Debug log
 
   const { isPending, error, data, refetch } = useQuery({
-    queryKey: ["userChats"],
+    queryKey: ["userChats", user?.id],
     queryFn: async () => {
       try {
         const token = await getToken();
@@ -45,6 +45,13 @@ const ChatList = () => {
     retryDelay: 1000
   });
 
+  // Refetch chats when user changes
+  useEffect(() => {
+    if (user?.id) {
+      refetch();
+    }
+  }, [user?.id, refetch]);
+
   const deleteMutation = useMutation({
     mutationFn: async (chatId) => {
       const token = await getToken();
@@ -62,7 +69,7 @@ const ChatList = () => {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userChats"] });
+      queryClient.invalidateQueries({ queryKey: ["userChats", user?.id] });
       setShowModal(false);
     },
     onError: (error) => {
@@ -149,6 +156,30 @@ const ChatList = () => {
         <img src="/ai-icon.png" alt="AI" />
         <span>Experience the Power of Tea AI</span>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Delete Chat</h3>
+            <p>Are you sure you want to delete "{selectedChatTitle}"?</p>
+            <div className="modal-actions">
+              <button 
+                className="cancel-btn" 
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="confirm-btn" 
+                onClick={confirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
