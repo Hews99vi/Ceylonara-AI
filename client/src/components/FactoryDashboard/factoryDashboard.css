@@ -177,3 +177,37 @@
 .announcementSection button:hover {
   background-color: #1fa167;
 }
+
+.dashboardHeader {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.factoryName {
+  font-size: 28px;
+  margin: 0 0 10px 0;
+  color: #4CAF50;
+}
+
+.factoryInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.factoryInfo p {
+  margin: 0;
+  color: #b0b0b0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: #b0b0b0;
+}

@@ -19,6 +19,7 @@ import CollectionRequest from "./components/CollectionRequest/CollectionRequest"
 import RoleSelection from "./components/RoleSelection/RoleSelection";
 import AnnouncementPage from "./components/AnnouncementPage/AnnouncementPage";
 import TeaPricesPage from "./components/TeaPricesPage/TeaPricesPage";
+import FactoryRegistration from "./components/FactoryRegistration/FactoryRegistration";
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
       {
         path: "/select-role",
         element: <RoleSelection />,
+      },
+      {
+        path: "/register-factory",
+        element: <FactoryRegistration />,
       },
       {
         element: <DashboardLayout />,

@@ -1,0 +1,35 @@
+.factoryHeader {
+  background-color: #1e1e1e;
+  color: white;
+  padding: 15px 20px;
+  border-bottom: 2px solid #4CAF50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.factoryInfo {
+  display: flex;
+  align-items: baseline;
+  gap: 20px;
+}
+
+.factoryName {
+  font-size: 24px;
+  margin: 0;
+  color: #4CAF50;
+}
+
+.mfNumber {
+  font-size: 14px;
+  color: #b0b0b0;
+}
+
+@media (max-width: 768px) {
+  .factoryInfo {
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start;
+  }
+} 

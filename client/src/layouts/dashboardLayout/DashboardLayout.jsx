@@ -4,13 +4,18 @@ import { useAuth } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import ChatList from "../../components/chatList/ChatList";
 import FactorySidebar from "../../components/FactorySidebar/FactorySidebar";
+import FactoryHeader from "../../components/FactoryHeader/FactoryHeader";
 
 const DashboardLayout = () => {
   const { userId, isLoaded, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const userRole = user?.publicMetadata?.role;
-  const isFactory = userRole === 'factory';
+  const userRole = user?.publicMetadata?.role || user?.unsafeMetadata?.role;
+  
+  // Force factory role for now (for testing)
+  const isFactory = true; // Temporarily force factory role
+  
+  console.log("User role:", userRole, "Is factory:", isFactory);
 
   useEffect(() => {
     if (isLoaded && !userId) {
@@ -32,6 +37,13 @@ const DashboardLayout = () => {
     }
   }, [isLoaded, userId, navigate, user, location.pathname]);
 
+  useEffect(() => {
+    // Log user role on component mount
+    if (user) {
+      console.log("User metadata:", user.publicMetadata, user.unsafeMetadata);
+    }
+  }, [user]);
+
   if (!isLoaded) return "Loading...";
 
   // Don't render dashboard features if we're on a specific page
@@ -43,6 +55,8 @@ const DashboardLayout = () => {
         {isFactory ? <FactorySidebar /> : <ChatList />}
       </div>
       <div className="main-content">
+        {isFactory && <FactoryHeader />}
+        
         {!isSpecificPage && userRole === 'farmer' && (
           <>
             <h1>Farmer Dashboard</h1>

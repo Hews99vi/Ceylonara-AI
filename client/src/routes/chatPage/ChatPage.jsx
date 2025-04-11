@@ -12,6 +12,7 @@ const ChatPage = () => {
   const { isPending, error, data } = useQuery({
     queryKey: ["chat", chatId],
     queryFn: async () => {
+
       // Fetch both chat details and messages
       const [chatResponse, messagesResponse] = await Promise.all([
         fetch(`${import.meta.env.VITE_API_URL}/api/chats/${chatId}`, {

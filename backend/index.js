@@ -11,6 +11,9 @@ import UserChats from "./models/userChats.js";
 // Import the new HarvestData model
 import HarvestData from "./models/harvestData.js";
 
+// Import the Factory model
+import Factory from './models/factory.js';
+
 dotenv.config();
 
 const app = express();
@@ -19,7 +22,7 @@ const PORT = 3002;
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO)
-  .then(() => {
+  .then(() => {i
     console.log("Connected to MongoDB");
   })
   .catch((err) => {
@@ -512,6 +515,115 @@ function calculateYieldPrediction(harvestData, targetMonth) {
     recommendation
   };
 }
+
+// Factory endpoints
+
+// Register a new factory
+app.post("/api/factory/register", async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { factoryName, mfNumber, address } = req.body;
+    
+    // Validate required fields
+    if (!factoryName || !mfNumber || !address) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
+    // Check if user already has a registered factory
+    const existingFactory = await Factory.findOne({ userId });
+    
+    if (existingFactory) {
+      // Update existing factory
+      existingFactory.factoryName = factoryName;
+      existingFactory.mfNumber = mfNumber;
+      existingFactory.address = address;
+      existingFactory.updatedAt = new Date();
+      
+      await existingFactory.save();
+      return res.status(200).json(existingFactory);
+    }
+    
+    // Create new factory
+    const factory = new Factory({
+      userId,
+      factoryName,
+      mfNumber,
+      address
+    });
+    
+    await factory.save();
+    console.log(`Factory registered for user ${userId}: ${factoryName}`);
+    
+    res.status(201).json(factory);
+  } catch (error) {
+    console.error("Error registering factory:", error);
+    res.status(500).json({ error: "Failed to register factory" });
+  }
+});
+
+// Get factory profile
+app.get("/api/factory/profile", async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    
+    const factory = await Factory.findOne({ userId });
+    
+    if (!factory) {
+      return res.status(404).json({ error: "Factory not found" });
+    }
+    
+    res.status(200).json(factory);
+  } catch (error) {
+    console.error("Error fetching factory profile:", error);
+    res.status(500).json({ error: "Failed to fetch factory profile" });
+  }
+});
+
+// Set factory tea price
+app.post("/api/factory/price", async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { price } = req.body;
+    
+    // Check if user has a registered factory
+    const factory = await Factory.findOne({ userId });
+    
+    if (!factory) {
+      return res.status(404).json({ error: "Factory not found" });
+    }
+    
+    // For now, we'll just return a success response
+    // In a real app, you would save this to a Price model
+    res.status(200).json({ message: "Price updated successfully", price });
+  } catch (error) {
+    console.error("Error updating price:", error);
+    res.status(500).json({ error: "Failed to update price" });
+  }
+});
+
+// Get factory tea price
+app.get("/api/factory/price", async (req, res) => {
+  try {
+    // For now, just return a dummy price
+    // In a real app, you would fetch this from a Price model
+    res.status(200).json({ price: "350" });
+  } catch (error) {
+    console.error("Error fetching price:", error);
+    res.status(500).json({ error: "Failed to fetch price" });
+  }
+});
+
+// Get factory collection requests
+app.get("/api/factory/requests", async (req, res) => {
+  try {
+    // For now, return dummy requests
+    // In a real app, you would fetch these from a Request model
+    res.status(200).json([]);
+  } catch (error) {
+    console.error("Error fetching requests:", error);
+    res.status(500).json({ error: "Failed to fetch requests" });
+  }
+});
 
 // Start the server
 app.listen(PORT, () => {

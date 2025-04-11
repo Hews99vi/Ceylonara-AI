@@ -11,6 +11,7 @@ const RoleSelection = () => {
   const { user } = useUser();
 
   const handleRoleSelect = (role) => {
+    console.log("Selected role:", role);
     setSelectedRole(role);
   };
 
@@ -19,9 +20,12 @@ const RoleSelection = () => {
 
     try {
       setIsLoading(true);
+      console.log("Setting user role to:", selectedRole);
+      
       const token = await getToken();
       
       // First update the role in your backend
+      console.log("Updating role in backend...");
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/role`, {
         method: 'POST',
         headers: {
@@ -36,19 +40,25 @@ const RoleSelection = () => {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to update role');
       }
+      
+      console.log("Backend role update successful");
 
       // Update user metadata directly
+      console.log("Updating Clerk metadata...");
       await user.update({
         unsafeMetadata: {
           role: selectedRole,
           updatedAt: new Date().toISOString()
         }
       });
+      console.log("Clerk metadata updated successfully");
 
       // Navigate based on role
       if (selectedRole === 'factory') {
-        navigate('/dashboard/factory');
+        console.log("Redirecting to factory registration...");
+        navigate('/register-factory');
       } else {
+        console.log("Redirecting to farmer dashboard...");
         navigate('/dashboard');
       }
       
