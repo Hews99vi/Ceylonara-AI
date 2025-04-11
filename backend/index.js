@@ -14,19 +14,75 @@ import HarvestData from "./models/harvestData.js";
 // Import the Factory model
 import Factory from './models/factory.js';
 
+// Create a new Price model for storing tea prices
+const priceSchema = new mongoose.Schema({
+  factoryId: {
+    type: String,
+    required: true
+  },
+  factoryName: {
+    type: String,
+    required: true
+  },
+  price: {
+    type: String,
+    required: true
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Price = mongoose.model('Price', priceSchema);
+
+// Create a new Announcement model for storing factory announcements
+const announcementSchema = new mongoose.Schema({
+  factoryId: {
+    type: String,
+    required: true
+  },
+  factoryName: {
+    type: String,
+    required: true
+  },
+  message: {
+    type: String,
+    required: true
+  },
+  image: {
+    type: String,
+    default: null
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Announcement = mongoose.model('Announcement', announcementSchema);
+
 dotenv.config();
 
 const app = express();
 const PORT = 3002;
 
 // Connect to MongoDB
+console.log("Connecting to MongoDB...");
+// Create a connection string for local MongoDB if environment variable isn't set
+const mongoConnectionString = process.env.MONGO || 'mongodb://localhost:27017/ceylonara';
+console.log("Using connection string:", mongoConnectionString.includes('localhost') ? 'Local MongoDB connection' : 'Remote MongoDB connection');
+
 mongoose
-  .connect(process.env.MONGO)
-  .then(() => {i
-    console.log("Connected to MongoDB");
+  .connect(mongoConnectionString, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("Connected to MongoDB successfully");
   })
   .catch((err) => {
-    console.log(err);
+    console.error("MongoDB connection error:", err);
   });
 
 // Initialize ImageKit
@@ -583,7 +639,11 @@ app.get("/api/factory/profile", async (req, res) => {
 app.post("/api/factory/price", async (req, res) => {
   try {
     const userId = req.auth.userId;
-    const { price } = req.body;
+    const { price, factoryName, date } = req.body;
+    
+    if (!price) {
+      return res.status(400).json({ error: "Price is required" });
+    }
     
     // Check if user has a registered factory
     const factory = await Factory.findOne({ userId });
@@ -592,24 +652,164 @@ app.post("/api/factory/price", async (req, res) => {
       return res.status(404).json({ error: "Factory not found" });
     }
     
-    // For now, we'll just return a success response
-    // In a real app, you would save this to a Price model
-    res.status(200).json({ message: "Price updated successfully", price });
+    // Create or update price record
+    const priceRecord = await Price.findOneAndUpdate(
+      { factoryId: userId },
+      { 
+        factoryId: userId,
+        factoryName: factoryName || factory.factoryName,
+        price,
+        date: date || new Date()
+      },
+      { upsert: true, new: true }
+    );
+    
+    res.status(200).json(priceRecord);
   } catch (error) {
     console.error("Error updating price:", error);
     res.status(500).json({ error: "Failed to update price" });
   }
 });
 
-// Get factory tea price
+// Get factory tea price (for individual factory)
 app.get("/api/factory/price", async (req, res) => {
   try {
-    // For now, just return a dummy price
-    // In a real app, you would fetch this from a Price model
-    res.status(200).json({ price: "350" });
+    const userId = req.auth.userId;
+    
+    // Find the price for this factory
+    const priceRecord = await Price.findOne({ factoryId: userId });
+    
+    if (!priceRecord) {
+      return res.status(200).json({ price: "" });
+    }
+    
+    res.status(200).json(priceRecord);
   } catch (error) {
     console.error("Error fetching price:", error);
     res.status(500).json({ error: "Failed to fetch price" });
+  }
+});
+
+// Get all factories' prices (for farmers view)
+app.get("/api/prices", async (req, res) => {
+  try {
+    // Find all price records
+    const prices = await Price.find().sort({ date: -1 });
+    
+    res.status(200).json(prices);
+  } catch (error) {
+    console.error("Error fetching prices:", error);
+    res.status(500).json({ error: "Failed to fetch prices" });
+  }
+});
+
+// Create a new factory announcement
+app.post("/api/factory/announcement", async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    // First try to get the message as 'announcement' field
+    const message = req.body.announcement || req.body.message;
+    const { factoryName, factoryId, date, image } = req.body;
+    
+    console.log('Announcement data received:', JSON.stringify(req.body));
+    
+    if (!message) {
+      return res.status(400).json({ error: "Announcement message is required" });
+    }
+    
+    // Check if user has a registered factory
+    const factory = await Factory.findOne({ userId });
+    
+    if (!factory) {
+      return res.status(404).json({ error: "Factory not found" });
+    }
+    
+    // Create new announcement record
+    const newAnnouncement = new Announcement({
+      factoryId: userId,
+      factoryName: factoryName || factory.factoryName,
+      message: message,
+      image: image || null, // Handle image if provided
+      date: date || new Date()
+    });
+    
+    console.log('Creating announcement:', JSON.stringify(newAnnouncement));
+    
+    try {
+      await newAnnouncement.save();
+      console.log('Announcement saved successfully with ID:', newAnnouncement._id);
+      
+      // Verify the announcement was saved by retrieving it
+      const savedAnnouncement = await Announcement.findById(newAnnouncement._id);
+      console.log('Retrieved saved announcement:', JSON.stringify(savedAnnouncement));
+      
+      res.status(201).json(newAnnouncement);
+    } catch (saveError) {
+      console.error("Error saving announcement:", saveError);
+      return res.status(500).json({ error: "Failed to save announcement to database", details: saveError.message });
+    }
+  } catch (error) {
+    console.error("Error creating announcement:", error);
+    res.status(500).json({ error: "Failed to create announcement", details: error.message });
+  }
+});
+
+// Get factory's announcements (for the factory owner)
+app.get("/api/factory/announcements", async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    console.log('Fetching announcements for factory owner:', userId);
+    
+    // Find all announcements for this factory
+    const announcements = await Announcement.find({ 
+      factoryId: userId 
+    }).sort({ date: -1 });
+    
+    console.log(`Found ${announcements.length} announcements for factory owner`);
+    
+    res.status(200).json(announcements);
+  } catch (error) {
+    console.error("Error fetching factory announcements:", error);
+    res.status(500).json({ error: "Failed to fetch announcements" });
+  }
+});
+
+// Get all announcements (for farmers)
+app.get("/api/announcements", async (req, res) => {
+  try {
+    console.log("Fetching all announcements for farmers");
+    
+    // Check the total count in the collection
+    const totalCount = await Announcement.countDocuments();
+    console.log(`Total announcements in database: ${totalCount}`);
+    
+    // Find all announcements from all factories
+    const announcements = await Announcement.find()
+      .sort({ date: -1 })
+      .limit(20); // Limit to most recent 20 announcements
+    
+    console.log(`Found ${announcements.length} announcements for farmers`);
+    if (announcements.length > 0) {
+      console.log('Sample announcement:', JSON.stringify(announcements[0]));
+    } else {
+      console.log('No announcements found in the database');
+    }
+    
+    // Format announcements to ensure consistent field names
+    const formattedAnnouncements = announcements.map(announcement => ({
+      factoryName: announcement.factoryName,
+      message: announcement.message,
+      date: announcement.date,
+      image: announcement.image,
+      // Include additional fields
+      _id: announcement._id,
+      factoryId: announcement.factoryId
+    }));
+    
+    res.status(200).json(formattedAnnouncements);
+  } catch (error) {
+    console.error("Error fetching announcements:", error);
+    res.status(500).json({ error: "Failed to fetch announcements" });
   }
 });
 

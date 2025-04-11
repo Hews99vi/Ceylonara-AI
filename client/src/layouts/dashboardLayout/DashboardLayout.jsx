@@ -10,12 +10,23 @@ const DashboardLayout = () => {
   const { userId, isLoaded, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  // Check all possible locations for role
   const userRole = user?.publicMetadata?.role || user?.unsafeMetadata?.role;
   
-  // Force factory role for now (for testing)
-  const isFactory = true; // Temporarily force factory role
+  // Check localStorage for factory data as another indicator
+  const hasFactoryData = localStorage.getItem('factoryData') !== null;
   
-  console.log("User role:", userRole, "Is factory:", isFactory);
+  // Check if user is a factory owner - also consider factory data in localStorage
+  const isFactory = userRole === 'factory' || hasFactoryData;
+  
+  // Enhanced logging
+  console.log("User role detection:", { 
+    userRole, 
+    publicRole: user?.publicMetadata?.role,
+    unsafeRole: user?.unsafeMetadata?.role,
+    hasFactoryData,
+    isFactory
+  });
 
   useEffect(() => {
     if (isLoaded && !userId) {
@@ -55,7 +66,10 @@ const DashboardLayout = () => {
         {isFactory ? <FactorySidebar /> : <ChatList />}
       </div>
       <div className="main-content">
-        {isFactory && <FactoryHeader />}
+        {/* Force display the factory header if the URL contains "factory" */}
+        {(isFactory || location.pathname.includes("/factory") || location.pathname.includes("/request-collection")) && (
+          <FactoryHeader />
+        )}
         
         {!isSpecificPage && userRole === 'farmer' && (
           <>
@@ -83,12 +97,12 @@ const DashboardLayout = () => {
           <>
             <h1>Factory Dashboard</h1>
             <div className="features-grid">
-              <Link to="/dashboard/factory" className="feature-card">
+              <Link to="/dashboard/set-tea-price" className="feature-card">
                 <img src="/price-icon.png" alt="Price" />
                 <h3>Set Tea Price</h3>
                 <p>Manage tea leaf prices</p>
               </Link>
-              <Link to="/dashboard/factory" className="feature-card">
+              <Link to="/dashboard/post-announcement" className="feature-card">
                 <img src="/announcement-icon.png" alt="Announcements" />
                 <h3>Post Announcements</h3>
                 <p>Send updates to farmers</p>

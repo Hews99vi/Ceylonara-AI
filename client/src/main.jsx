@@ -20,6 +20,9 @@ import RoleSelection from "./components/RoleSelection/RoleSelection";
 import AnnouncementPage from "./components/AnnouncementPage/AnnouncementPage";
 import TeaPricesPage from "./components/TeaPricesPage/TeaPricesPage";
 import FactoryRegistration from "./components/FactoryRegistration/FactoryRegistration";
+import AnnouncementsPage from "./components/AnnouncementsPage/AnnouncementsPage";
+import RequestCollection from "./components/RequestCollection/RequestCollection";
+import SetTeaPricePage from "./components/SetTeaPricePage/SetTeaPricePage";
 
 const router = createBrowserRouter([
   {
@@ -89,8 +92,24 @@ const router = createBrowserRouter([
             element: <AnnouncementPage />,
           },
           {
+            path: "/dashboard/set-tea-price",
+            element: <SetTeaPricePage />,
+          },
+          {
             path: "/dashboard/set-tea-prices",
+            element: <SetTeaPricePage />,
+          },
+          {
+            path: "/dashboard/tea-prices",
             element: <TeaPricesPage />,
+          },
+          {
+            path: "/dashboard/announcements",
+            element: <AnnouncementsPage />,
+          },
+          {
+            path: "/dashboard/request-collection",
+            element: <RequestCollection />,
           },
         ],
       },

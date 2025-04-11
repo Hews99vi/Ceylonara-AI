@@ -82,9 +82,9 @@ const FactorySidebar = () => {
     <div className="chatList">
       <span className="title">DASHBOARD</span>
       <Link to="/dashboard" className="navLink">Create a new Chat</Link>
-      <Link to="/dashboard/factory" className="navLink">Set Tea Price</Link>
+      <Link to="/dashboard/set-tea-price" className="navLink">Set Tea Price</Link>
       <Link to="/dashboard/request-collection" className="navLink">Tea Leaves Collection Requests</Link>
-      <Link to="/dashboard/factory" className="navLink">Post Announcements</Link>
+      <Link to="/dashboard/post-announcement" className="navLink">Post Announcements</Link>
       <hr />
       <span className="title">RECENT CHATS</span>
       <div className="List">

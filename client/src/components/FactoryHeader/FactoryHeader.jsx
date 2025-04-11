@@ -3,10 +3,17 @@ import { useAuth } from '@clerk/clerk-react';
 import './factoryHeader.css';
 
 const FactoryHeader = () => {
+  console.log("FactoryHeader component initialized");
   const [factoryName, setFactoryName] = useState('');
   const [mfNumber, setMfNumber] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const { getToken } = useAuth();
+  const { getToken, user } = useAuth();
+  
+  // Also check role here as a safety measure
+  const userRole = user?.publicMetadata?.role || user?.unsafeMetadata?.role;
+  const isFactory = userRole === 'factory';
+  
+  console.log("FactoryHeader: User role check:", { userRole, isFactory });
 
   // Check for saved factory data in localStorage on component mount
   useEffect(() => {

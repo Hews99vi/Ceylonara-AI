@@ -1,0 +1,128 @@
+.requestCollection {
+  padding: 20px;
+  color: white;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.requestCollection h1 {
+  margin-bottom: 10px;
+  color: #4CAF50;
+}
+
+.subtitle {
+  font-size: 16px;
+  margin-bottom: 30px;
+  color: #b0b0b0;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: #b0b0b0;
+}
+
+.requestForm {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.formGroup input, 
+.formGroup select,
+.formGroup textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 5px;
+  border: 1px solid #333;
+  background-color: #2d2d2d;
+  color: white;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.formGroup input:focus,
+.formGroup select:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+.errorMessage {
+  background-color: rgba(255, 0, 0, 0.1);
+  color: #ff6b6b;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-left: 4px solid #ff6b6b;
+}
+
+.successMessage {
+  background-color: rgba(0, 255, 0, 0.1);
+  color: #4CAF50;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  border-left: 4px solid #4CAF50;
+}
+
+.submitButton {
+  width: 100%;
+  padding: 14px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.submitButton:hover {
+  background-color: #45a049;
+}
+
+.submitButton:disabled {
+  background-color: #767676;
+  cursor: not-allowed;
+}
+
+.infoBox {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 20px;
+  border-left: 4px solid #4488ff;
+}
+
+.infoBox h3 {
+  margin-top: 0;
+  color: #4488ff;
+  margin-bottom: 10px;
+}
+
+.infoBox p {
+  margin-bottom: 10px;
+  line-height: 1.5;
+  color: #b0b0b0;
+}
+
+.infoBox p:last-child {
+  margin-bottom: 0;
+} 

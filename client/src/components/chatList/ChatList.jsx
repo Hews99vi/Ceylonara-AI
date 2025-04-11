@@ -12,9 +12,9 @@ const ChatList = () => {
   const [selectedChatTitle, setSelectedChatTitle] = useState("");
   
   // Get user role from Clerk metadata
-  const userRole = user?.publicMetadata?.role;
-  // Force factory role for testing (temporary)
-  const isFactory = true; // always show factory links for now
+  const userRole = user?.publicMetadata?.role || user?.unsafeMetadata?.role;
+  // Fix factory detection logic - farmer should be !isFactory
+  const isFactory = userRole === 'factory';
   
   console.log("User role detected:", userRole); // Debug log
   console.log("Is factory:", isFactory); // Debug log
@@ -101,16 +101,17 @@ const ChatList = () => {
         // Factory-specific links
         <>
           <Link to="/dashboard" className="navLink">Create a new Chat</Link>
-          <Link to="/dashboard/set-tea-prices" className="navLink">Set Tea Prices</Link>
+          <Link to="/dashboard/set-tea-price" className="navLink">Set Tea Prices</Link>
           <Link to="/dashboard/post-announcement" className="navLink">Post Announcement</Link>
           <Link to="/dashboard/request-collection" className="navLink">Collection Requests</Link>
         </>
       ) : (
-        // Default links for farmers and other users
+        // Updated farmer links as requested
         <>
           <Link to="/dashboard" className="navLink">Create a new Chat</Link>
-          <Link to="/explore" className="navLink">Explore Ceylonara</Link>
-          <Link to="/contact" className="navLink">Contact</Link>
+          <Link to="/dashboard/tea-prices" className="navLink">Monthly Tea Leaves Prices</Link>
+          <Link to="/dashboard/announcements" className="navLink">Announcements</Link>
+          <Link to="/dashboard/request-collection" className="navLink">Request to Collect</Link>
         </>
       )}
       

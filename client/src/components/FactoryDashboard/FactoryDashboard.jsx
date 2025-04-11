@@ -52,20 +52,21 @@ const FactoryDashboard = () => {
       const name = factoryData.factoryName || factoryData.name || '';
       setFactoryName(name);
       
-      // Get other data
-      const [priceRes, requestsRes] = await Promise.all([
-        fetch(`${import.meta.env.VITE_API_URL}/api/factory/price`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }),
-        fetch(`${import.meta.env.VITE_API_URL}/api/factory/requests`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-      ]);
+      // Get price data
+      const priceRes = await fetch(`${import.meta.env.VITE_API_URL}/api/factory/price`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       
       if (priceRes.ok) {
         const priceData = await priceRes.json();
+        console.log("Current price data:", priceData);
         setPrice(priceData.price || '');
       }
+      
+      // Get request data
+      const requestsRes = await fetch(`${import.meta.env.VITE_API_URL}/api/factory/requests`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
       
       if (requestsRes.ok) {
         const requestsData = await requestsRes.json();
@@ -82,14 +83,33 @@ const FactoryDashboard = () => {
   const handlePriceUpdate = async (e) => {
     e.preventDefault();
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/api/factory/price`, {
+      const token = await getToken();
+      
+      // Include factory name in the price update
+      const priceData = {
+        price,
+        factoryName: factoryName,
+        factoryId: userId,
+        date: new Date().toISOString()
+      };
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/factory/price`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ price })
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(priceData)
       });
-      alert('Price updated successfully');
+      
+      if (response.ok) {
+        alert('Price updated successfully');
+      } else {
+        alert('Failed to update price');
+      }
     } catch (error) {
       console.error('Error updating price:', error);
+      alert('Error updating price');
     }
   };
 

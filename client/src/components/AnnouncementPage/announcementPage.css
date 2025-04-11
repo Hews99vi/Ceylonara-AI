@@ -1,64 +1,94 @@
 .announcementPage {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 2rem;
 }
 
-.announcementPage h2 {
-  font-size: 24px;
-  margin-bottom: 8px;
-  color: white;
+.announcementPage h1 {
+  font-size: 2rem;
+  color: #1a4d2e;
+  margin-bottom: 0.5rem;
 }
 
-.subheading {
-  color: #a0aec0;
-  margin-bottom: 24px;
-  font-size: 16px;
+.subtitle {
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.announcementContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .announcementContainer {
+    grid-template-columns: 1fr;
+  }
+}
+
+.newAnnouncementCard, .previousAnnouncementsSection {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.formGroup {
+  margin-bottom: 1.5rem;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #444;
 }
 
 .announcementTextarea {
   width: 100%;
   padding: 15px;
   border-radius: 8px;
-  background-color: #1e1e2d;
-  border: 1px solid #2d2d3d;
-  color: white;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  color: #333;
   font-size: 16px;
   resize: vertical;
   min-height: 180px;
-  margin-bottom: 20px;
   outline: none;
   transition: border-color 0.3s ease;
 }
 
 .announcementTextarea:focus {
-  border-color: #10b981;
+  border-color: #1a4d2e;
 }
 
 .announcementTextarea::placeholder {
-  color: #6b7280;
+  color: #999;
 }
 
 /* Image Upload Styles */
 .imageUploadSection {
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
 }
 
 .imageUploadLabel {
   display: inline-flex;
   align-items: center;
   padding: 10px 15px;
-  background-color: #1e1e2d;
-  border: 1px dashed #4b5563;
-  color: #a0aec0;
-  border-radius: 8px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  color: #555;
+  border-radius: 4px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .imageUploadLabel:hover {
-  border-color: #10b981;
-  color: #10b981;
+  border-color: #1a4d2e;
+  color: #1a4d2e;
 }
 
 .uploadIcon {
@@ -76,7 +106,7 @@
   display: inline-block;
   border-radius: 8px;
   overflow: hidden;
-  border: 1px solid #2d2d3d;
+  border: 1px solid #ddd;
 }
 
 .imagePreview {
@@ -108,11 +138,11 @@
 }
 
 .postButton {
-  background-color: #10b981;
+  background-color: #1a4d2e;
   color: white;
   border: none;
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: 4px;
   font-size: 16px;
   font-weight: 500;
   cursor: pointer;
@@ -121,27 +151,110 @@
 }
 
 .postButton:hover {
-  background-color: #0e9f6e;
+  background-color: #0f3d1e;
 }
 
 .postButton:disabled {
-  background-color: #6b7280;
+  background-color: #8aad9a;
   cursor: not-allowed;
 }
 
 .successMessage {
-  background-color: rgba(16, 185, 129, 0.2);
-  border: 1px solid #10b981;
-  color: #10b981;
+  background-color: #e7f5e7;
+  border: 1px solid #1a4d2e;
+  color: #1a4d2e;
   padding: 12px;
-  border-radius: 8px;
+  border-radius: 4px;
   margin-bottom: 20px;
   text-align: center;
-  animation: fadeOut 3s forwards;
 }
 
-@keyframes fadeOut {
-  0% { opacity: 1; }
-  70% { opacity: 1; }
-  100% { opacity: 0; }
+/* Previous Announcements Styles */
+.previousAnnouncementsSection h2 {
+  font-size: 1.4rem;
+  color: #1a4d2e;
+  margin-bottom: 1rem;
+}
+
+.announcementsList {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.previousAnnouncementCard {
+  background: #f9f9f9;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-left: 3px solid #1a4d2e;
+}
+
+.announcementHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.dateLabel {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.announcementBody {
+  overflow: visible;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.announcementBody p {
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+  color: #333;
+  font-size: 1rem;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.announcementImageContainer {
+  margin-top: 0.5rem;
+}
+
+.announcementImage {
+  max-width: 100%;
+  max-height: 150px;
+  border-radius: 4px;
+}
+
+.loading, .noAnnouncements {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 150px;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+/* Info Card Style */
+.infoCard {
+  background: #f0f9ff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border-left: 4px solid #1a4d2e;
+}
+
+.infoCard h3 {
+  color: #1a4d2e;
+  margin-bottom: 0.5rem;
+}
+
+.infoCard ul {
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.infoCard li {
+  color: #555;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
 } 
