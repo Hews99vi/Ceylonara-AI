@@ -66,8 +66,8 @@ const DashboardLayout = () => {
         {isFactory ? <FactorySidebar /> : <ChatList />}
       </div>
       <div className="main-content">
-        {/* Force display the factory header if the URL contains "factory" */}
-        {(isFactory || location.pathname.includes("/factory") || location.pathname.includes("/request-collection")) && (
+        {/* Only show factory header for factory users */}
+        {isFactory && (
           <FactoryHeader />
         )}
         

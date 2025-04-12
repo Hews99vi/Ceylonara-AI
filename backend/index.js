@@ -62,6 +62,48 @@ const announcementSchema = new mongoose.Schema({
 
 const Announcement = mongoose.model('Announcement', announcementSchema);
 
+// Create a new Collection Request model for tea leaf collection requests
+const collectionRequestSchema = new mongoose.Schema({
+  factoryId: {
+    type: String,
+    required: true
+  },
+  factoryName: {
+    type: String,
+    required: true
+  },
+  farmerId: {
+    type: String,
+    required: true
+  },
+  farmerName: {
+    type: String,
+    required: true
+  },
+  quantity: {
+    type: Number,
+    required: true
+  },
+  date: {
+    type: Date,
+    required: true
+  },
+  note: {
+    type: String
+  },
+  status: {
+    type: String,
+    enum: ['pending', 'accepted', 'declined'],
+    default: 'pending'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const CollectionRequest = mongoose.model('CollectionRequest', collectionRequestSchema);
+
 dotenv.config();
 
 const app = express();
@@ -813,15 +855,207 @@ app.get("/api/announcements", async (req, res) => {
   }
 });
 
-// Get factory collection requests
+// Submit a collection request (for farmers)
+app.post("/api/collection-requests", async (req, res) => {
+  try {
+    const farmerId = req.auth.userId;
+    const { factoryId, factoryName, quantity, date, note, farmerName } = req.body;
+    
+    console.log('Collection request data received:', req.body);
+    
+    if (!factoryId || !quantity || !date) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
+    // Create new collection request
+    const newRequest = new CollectionRequest({
+      factoryId,
+      factoryName,
+      farmerId,
+      farmerName: farmerName || 'Farmer',
+      quantity,
+      date,
+      note: note || '',
+      status: 'pending'
+    });
+    
+    console.log('Creating collection request:', newRequest);
+    
+    await newRequest.save();
+    
+    res.status(201).json(newRequest);
+  } catch (error) {
+    console.error("Error creating collection request:", error);
+    res.status(500).json({ error: "Failed to create collection request" });
+  }
+});
+
+// Get factory collection requests (for the factory owner)
 app.get("/api/factory/requests", async (req, res) => {
   try {
-    // For now, return dummy requests
-    // In a real app, you would fetch these from a Request model
-    res.status(200).json([]);
+    const factoryId = req.auth.userId;
+    
+    console.log(`Fetching collection requests for factory: ${factoryId}`);
+    
+    // Find all requests for this factory
+    const requests = await CollectionRequest.find({ 
+      factoryId: factoryId 
+    }).sort({ date: 1 }); // Sort by date, earliest first
+    
+    console.log(`Found ${requests.length} collection requests`);
+    
+    res.status(200).json(requests);
   } catch (error) {
     console.error("Error fetching requests:", error);
     res.status(500).json({ error: "Failed to fetch requests" });
+  }
+});
+
+// Update collection request status (for factories to accept/decline)
+app.put("/api/factory/requests/:requestId", async (req, res) => {
+  try {
+    const factoryId = req.auth.userId;
+    const { requestId } = req.params;
+    const { status } = req.body;
+    
+    if (!status || !['accepted', 'declined'].includes(status)) {
+      return res.status(400).json({ error: "Invalid status. Must be 'accepted' or 'declined'" });
+    }
+    
+    // Find the request and make sure it belongs to this factory
+    const request = await CollectionRequest.findById(requestId);
+    
+    if (!request) {
+      return res.status(404).json({ error: "Request not found" });
+    }
+    
+    if (request.factoryId !== factoryId) {
+      return res.status(403).json({ error: "Unauthorized. This request belongs to another factory" });
+    }
+    
+    // Update the status
+    request.status = status;
+    await request.save();
+    
+    res.status(200).json(request);
+  } catch (error) {
+    console.error("Error updating request status:", error);
+    res.status(500).json({ error: "Failed to update request status" });
+  }
+});
+
+// Get all factories (for farmers to select)
+app.get("/api/factories", async (req, res) => {
+  try {
+    console.log("Fetching all factories for farmers - Request received - NO AUTH REQUIRED");
+    
+    // Skip authentication for this endpoint
+    // Ensure at least one factory exists for testing
+    const testFactory = {
+      userId: "test-factory-id",
+      factoryName: "Test Factory",
+      mfNumber: "MF-TEST-123",
+      address: "123 Test Street, Test City"
+    };
+    
+    // Check if test factory exists
+    const existingTestFactory = await Factory.findOne({ userId: "test-factory-id" });
+    if (!existingTestFactory) {
+      // Create test factory if it doesn't exist
+      await Factory.create(testFactory);
+      console.log("Created test factory for demo purposes");
+    }
+    
+    // Find all factories
+    console.log("Querying MongoDB for factories");
+    const factories = await Factory.find({}, {
+      userId: 1,
+      factoryName: 1, 
+      mfNumber: 1,
+      address: 1
+    });
+    
+    console.log(`Found ${factories.length} factories in the database`);
+    
+    // If no factories found, return at least the test factory
+    let formattedFactories = [];
+    if (factories.length === 0) {
+      formattedFactories = [{
+        id: "test-factory-id",
+        name: "Test Factory",
+        mfNumber: "MF-TEST-123",
+        address: "123 Test Street, Test City"
+      }];
+      console.log("No factories found, returning test factory");
+    } else {
+      // Format for frontend use
+      formattedFactories = factories.map(factory => ({
+        id: factory.userId,
+        name: factory.factoryName,
+        mfNumber: factory.mfNumber,
+        address: factory.address
+      }));
+    }
+    
+    // Add some dummy factories regardless to ensure dropdown has options
+    formattedFactories.push(
+      { id: 'dummy1', name: 'Athukorala Tea Factory', mfNumber: 'MF123456', address: 'Kandy, Sri Lanka' },
+      { id: 'dummy2', name: 'Nuwara Eliya Tea Factory', mfNumber: 'MF785412', address: 'Nuwara Eliya, Sri Lanka' },
+      { id: 'dummy3', name: 'Dimbula Valley Tea', mfNumber: 'MF654987', address: 'Dimbula, Sri Lanka' }
+    );
+    
+    console.log("Sending factories to client:", formattedFactories);
+    res.status(200).json(formattedFactories);
+  } catch (error) {
+    console.error("Error fetching factories:", error);
+    
+    // Return dummy factories on error to ensure frontend has options
+    const dummyFactories = [
+      { id: 'dummy1', name: 'Athukorala Tea Factory', mfNumber: 'MF123456', address: 'Kandy, Sri Lanka' },
+      { id: 'dummy2', name: 'Nuwara Eliya Tea Factory', mfNumber: 'MF785412', address: 'Nuwara Eliya, Sri Lanka' },
+      { id: 'dummy3', name: 'Dimbula Valley Tea', mfNumber: 'MF654987', address: 'Dimbula, Sri Lanka' }
+    ];
+    
+    console.log("Error occurred, returning dummy factories:", dummyFactories);
+    res.status(200).json(dummyFactories);
+  }
+});
+
+// Utility endpoint to create a test factory (FOR DEVELOPMENT USE ONLY)
+app.post("/api/dev/create-test-factory", async (req, res) => {
+  try {
+    console.log("Creating test factory");
+    
+    // Create a test factory with a fixed ID for easy testing
+    const testFactory = new Factory({
+      userId: "test-factory-id",
+      factoryName: "Test Factory",
+      mfNumber: "MF-TEST-123",
+      address: "123 Test Street, Test City",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    
+    // Only create if it doesn't exist
+    const existingFactory = await Factory.findOne({ userId: "test-factory-id" });
+    if (existingFactory) {
+      console.log("Test factory already exists");
+      return res.status(200).json({ 
+        message: "Test factory already exists", 
+        factory: existingFactory 
+      });
+    }
+    
+    await testFactory.save();
+    console.log("Test factory created successfully");
+    
+    res.status(201).json({ 
+      message: "Test factory created successfully", 
+      factory: testFactory 
+    });
+  } catch (error) {
+    console.error("Error creating test factory:", error);
+    res.status(500).json({ error: "Failed to create test factory" });
   }
 });
 

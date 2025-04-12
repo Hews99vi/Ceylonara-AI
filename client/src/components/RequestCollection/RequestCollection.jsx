@@ -1,218 +1,209 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import './requestCollection.css';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './requestStyle.css';
 
 const RequestCollection = () => {
   const [factories, setFactories] = useState([]);
-  const [selectedFactory, setSelectedFactory] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedFactoryId, setSelectedFactoryId] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
   const [quantity, setQuantity] = useState('');
   const [date, setDate] = useState('');
-  const [note, setNote] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const { getToken, user } = useAuth();
+  const { userId } = useAuth();
+  const navigate = useNavigate();
   
+  // Get the API URL from environment variables
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  
+  // Fetch factories when component mounts
   useEffect(() => {
     fetchFactories();
-    
-    // Set default date to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    setDate(tomorrow.toISOString().split('T')[0]);
   }, []);
   
   const fetchFactories = async () => {
     try {
       setIsLoading(true);
+      setError(null);
+      
+      console.log('Fetching factories from:', `${apiUrl}/api/factories`);
+      
+      // Get authentication token from Clerk
       const token = await getToken();
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/factories`, {
+      console.log('Auth token available:', !!token);
+      
+      // Include the token in the request
+      const response = await axios.get(`${apiUrl}/api/factories`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: token ? `Bearer ${token}` : '',
         }
       });
       
-      if (response.ok) {
-        const data = await response.json();
-        setFactories(data);
-        if (data.length > 0) {
-          setSelectedFactory(data[0].id);
-        }
+      console.log('Factories response:', response.data);
+      
+      if (response.data && Array.isArray(response.data)) {
+        setFactories(response.data);
+        console.log(`Successfully loaded ${response.data.length} factories`);
       } else {
-        console.error('Failed to fetch factories');
-        // Use dummy data for now
-        const dummyFactories = [
-          { id: '1', name: 'Athukorala Tea Factory' },
-          { id: '2', name: 'Nuwara Eliya Tea Factory' },
-          { id: '3', name: 'Dimbula Valley Tea' }
-        ];
-        setFactories(dummyFactories);
-        setSelectedFactory(dummyFactories[0].id);
+        console.error('Invalid response format from API:', response.data);
+        setError('Received invalid data from server');
       }
     } catch (error) {
       console.error('Error fetching factories:', error);
-      // Use dummy data on error
-      const dummyFactories = [
-        { id: '1', name: 'Athukorala Tea Factory' },
-        { id: '2', name: 'Nuwara Eliya Tea Factory' },
-        { id: '3', name: 'Dimbula Valley Tea' }
-      ];
-      setFactories(dummyFactories);
-      setSelectedFactory(dummyFactories[0].id);
+      setError(`Failed to load factories: ${error.response?.status === 401 ? 'Authentication required' : error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
   
+  // Helper function to get auth token
+  const getToken = async () => {
+    try {
+      return await window.Clerk.session.getToken();
+    } catch (error) {
+      console.error('Error getting auth token:', error);
+      return null;
+    }
+  };
+  
+  const handleFactorySelect = (e) => {
+    setSelectedFactoryId(e.target.value);
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (!selectedFactory || !quantity || !date) {
-      setErrorMessage('Please fill in all required fields');
-      setTimeout(() => setErrorMessage(''), 3000);
+    if (!selectedFactoryId || !selectedTime || !quantity || !date) {
+      setError('Please fill in all fields');
       return;
     }
     
-    setIsSubmitting(true);
-    setErrorMessage('');
-    setSuccessMessage('');
-    
     try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Find the selected factory to get its name
+      const selectedFactory = factories.find(factory => factory.id === selectedFactoryId);
+      const factoryName = selectedFactory ? selectedFactory.name : '';
+      
+      // Get authentication token
       const token = await getToken();
-      const selectedFactoryObj = factories.find(factory => factory.id === selectedFactory);
+      console.log('Auth token available for submission:', !!token);
       
-      const requestData = {
-        factoryId: selectedFactory,
-        factoryName: selectedFactoryObj.name,
-        quantity: parseFloat(quantity),
+      console.log('Submitting collection request:', {
+        factoryId: selectedFactoryId,
+        factoryName,
+        time: selectedTime,
+        quantity,
         date,
-        note,
-        farmerName: user?.fullName || 'Farmer',
-        farmerId: user?.id
-      };
-      
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/collection-requests`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(requestData)
+        farmerId: userId
       });
       
-      if (response.ok) {
-        setSuccessMessage('Collection request submitted successfully!');
-        // Reset form
-        setQuantity('');
-        setNote('');
-        
-        // Set date to tomorrow again
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        setDate(tomorrow.toISOString().split('T')[0]);
-      } else {
-        const errorData = await response.json();
-        setErrorMessage(errorData.error || 'Failed to submit request');
-      }
+      const response = await axios.post(
+        `${apiUrl}/api/collection-requests`, 
+        {
+          factoryId: selectedFactoryId,
+          factoryName,
+          time: selectedTime,
+          quantity,
+          date,
+          farmerId: userId
+        },
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      console.log('Request submitted successfully:', response.data);
+      alert('Collection request submitted successfully!');
+      navigate('/dashboard');
     } catch (error) {
       console.error('Error submitting collection request:', error);
-      setErrorMessage('An error occurred. Please try again later.');
+      setError(`Failed to submit request: ${error.response?.status === 401 ? 'Authentication required' : error.message}`);
     } finally {
-      setIsSubmitting(false);
-      
-      // Clear success message after 5 seconds
-      if (successMessage) {
-        setTimeout(() => setSuccessMessage(''), 5000);
-      }
+      setIsLoading(false);
     }
   };
   
   return (
-    <div className="requestCollection">
-      <h1>Request Tea Collection</h1>
-      <p className="subtitle">Submit a request for a factory to collect your tea leaves</p>
+    <div className="request-container">
+      <h2>Request Tea Collection</h2>
       
-      {isLoading ? (
-        <div className="loading">Loading...</div>
-      ) : (
-        <form onSubmit={handleSubmit} className="requestForm">
-          <div className="formGroup">
-            <label htmlFor="factory">Select Factory</label>
-            <select
-              id="factory"
-              value={selectedFactory}
-              onChange={(e) => setSelectedFactory(e.target.value)}
-              disabled={isSubmitting}
-              required
-            >
-              {factories.map(factory => (
-                <option key={factory.id} value={factory.id}>{factory.name}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="formGroup">
-            <label htmlFor="quantity">Quantity (kg)</label>
-            <input
-              id="quantity"
-              type="number"
-              min="1"
-              step="0.1"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder="Enter quantity in kilograms"
-              disabled={isSubmitting}
-              required
-            />
-          </div>
-          
-          <div className="formGroup">
-            <label htmlFor="date">Collection Date</label>
-            <input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              disabled={isSubmitting}
-              required
-            />
-          </div>
-          
-          <div className="formGroup">
-            <label htmlFor="note">Additional Notes (Optional)</label>
-            <textarea
-              id="note"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Any special instructions or information for collection"
-              disabled={isSubmitting}
-              rows="3"
-            ></textarea>
-          </div>
-          
-          {errorMessage && (
-            <div className="errorMessage">{errorMessage}</div>
-          )}
-          
-          {successMessage && (
-            <div className="successMessage">{successMessage}</div>
-          )}
-          
-          <button 
-            type="submit" 
-            className="submitButton"
-            disabled={isSubmitting}
+      {error && <div className="error-message">{error}</div>}
+      
+      {isLoading && <div className="loading">Loading factories...</div>}
+      
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="factory">Select Factory:</label>
+          <select 
+            id="factory" 
+            value={selectedFactoryId}
+            onChange={handleFactorySelect}
+            required
+            disabled={isLoading}
           >
-            {isSubmitting ? 'Submitting...' : 'Submit Request'}
-          </button>
-        </form>
-      )}
+            <option value="">-- Select a factory --</option>
+            {factories.map(factory => (
+              <option key={factory.id} value={factory.id}>
+                {factory.name} ({factory.mfNumber})
+              </option>
+            ))}
+          </select>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="time">Collection Time:</label>
+          <select 
+            id="time" 
+            value={selectedTime}
+            onChange={(e) => setSelectedTime(e.target.value)}
+            required
+          >
+            <option value="">Select a time</option>
+            <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
+            <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
+            <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
+          </select>
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="quantity">Quantity (kg):</label>
+          <input 
+            type="number"
+            id="quantity"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+            min="1"
+            required
+          />
+        </div>
+        
+        <div className="form-group">
+          <label htmlFor="date">Collection Date:</label>
+          <input 
+            type="date"
+            id="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            min={new Date().toISOString().split('T')[0]}
+            required
+          />
+        </div>
+        
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Processing...' : 'Submit Request'}
+        </button>
+      </form>
       
-      <div className="infoBox">
-        <h3>About Collection Requests</h3>
-        <p>Submit a collection request at least 24 hours in advance. Factories will review your request and confirm if they can collect on your requested date.</p>
-        <p>Make sure your tea leaves are properly prepared for collection. For quality tips, check out our guide on tea leaf preparation.</p>
+      <div className="back-link">
+        <Link to="/dashboard">Back to Dashboard</Link>
       </div>
     </div>
   );

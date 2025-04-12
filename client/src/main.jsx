@@ -84,7 +84,7 @@ const router = createBrowserRouter([
             element: <FactoryDashboard />,
           },
           {
-            path: "/dashboard/request-collection",
+            path: "/dashboard/collection-requests",
             element: <CollectionRequest />,
           },
           {

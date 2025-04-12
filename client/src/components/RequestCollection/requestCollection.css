@@ -125,4 +125,79 @@
 
 .infoBox p:last-child {
   margin-bottom: 0;
+}
+
+.formGroup select,
+.formGroup select.factorySelect {
+  width: 100% !important;
+  padding: 14px 12px !important;
+  border-radius: 5px !important;
+  border: 2px solid #ff9900 !important; /* Make border more visible for debugging */
+  background-color: #2d2d2d !important;
+  color: white !important;
+  font-size: 16px !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  min-height: 45px !important;
+}
+
+.formGroup select.factorySelect {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.formGroup select.factorySelect:hover {
+  border-color: #4CAF50;
+}
+
+.formGroup select.factorySelect:focus {
+  outline: none;
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.formGroup select.factorySelect option {
+  background-color: #2d2d2d;
+  color: white;
+  padding: 10px;
+}
+
+.noFactories {
+  padding: 12px;
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px solid #ff6b6b;
+  border-radius: 5px;
+  color: #ff6b6b;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 5px;
+}
+
+/* Development button styling */
+.devButton {
+  margin-top: 20px;
+  padding: 10px 15px;
+  background-color: #ff9900;
+  color: black;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+  max-width: 300px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.devButton:hover {
+  background-color: #ffaa33;
 } 

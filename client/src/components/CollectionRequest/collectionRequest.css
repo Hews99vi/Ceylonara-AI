@@ -68,3 +68,213 @@ button[type="submit"]:hover {
     margin: 15px;
   }
 }
+
+.collection-requests-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 15px;
+}
+
+.collection-requests-container h2 {
+  color: #ececec;
+  margin-bottom: 20px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.error-message {
+  background-color: rgba(198, 40, 40, 0.2);
+  color: #ff8a80;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border-left: 4px solid #c62828;
+}
+
+.loading {
+  padding: 10px;
+  background-color: rgba(46, 125, 50, 0.2);
+  color: #a5d6a7;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.no-requests {
+  padding: 20px;
+  background-color: rgba(66, 66, 66, 0.3);
+  border-radius: 4px;
+  text-align: center;
+  color: #bdbdbd;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.requests-table-container {
+  overflow-x: auto;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  background-color: rgba(44, 41, 55, 0.5);
+}
+
+.requests-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: transparent;
+}
+
+.requests-table th {
+  background-color: rgba(46, 125, 50, 0.7);
+  color: white;
+  padding: 12px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.requests-table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ececec;
+}
+
+.requests-table tr:last-child td {
+  border-bottom: none;
+}
+
+.requests-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Status row colors */
+.status-pending {
+  background-color: rgba(255, 253, 231, 0.1);
+}
+
+.status-approved {
+  background-color: rgba(232, 245, 233, 0.1);
+}
+
+.status-rejected {
+  background-color: rgba(255, 235, 238, 0.1);
+}
+
+.status-completed {
+  background-color: rgba(232, 244, 253, 0.1);
+}
+
+/* Status badges */
+.status-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background-color: #fff59d;
+  color: #f57f17;
+}
+
+.status-badge.approved {
+  background-color: #a5d6a7;
+  color: #1b5e20;
+}
+
+.status-badge.rejected {
+  background-color: #ef9a9a;
+  color: #b71c1c;
+}
+
+.status-badge.completed {
+  background-color: #90caf9;
+  color: #0d47a1;
+}
+
+/* Action buttons */
+.actions {
+  white-space: nowrap;
+}
+
+.refresh-btn {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 20px;
+  background-color: #23ce7e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background-color: #1fa167;
+}
+
+.refresh-btn:disabled {
+  background-color: rgba(158, 158, 158, 0.5);
+  cursor: not-allowed;
+}
+
+.approve-btn, .reject-btn, .complete-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  margin-right: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.approve-btn {
+  background-color: #23ce7e;
+  color: white;
+}
+
+.approve-btn:hover {
+  background-color: #1fa167;
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.reject-btn:hover {
+  background-color: #d32f2f;
+}
+
+.complete-btn {
+  background-color: #2196f3;
+  color: white;
+}
+
+.complete-btn:hover {
+  background-color: #1976d2;
+}
+
+@media (max-width: 768px) {
+  .requests-table th, 
+  .requests-table td {
+    padding: 8px;
+    font-size: 14px;
+  }
+  
+  .status-badge {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .approve-btn, .reject-btn, .complete-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+    margin-right: 2px;
+  }
+}
