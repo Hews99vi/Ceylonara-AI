@@ -1,0 +1,42 @@
+.location-viewer {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.location-viewer .map-container {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.location-address {
+  background-color: rgba(44, 41, 55, 0.5);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 5px;
+  color: #ececec;
+  font-size: 0.9em;
+}
+
+.location-not-available {
+  padding: 10px;
+  background-color: rgba(44, 41, 55, 0.5);
+  border-radius: 8px;
+  color: #aaa;
+  text-align: center;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-map {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(44, 41, 55, 0.5);
+  border-radius: 8px;
+  color: #ececec;
+} 

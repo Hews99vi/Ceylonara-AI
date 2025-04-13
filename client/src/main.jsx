@@ -20,9 +20,11 @@ import RoleSelection from "./components/RoleSelection/RoleSelection";
 import AnnouncementPage from "./components/AnnouncementPage/AnnouncementPage";
 import TeaPricesPage from "./components/TeaPricesPage/TeaPricesPage";
 import FactoryRegistration from "./components/FactoryRegistration/FactoryRegistration";
+import FarmerRegistration from "./components/FarmerRegistration/FarmerRegistration";
 import AnnouncementsPage from "./components/AnnouncementsPage/AnnouncementsPage";
 import RequestCollection from "./components/RequestCollection/RequestCollection";
 import SetTeaPricePage from "./components/SetTeaPricePage/SetTeaPricePage";
+import FarmerRequests from "./components/FarmerRequests/FarmerRequests";
 
 const router = createBrowserRouter([
   {
@@ -55,6 +57,10 @@ const router = createBrowserRouter([
       {
         path: "/register-factory",
         element: <FactoryRegistration />,
+      },
+      {
+        path: "/register-farmer",
+        element: <FarmerRegistration />,
       },
       {
         element: <DashboardLayout />,
@@ -110,6 +116,10 @@ const router = createBrowserRouter([
           {
             path: "/dashboard/request-collection",
             element: <RequestCollection />,
+          },
+          {
+            path: "/dashboard/my-collection-requests",
+            element: <FarmerRequests />,
           },
         ],
       },

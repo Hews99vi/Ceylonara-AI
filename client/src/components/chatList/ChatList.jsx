@@ -112,6 +112,7 @@ const ChatList = () => {
           <Link to="/dashboard/tea-prices" className="navLink">Monthly Tea Leaves Prices</Link>
           <Link to="/dashboard/announcements" className="navLink">Announcements</Link>
           <Link to="/dashboard/request-collection" className="navLink">Request to Collect</Link>
+          <Link to="/dashboard/my-collection-requests" className="navLink">My Collection Requests</Link>
         </>
       )}
       

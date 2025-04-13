@@ -57,8 +57,11 @@ const RoleSelection = () => {
       if (selectedRole === 'factory') {
         console.log("Redirecting to factory registration...");
         navigate('/register-factory');
+      } else if (selectedRole === 'farmer') {
+        console.log("Redirecting to farmer registration...");
+        navigate('/register-farmer');
       } else {
-        console.log("Redirecting to farmer dashboard...");
+        console.log("Redirecting to dashboard...");
         navigate('/dashboard');
       }
       

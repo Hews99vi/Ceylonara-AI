@@ -112,57 +112,120 @@ button[type="submit"]:hover {
   margin-bottom: 20px;
 }
 
-.requests-table-container {
-  overflow-x: auto;
+/* Requests list - card view */
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
+}
+
+.request-card {
   background-color: rgba(44, 41, 55, 0.5);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-.requests-table {
-  width: 100%;
-  border-collapse: collapse;
-  background-color: transparent;
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.requests-table th {
-  background-color: rgba(46, 125, 50, 0.7);
-  color: white;
-  padding: 12px;
-  text-align: left;
-  font-weight: bold;
-}
-
-.requests-table td {
-  padding: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ececec;
-}
-
-.requests-table tr:last-child td {
-  border-bottom: none;
-}
-
-.requests-table tr:hover {
+.request-header:hover {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-/* Status row colors */
-.status-pending {
-  background-color: rgba(255, 253, 231, 0.1);
+.request-summary {
+  flex: 1;
 }
 
-.status-approved {
-  background-color: rgba(232, 245, 233, 0.1);
+.request-summary h3 {
+  margin: 0;
+  color: #ececec;
+  font-size: 18px;
 }
 
-.status-rejected {
-  background-color: rgba(255, 235, 238, 0.1);
+.nic-number {
+  font-size: 14px;
+  color: #bdbdbd;
+  font-weight: normal;
 }
 
-.status-completed {
-  background-color: rgba(232, 244, 253, 0.1);
+.request-details {
+  display: flex;
+  gap: 15px;
+  margin-top: 5px;
+  color: #bdbdbd;
+  font-size: 14px;
+}
+
+.request-status {
+  margin: 0 15px;
+}
+
+.expand-icon {
+  color: #bdbdbd;
+  font-size: 14px;
+}
+
+.request-expanded {
+  padding: 0 15px 15px 15px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.request-location, .request-note {
+  margin-bottom: 15px;
+}
+
+.request-location h4, .request-note h4 {
+  color: #a5d6a7;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.no-location {
+  color: #bdbdbd;
+  font-style: italic;
+  text-align: center;
+  padding: 15px;
+  background-color: rgba(44, 41, 55, 0.3);
+  border-radius: 4px;
+}
+
+.request-note p {
+  color: #ececec;
+  background-color: rgba(44, 41, 55, 0.3);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.request-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+/* Status colors */
+.request-card.status-pending {
+  border-left: 4px solid #fff59d;
+}
+
+.request-card.status-approved {
+  border-left: 4px solid #a5d6a7;
+}
+
+.request-card.status-rejected {
+  border-left: 4px solid #ef9a9a;
+}
+
+.request-card.status-completed {
+  border-left: 4px solid #90caf9;
 }
 
 /* Status badges */
@@ -196,50 +259,23 @@ button[type="submit"]:hover {
 }
 
 /* Action buttons */
-.actions {
-  white-space: nowrap;
-}
-
-.refresh-btn {
-  display: block;
-  margin: 0 auto;
-  padding: 10px 20px;
-  background-color: #23ce7e;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: all 0.3s ease;
-}
-
-.refresh-btn:hover {
-  background-color: #1fa167;
-}
-
-.refresh-btn:disabled {
-  background-color: rgba(158, 158, 158, 0.5);
-  cursor: not-allowed;
-}
-
 .approve-btn, .reject-btn, .complete-btn {
-  padding: 6px 12px;
+  padding: 8px 15px;
   border: none;
   border-radius: 4px;
-  margin-right: 5px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  font-weight: bold;
-  font-size: 12px;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s;
 }
 
 .approve-btn {
-  background-color: #23ce7e;
+  background-color: #4caf50;
   color: white;
 }
 
 .approve-btn:hover {
-  background-color: #1fa167;
+  background-color: #43a047;
 }
 
 .reject-btn {
@@ -248,7 +284,7 @@ button[type="submit"]:hover {
 }
 
 .reject-btn:hover {
-  background-color: #d32f2f;
+  background-color: #e53935;
 }
 
 .complete-btn {
@@ -257,24 +293,27 @@ button[type="submit"]:hover {
 }
 
 .complete-btn:hover {
-  background-color: #1976d2;
+  background-color: #1e88e5;
 }
 
-@media (max-width: 768px) {
-  .requests-table th, 
-  .requests-table td {
-    padding: 8px;
-    font-size: 14px;
-  }
-  
-  .status-badge {
-    padding: 4px 8px;
-    font-size: 11px;
-  }
-  
-  .approve-btn, .reject-btn, .complete-btn {
-    padding: 4px 8px;
-    font-size: 11px;
-    margin-right: 2px;
-  }
+.refresh-btn {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 20px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.refresh-btn:hover {
+  background-color: #45a049;
+}
+
+.refresh-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
 }

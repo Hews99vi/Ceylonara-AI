@@ -14,6 +14,9 @@ import HarvestData from "./models/harvestData.js";
 // Import the Factory model
 import Factory from './models/factory.js';
 
+// Import the Farmer model
+import Farmer from './models/farmer.js';
+
 // Create a new Price model for storing tea prices
 const priceSchema = new mongoose.Schema({
   factoryId: {
@@ -80,6 +83,10 @@ const collectionRequestSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  nicNumber: {
+    type: String,
+    required: true
+  },
   quantity: {
     type: Number,
     required: true
@@ -88,12 +95,26 @@ const collectionRequestSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  time: {
+    type: String
+  },
   note: {
     type: String
   },
+  location: {
+    lat: {
+      type: Number
+    },
+    lng: {
+      type: Number
+    },
+    address: {
+      type: String
+    }
+  },
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'declined'],
+    enum: ['pending', 'approved', 'rejected', 'completed'],
     default: 'pending'
   },
   createdAt: {
@@ -859,7 +880,7 @@ app.get("/api/announcements", async (req, res) => {
 app.post("/api/collection-requests", async (req, res) => {
   try {
     const farmerId = req.auth.userId;
-    const { factoryId, factoryName, quantity, date, note, farmerName } = req.body;
+    const { factoryId, factoryName, quantity, date, note, farmerName, nicNumber, time, location } = req.body;
     
     console.log('Collection request data received:', req.body);
     
@@ -873,9 +894,12 @@ app.post("/api/collection-requests", async (req, res) => {
       factoryName,
       farmerId,
       farmerName: farmerName || 'Farmer',
+      nicNumber: nicNumber || 'N/A',
       quantity,
       date,
+      time: time || '',
       note: note || '',
+      location: location || {},
       status: 'pending'
     });
     
@@ -918,8 +942,8 @@ app.put("/api/factory/requests/:requestId", async (req, res) => {
     const { requestId } = req.params;
     const { status } = req.body;
     
-    if (!status || !['accepted', 'declined'].includes(status)) {
-      return res.status(400).json({ error: "Invalid status. Must be 'accepted' or 'declined'" });
+    if (!status || !['approved', 'rejected', 'completed'].includes(status)) {
+      return res.status(400).json({ error: "Invalid status. Must be 'approved', 'rejected', or 'completed'" });
     }
     
     // Find the request and make sure it belongs to this factory
@@ -1056,6 +1080,90 @@ app.post("/api/dev/create-test-factory", async (req, res) => {
   } catch (error) {
     console.error("Error creating test factory:", error);
     res.status(500).json({ error: "Failed to create test factory" });
+  }
+});
+
+// Farmer endpoints
+
+// Register a new farmer
+app.post("/api/farmer/register", async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { farmerName, nicNumber, address } = req.body;
+    
+    // Validate required fields
+    if (!farmerName || !nicNumber || !address) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    
+    // Check if user already has a registered farmer
+    const existingFarmer = await Farmer.findOne({ userId });
+    
+    if (existingFarmer) {
+      // Update existing farmer
+      existingFarmer.farmerName = farmerName;
+      existingFarmer.nicNumber = nicNumber;
+      existingFarmer.address = address;
+      existingFarmer.updatedAt = new Date();
+      
+      await existingFarmer.save();
+      return res.status(200).json(existingFarmer);
+    }
+    
+    // Create new farmer
+    const farmer = new Farmer({
+      userId,
+      farmerName,
+      nicNumber,
+      address
+    });
+    
+    await farmer.save();
+    console.log(`Farmer registered for user ${userId}: ${farmerName}`);
+    
+    res.status(201).json(farmer);
+  } catch (error) {
+    console.error("Error registering farmer:", error);
+    res.status(500).json({ error: "Failed to register farmer" });
+  }
+});
+
+// Get farmer profile
+app.get("/api/farmer/profile", async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    
+    const farmer = await Farmer.findOne({ userId });
+    
+    if (!farmer) {
+      return res.status(404).json({ error: "Farmer not found" });
+    }
+    
+    res.status(200).json(farmer);
+  } catch (error) {
+    console.error("Error fetching farmer profile:", error);
+    res.status(500).json({ error: "Failed to fetch farmer profile" });
+  }
+});
+
+// Get farmer's collection requests
+app.get("/api/farmer/collection-requests", async (req, res) => {
+  try {
+    const farmerId = req.auth.userId;
+    
+    console.log(`Fetching collection requests for farmer: ${farmerId}`);
+    
+    // Find all requests for this farmer
+    const requests = await CollectionRequest.find({ 
+      farmerId: farmerId 
+    }).sort({ date: 1 }); // Sort by date, earliest first
+    
+    console.log(`Found ${requests.length} collection requests for farmer`);
+    
+    res.status(200).json(requests);
+  } catch (error) {
+    console.error("Error fetching farmer's requests:", error);
+    res.status(500).json({ error: "Failed to fetch requests" });
   }
 });
 

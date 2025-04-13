@@ -4,6 +4,7 @@ import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './requestStyle.css';
+import LocationPicker from '../LocationPicker/LocationPicker';
 
 const RequestCollection = () => {
   const [factories, setFactories] = useState([]);
@@ -13,6 +14,7 @@ const RequestCollection = () => {
   const [selectedTime, setSelectedTime] = useState('');
   const [quantity, setQuantity] = useState('');
   const [date, setDate] = useState('');
+  const [location, setLocation] = useState(null);
   const { userId } = useAuth();
   const navigate = useNavigate();
   
@@ -73,11 +75,21 @@ const RequestCollection = () => {
     setSelectedFactoryId(e.target.value);
   };
   
+  const handleLocationSelect = (selectedLocation) => {
+    setLocation(selectedLocation);
+    console.log('Selected location:', selectedLocation);
+  };
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!selectedFactoryId || !selectedTime || !quantity || !date) {
-      setError('Please fill in all fields');
+      setError('Please fill in all required fields');
+      return;
+    }
+    
+    if (!location || (!location.lat && !location.lng)) {
+      setError('Please select a collection location on the map');
       return;
     }
     
@@ -93,13 +105,33 @@ const RequestCollection = () => {
       const token = await getToken();
       console.log('Auth token available for submission:', !!token);
       
+      // Fetch farmer profile to get name and NIC number
+      const farmerProfileResponse = await axios.get(
+        `${apiUrl}/api/farmer/profile`,
+        {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : '',
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      
+      const farmerProfile = farmerProfileResponse.data;
+      const farmerName = farmerProfile.farmerName || 'Unknown Farmer';
+      const nicNumber = farmerProfile.nicNumber || 'N/A';
+      
+      console.log('Farmer profile retrieved:', farmerProfile);
+      
       console.log('Submitting collection request:', {
         factoryId: selectedFactoryId,
         factoryName,
         time: selectedTime,
         quantity,
         date,
-        farmerId: userId
+        farmerId: userId,
+        farmerName,
+        nicNumber,
+        location
       });
       
       const response = await axios.post(
@@ -110,7 +142,10 @@ const RequestCollection = () => {
           time: selectedTime,
           quantity,
           date,
-          farmerId: userId
+          farmerId: userId,
+          farmerName,
+          nicNumber,
+          location
         },
         {
           headers: {
@@ -196,6 +231,8 @@ const RequestCollection = () => {
             required
           />
         </div>
+        
+        <LocationPicker onLocationSelect={handleLocationSelect} />
         
         <button type="submit" disabled={isLoading}>
           {isLoading ? 'Processing...' : 'Submit Request'}
