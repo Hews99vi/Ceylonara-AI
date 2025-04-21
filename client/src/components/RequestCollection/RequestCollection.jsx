@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -17,9 +17,13 @@ const RequestCollection = () => {
   const [location, setLocation] = useState(null);
   const { userId } = useAuth();
   const navigate = useNavigate();
+  const location_url = useLocation();
   
   // Get the API URL from environment variables
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+  
+  // Get today's date for min attribute
+  const today = new Date().toISOString().split('T')[0];
   
   // Fetch factories when component mounts
   useEffect(() => {
@@ -49,6 +53,26 @@ const RequestCollection = () => {
       if (response.data && Array.isArray(response.data)) {
         setFactories(response.data);
         console.log(`Successfully loaded ${response.data.length} factories`);
+        
+        // Check if a factory was specified in the URL query parameters
+        const params = new URLSearchParams(location_url.search);
+        const factoryNameFromURL = params.get('factory');
+        
+        if (factoryNameFromURL) {
+          console.log('Factory specified in URL:', factoryNameFromURL);
+          
+          // Find the factory with the matching name
+          const matchingFactory = response.data.find(
+            factory => factory.name === factoryNameFromURL
+          );
+          
+          if (matchingFactory) {
+            console.log('Found matching factory:', matchingFactory);
+            setSelectedFactoryId(matchingFactory.id);
+          } else {
+            console.log('No matching factory found for:', factoryNameFromURL);
+          }
+        }
       } else {
         console.error('Invalid response format from API:', response.data);
         setError('Received invalid data from server');
@@ -172,75 +196,81 @@ const RequestCollection = () => {
       
       {error && <div className="error-message">{error}</div>}
       
-      {isLoading && <div className="loading">Loading factories...</div>}
-      
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="factory">Select Factory:</label>
-          <select 
-            id="factory" 
-            value={selectedFactoryId}
-            onChange={handleFactorySelect}
-            required
-            disabled={isLoading}
-          >
-            <option value="">-- Select a factory --</option>
-            {factories.map(factory => (
-              <option key={factory.id} value={factory.id}>
-                {factory.name} ({factory.mfNumber})
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="time">Collection Time:</label>
-          <select 
-            id="time" 
-            value={selectedTime}
-            onChange={(e) => setSelectedTime(e.target.value)}
-            required
-          >
-            <option value="">Select a time</option>
-            <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
-            <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
-            <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
-          </select>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="quantity">Quantity (kg):</label>
-          <input 
-            type="number"
-            id="quantity"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            min="1"
-            required
-          />
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="date">Collection Date:</label>
-          <input 
-            type="date"
-            id="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            min={new Date().toISOString().split('T')[0]}
-            required
-          />
-        </div>
-        
-        <LocationPicker onLocationSelect={handleLocationSelect} />
-        
-        <button type="submit" disabled={isLoading}>
-          {isLoading ? 'Processing...' : 'Submit Request'}
-        </button>
-      </form>
+      {isLoading ? (
+        <div className="loading">Loading factories and preparing form...</div>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="factory">Select Factory:</label>
+            <select 
+              id="factory" 
+              value={selectedFactoryId}
+              onChange={handleFactorySelect}
+              required
+              disabled={isLoading}
+            >
+              <option value="">-- Select a factory --</option>
+              {factories.map(factory => (
+                <option key={factory.id} value={factory.id}>
+                  {factory.name} ({factory.mfNumber || 'No MF Number'})
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="time">Collection Time:</label>
+            <select 
+              id="time" 
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
+              required
+            >
+              <option value="">-- Select a time --</option>
+              <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
+              <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
+              <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
+            </select>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="quantity">Quantity (kg):</label>
+            <input 
+              type="number"
+              id="quantity"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              min="1"
+              placeholder="Enter quantity in kilograms"
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="date">Collection Date:</label>
+            <input 
+              type="date"
+              id="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              min={today}
+              required
+            />
+          </div>
+          
+          <div className="location-title">Select Collection Location:</div>
+          <div className="map-container">
+            <LocationPicker onLocationSelect={handleLocationSelect} />
+          </div>
+          
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? 'Processing...' : 'Submit Collection Request'}
+          </button>
+        </form>
+      )}
       
       <div className="back-link">
-        <Link to="/dashboard">Back to Dashboard</Link>
+        <Link to="/dashboard">← Back to Dashboard</Link>
       </div>
     </div>
   );

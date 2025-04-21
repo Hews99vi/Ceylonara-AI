@@ -1,0 +1,88 @@
+.admin-tea-prices-page {
+  padding: 20px;
+  background-color: #121212;
+  min-height: 100vh;
+  color: #f5f5f5;
+}
+
+.admin-header {
+  margin-bottom: 30px;
+}
+
+.admin-header h1 {
+  font-size: 28px;
+  color: #4CAF50;
+  margin-bottom: 10px;
+}
+
+.admin-header .subtitle {
+  font-size: 16px;
+  color: #b0b0b0;
+}
+
+.admin-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 992px) {
+  .admin-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.info-panel {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 20px;
+  color: #f5f5f5;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.info-panel h3 {
+  color: #4CAF50;
+  margin-top: 0;
+  font-size: 20px;
+  margin-bottom: 15px;
+}
+
+.info-panel p {
+  margin-bottom: 15px;
+  line-height: 1.5;
+  color: #d0d0d0;
+}
+
+.info-panel h4 {
+  color: #f5f5f5;
+  margin: 20px 0 10px;
+  font-size: 16px;
+}
+
+.info-panel ul {
+  margin: 0 0 20px;
+  padding-left: 20px;
+}
+
+.info-panel li {
+  margin-bottom: 8px;
+  line-height: 1.4;
+  color: #d0d0d0;
+}
+
+.info-panel .note {
+  background-color: rgba(76, 175, 80, 0.1);
+  padding: 10px 15px;
+  border-left: 3px solid #4CAF50;
+  font-size: 14px;
+  margin-top: 20px;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  color: #b0b0b0;
+  font-size: 18px;
+} 

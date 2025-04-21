@@ -1,77 +1,175 @@
 .announcementsPage {
-  padding: 20px;
+  padding: 24px;
   color: white;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .announcementsPage h1 {
   margin-bottom: 10px;
   color: #4CAF50;
+  font-size: 2.2rem;
+  letter-spacing: -0.5px;
 }
 
 .subtitle {
-  font-size: 16px;
-  margin-bottom: 30px;
+  font-size: 1rem;
+  margin-bottom: 36px;
   color: #b0b0b0;
+  font-weight: 300;
 }
 
 .loading, .noAnnouncements {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
+  height: 240px;
   font-size: 18px;
   color: #b0b0b0;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
 }
 
 .announcementsContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 30px;
+  margin-bottom: 40px;
 }
 
+/* Full-width image container for better display */
+.hasImage {
+  grid-column: span 1;
+}
+
+/* Make cards with square images larger for better visibility */
+@media (min-width: 992px) {
+  .squareImage {
+    grid-column: span 1;
+  }
+}
+
+/* Image container with better proportions for square images */
+.hasImage .announcementImage {
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  order: -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.hasImage .announcementImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.hasImage .announcementContent {
+  width: 100%;
+}
+
+/* Card styles for announcements */
 .announcementCard {
   background-color: #1e1e1e;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-  border-left: 4px solid #4CAF50;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+  min-height: 250px;
+  height: 100%;
+  margin-bottom: 0;
+}
+
+.announcementCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
 }
 
 .announcementHeader {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+  align-items: flex-start;
+  margin-bottom: 12px;
 }
 
 .announcementHeader h2 {
   margin: 0;
   font-size: 18px;
   color: white;
+  font-weight: 600;
 }
 
 .announcementDate {
   font-size: 14px;
   color: #b0b0b0;
-}
-
-.announcementContent {
-  font-size: 16px;
-  line-height: 1.5;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4px 10px;
+  border-radius: 12px;
+  align-self: flex-start;
+  margin-top: 12px;
 }
 
 .announcementContent p {
-  margin-top: 0;
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  max-height: 120px;
+  overflow-y: auto;
 }
 
-.announcementImage {
-  margin-top: 15px;
-  border-radius: 8px;
-  overflow: hidden;
+/* Style for cards without images */
+.noImage {
+  border-left: 4px solid #4CAF50;
 }
 
-.announcementImage img {
-  width: 100%;
-  max-height: 300px;
-  object-fit: cover;
+.noImage .announcementContent {
+  padding-top: 24px;
+}
+
+.factoryBadge {
+  display: inline-block;
+  background: #4CAF50;
+  color: white;
+  font-size: 14px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .announcementsContainer {
+    grid-template-columns: 1fr;
+  }
+  
+  .announcementCard {
+    max-width: 100%;
+  }
+  
+  .hasImage .announcementImage {
+    aspect-ratio: 1;
+    max-height: none;
+  }
+}
+
+.hasImage:hover .announcementImage img {
+  transform: scale(1.05);
+}
+
+.announcementContent {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
 } 

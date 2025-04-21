@@ -19,12 +19,14 @@ import CollectionRequest from "./components/CollectionRequest/CollectionRequest"
 import RoleSelection from "./components/RoleSelection/RoleSelection";
 import AnnouncementPage from "./components/AnnouncementPage/AnnouncementPage";
 import TeaPricesPage from "./components/TeaPricesPage/TeaPricesPage";
+import TeaPricesList from "./components/TeaPricesList/TeaPricesList";
 import FactoryRegistration from "./components/FactoryRegistration/FactoryRegistration";
 import FarmerRegistration from "./components/FarmerRegistration/FarmerRegistration";
 import AnnouncementsPage from "./components/AnnouncementsPage/AnnouncementsPage";
 import RequestCollection from "./components/RequestCollection/RequestCollection";
 import SetTeaPricePage from "./components/SetTeaPricePage/SetTeaPricePage";
 import FarmerRequests from "./components/FarmerRequests/FarmerRequests";
+import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 
 const router = createBrowserRouter([
   {
@@ -70,6 +72,10 @@ const router = createBrowserRouter([
             element: <DashboardPage />,
           },
           {
+            path: "/dashboard/admin",
+            element: <AdminDashboard />,
+          },
+          {
             path: "/dashboard/manage-state",
             element: <ManageStatePage />,
           },
@@ -107,7 +113,7 @@ const router = createBrowserRouter([
           },
           {
             path: "/dashboard/tea-prices",
-            element: <TeaPricesPage />,
+            element: <TeaPricesList />,
           },
           {
             path: "/dashboard/announcements",

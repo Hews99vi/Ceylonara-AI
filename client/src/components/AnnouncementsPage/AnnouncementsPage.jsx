@@ -33,7 +33,14 @@ const AnnouncementsPage = () => {
       
       if (response.ok) {
         const data = await response.json();
-        console.log('Announcements received:', data);
+        console.log('Announcements received:', data.map(a => ({
+          _id: a._id,
+          factoryName: a.factoryName,
+          message: a.message?.substring(0, 30) || a.announcement?.substring(0, 30),
+          hasImage: !!a.image,
+          imageLength: a.image ? a.image.length : 0,
+          date: a.date
+        })));
         console.log('Number of announcements received:', data.length);
         
         // Only use dummy data if no announcements were found
@@ -147,22 +154,41 @@ const AnnouncementsPage = () => {
         <div className="noAnnouncements">No announcements at this time</div>
       ) : (
         <div className="announcementsContainer">
-          {announcements.map((announcement, index) => (
-            <div key={index} className="announcementCard">
-              <div className="announcementHeader">
-                <h2>{announcement.factoryName}</h2>
-                <div className="announcementDate">{formatDate(announcement.date)}</div>
-              </div>
-              <div className="announcementContent">
-                <p>{announcement.message || announcement.announcement}</p>
-                {announcement.image && (
+          {announcements.map((announcement, index) => {
+            // Ensure image URL is valid
+            const hasValidImage = announcement.image && 
+              (announcement.image.startsWith('data:image/') || 
+               announcement.image.startsWith('http'));
+            
+            // Determine card class based on whether it has an image
+            const cardClassName = `announcementCard ${hasValidImage ? 'hasImage' : 'noImage'}`;
+               
+            return (
+              <div key={index} className={cardClassName}>
+                {hasValidImage && (
                   <div className="announcementImage">
-                    <img src={announcement.image} alt="Announcement" />
+                    <img 
+                      src={announcement.image} 
+                      alt={`${announcement.factoryName} announcement`}
+                      onError={(e) => {
+                        console.error(`Error loading image for announcement ${index}`);
+                        e.target.style.display = 'none';
+                        e.target.parentElement.style.display = 'none';
+                      }}
+                    />
                   </div>
                 )}
+                
+                <div className="announcementContent">
+                  <div>
+                    <span className="factoryBadge">{announcement.factoryName}</span>
+                    <p>{announcement.message || announcement.announcement}</p>
+                  </div>
+                  <span className="announcementDate">{formatDate(announcement.date)}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

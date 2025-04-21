@@ -12,6 +12,12 @@ const AnnouncementPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [factoryName, setFactoryName] = useState('');
   const { userId, getToken } = useAuth();
+  
+  // Add states for editing functionality
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [deleteSuccess, setDeleteSuccess] = useState(false);
+  const [updateSuccess, setUpdateSuccess] = useState(false);
 
   useEffect(() => {
     fetchFactoryData();
@@ -59,11 +65,13 @@ const AnnouncementPage = () => {
         // Use dummy data if needed
         setPreviousAnnouncements([
           { 
+            _id: 'dummy1',
             message: 'We are increasing our tea leaf collection capacity this month.', 
             date: new Date().toISOString(),
             image: null
           },
           { 
+            _id: 'dummy2',
             message: 'Factory will be closed for maintenance on November 20-21.', 
             date: new Date(Date.now() - 86400000 * 3).toISOString(),
             image: null
@@ -95,6 +103,57 @@ const AnnouncementPage = () => {
     setImagePreview(null);
   };
 
+  // Add function to handle editing an announcement
+  const handleEditAnnouncement = (item) => {
+    setIsEditing(true);
+    setEditingId(item._id);
+    setAnnouncement(item.message || item.announcement);
+    setImagePreview(item.image);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Add function to handle deleting an announcement
+  const handleDeleteAnnouncement = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this announcement?')) {
+      return;
+    }
+    
+    try {
+      setIsPosting(true);
+      const token = await getToken();
+      
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/factory/announcement/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        console.log('Announcement deleted successfully');
+        setDeleteSuccess(true);
+        
+        // Remove the deleted announcement from the list
+        setPreviousAnnouncements(previousAnnouncements.filter(item => item._id !== id));
+        
+        // Clear delete success message after 3 seconds
+        setTimeout(() => {
+          setDeleteSuccess(false);
+        }, 3000);
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to delete announcement:', errorText);
+        throw new Error(`Failed to delete announcement: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('Error deleting announcement:', error);
+      alert('Failed to delete announcement. Please try again.');
+    } finally {
+      setIsPosting(false);
+    }
+  };
+
+  // Modify the announcement submit function to handle updates
   const handleAnnouncementSubmit = async (e) => {
     e.preventDefault();
     
@@ -105,23 +164,35 @@ const AnnouncementPage = () => {
     
     setIsPosting(true);
     setPostSuccess(false);
+    setUpdateSuccess(false);
     
     try {
       const token = await getToken();
       
-      // Simplified announcement data - only send essential fields
+      // Create announcement data with image if available
       const announcementData = {
         announcement: announcement.trim(),
         factoryName: factoryName,
+        image: imagePreview // Include the image data URL directly
       };
       
       console.log('Sending announcement data:', { 
-        ...announcementData, 
-        announcement: announcementData.announcement.substring(0, 30) + '...'
+        announcement: announcementData.announcement.substring(0, 30) + '...',
+        factoryName: announcementData.factoryName,
+        hasImage: !!imagePreview
       });
       
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/factory/announcement`, {
-        method: 'POST',
+      let url = `${import.meta.env.VITE_API_URL}/api/factory/announcement`;
+      let method = 'POST';
+      
+      // If editing, use PUT method and add ID to URL
+      if (isEditing && editingId) {
+        url = `${url}/${editingId}`;
+        method = 'PUT';
+      }
+      
+      const response = await fetch(url, {
+        method: method,
         headers: { 
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -129,44 +200,56 @@ const AnnouncementPage = () => {
         body: JSON.stringify(announcementData)
       });
       
-      console.log('Announcement post response status:', response.status);
+      console.log('Announcement response status:', response.status);
       
       if (response.ok) {
         const responseData = await response.json();
-        console.log('Announcement posted successfully:', responseData);
+        console.log('Announcement operation successful:', responseData);
         
         setAnnouncement('');
         setImage(null);
         setImagePreview(null);
-        setPostSuccess(true);
         
-        // Add the new announcement to our list (optimistic update)
-        const newAnnouncement = {
-          message: announcement,
-          date: new Date().toISOString(),
-          factoryName: factoryName
-        };
+        if (isEditing) {
+          setUpdateSuccess(true);
+          setIsEditing(false);
+          setEditingId(null);
+          
+          // Clear update success message after 3 seconds
+          setTimeout(() => {
+            setUpdateSuccess(false);
+          }, 3000);
+        } else {
+          setPostSuccess(true);
+          
+          // Clear success message after 3 seconds
+          setTimeout(() => {
+            setPostSuccess(false);
+          }, 3000);
+        }
         
-        setPreviousAnnouncements([newAnnouncement, ...previousAnnouncements]);
-        
-        // Clear success message after 3 seconds
-        setTimeout(() => {
-          setPostSuccess(false);
-        }, 3000);
-        
-        // Refresh announcements list to show the new one
+        // Refresh announcements list to show the updated list
         fetchPreviousAnnouncements();
       } else {
         const errorText = await response.text();
-        console.error('Failed to post announcement:', errorText);
-        throw new Error(`Failed to post announcement: ${errorText}`);
+        console.error(`Failed to ${isEditing ? 'update' : 'post'} announcement:`, errorText);
+        throw new Error(`Failed to ${isEditing ? 'update' : 'post'} announcement: ${errorText}`);
       }
     } catch (error) {
-      console.error('Error posting announcement:', error);
-      alert('Failed to post announcement. Please try again.');
+      console.error(`Error ${isEditing ? 'updating' : 'posting'} announcement:`, error);
+      alert(`Failed to ${isEditing ? 'update' : 'post'} announcement. Please try again.`);
     } finally {
       setIsPosting(false);
     }
+  };
+
+  // Add function to cancel editing
+  const cancelEditing = () => {
+    setIsEditing(false);
+    setEditingId(null);
+    setAnnouncement('');
+    setImage(null);
+    setImagePreview(null);
   };
 
   const formatDate = (dateString) => {
@@ -199,7 +282,27 @@ const AnnouncementPage = () => {
             </div>
           )}
           
+          {updateSuccess && (
+            <div className="successMessage">
+              Announcement updated successfully!
+            </div>
+          )}
+          
+          {deleteSuccess && (
+            <div className="successMessage deleteSuccess">
+              Announcement deleted successfully!
+            </div>
+          )}
+          
           <form onSubmit={handleAnnouncementSubmit}>
+            <div className="formHeader">
+              {isEditing ? (
+                <h3>Edit Announcement</h3>
+              ) : (
+                <h3>Create New Announcement</h3>
+              )}
+            </div>
+            
             <div className="formGroup">
               <label htmlFor="announcement-textarea">Announcement Text</label>
               <textarea
@@ -242,13 +345,26 @@ const AnnouncementPage = () => {
               )}
             </div>
             
-            <button 
-              type="submit" 
-              className="postButton"
-              disabled={isPosting}
-            >
-              {isPosting ? 'Posting...' : 'Post Announcement'}
-            </button>
+            <div className="buttonGroup">
+              {isEditing && (
+                <button 
+                  type="button" 
+                  className="cancelButton"
+                  onClick={cancelEditing}
+                  disabled={isPosting}
+                >
+                  Cancel
+                </button>
+              )}
+              
+              <button 
+                type="submit" 
+                className="postButton"
+                disabled={isPosting}
+              >
+                {isPosting ? 'Processing...' : isEditing ? 'Update Announcement' : 'Post Announcement'}
+              </button>
+            </div>
           </form>
         </div>
         
@@ -265,6 +381,24 @@ const AnnouncementPage = () => {
                 <div key={index} className="previousAnnouncementCard">
                   <div className="announcementHeader">
                     <span className="dateLabel">{formatDate(item.date)}</span>
+                    <div className="actionButtons">
+                      <button
+                        type="button"
+                        className="editButton"
+                        onClick={() => handleEditAnnouncement(item)}
+                        title="Edit announcement"
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        type="button"
+                        className="deleteButton"
+                        onClick={() => handleDeleteAnnouncement(item._id)}
+                        title="Delete announcement"
+                      >
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                   <div className="announcementBody">
                     <p>{item.message || item.announcement}</p>

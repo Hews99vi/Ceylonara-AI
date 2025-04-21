@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import axios from 'axios';
+import AveragePriceDisplay from '../AveragePriceDisplay/AveragePriceDisplay';
 import './setTeaPricePage.css';
 
 const SetTeaPricePage = () => {
@@ -9,11 +11,41 @@ const SetTeaPricePage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [averagePrice, setAveragePrice] = useState(null);
   const { userId, getToken } = useAuth();
 
   useEffect(() => {
     fetchCurrentPrice();
+    fetchAveragePrice();
   }, []);
+
+  const fetchAveragePrice = async () => {
+    try {
+      console.log("Fetching average price...");
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/tea-prices/average`
+      );
+      
+      console.log("Average price API response:", response.data);
+      
+      if (response.data.success) {
+        if (response.data.averagePrice) {
+          setAveragePrice(response.data.averagePrice);
+          console.log("Setting average price state to:", response.data.averagePrice);
+        } else {
+          console.log("No average price found in response:", response.data);
+          setAveragePrice(null);
+        }
+      } else {
+        console.error("Failed to fetch average price");
+        setAveragePrice(null);
+      }
+    } catch (error) {
+      console.error("Error fetching average price:", error);
+      setAveragePrice(null);
+    }
+  };
 
   const fetchCurrentPrice = async () => {
     try {
@@ -54,12 +86,19 @@ const SetTeaPricePage = () => {
   const handlePriceUpdate = async (e) => {
     e.preventDefault();
     if (!price.trim()) {
-      alert('Please enter a price');
+      setErrorMessage('Please enter a price');
+      return;
+    }
+    
+    // Check if price is below the minimum average price
+    if (averagePrice && parseFloat(price) < averagePrice) {
+      setErrorMessage(`Price cannot be lower than the Tea Board's minimum average price of Rs. ${averagePrice.toFixed(2)}`);
       return;
     }
     
     setIsSubmitting(true);
     setSuccessMessage('');
+    setErrorMessage('');
     
     try {
       const token = await getToken();
@@ -86,11 +125,16 @@ const SetTeaPricePage = () => {
         // Clear success message after 3 seconds
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        alert('Failed to update price');
+        const errorData = await response.json();
+        if (errorData.error === 'Price below minimum average') {
+          setErrorMessage(errorData.message || `Price cannot be lower than the Tea Board's minimum average price of Rs. ${errorData.minimumPrice}`);
+        } else {
+          setErrorMessage(errorData.error || 'Failed to update price');
+        }
       }
     } catch (error) {
       console.error('Error updating price:', error);
-      alert('Error updating price. Please try again.');
+      setErrorMessage('Error updating price. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -110,24 +154,39 @@ const SetTeaPricePage = () => {
       <h1>Set Tea Price</h1>
       <p className="subtitle">Update your factory's tea buying price for farmers</p>
       
+      {/* Minimum Price Alert - Update to consistently display the price */}
+      {averagePrice !== null && (
+        <div className="minimumPriceAlert">
+          <div className="alertIcon">ℹ️</div>
+          <div className="alertContent">
+            <h4>Minimum Price Notice</h4>
+            <p>
+              The Tea Board has set a minimum average price of{' '}
+              <strong>Rs. {averagePrice !== null ? parseFloat(averagePrice).toFixed(2) : '0.00'}</strong>{' '}
+              for this month. You cannot set your price below this amount.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Average Price Display - Pass props explicitly */}
+      <AveragePriceDisplay 
+        averagePrice={averagePrice} 
+        month={new Date().getMonth() + 1} 
+        year={new Date().getFullYear()} 
+      />
+
+      {/* Current Price Display */}
+      <div className="currentPriceBox">
+        <h2>Current Price</h2>
+        <p className="date">As of {new Date().toLocaleDateString()}</p>
+        <p className="price">Rs. {currentPrice || '0'} <span className="perKg">per kg</span></p>
+      </div>
+      
       {isLoading ? (
         <div className="loading">Loading...</div>
       ) : (
         <>
-          <div className="priceCard current">
-            <div className="cardHeader">
-              <h2>Current Price</h2>
-              <span className="dateLabel">As of {formatDate()}</span>
-            </div>
-            <div className="currentPriceDisplay">
-              {currentPrice ? (
-                <span className="price">Rs. {currentPrice} <span className="perKg">per kg</span></span>
-              ) : (
-                <span className="noPrice">No price set</span>
-              )}
-            </div>
-          </div>
-          
           <div className="priceCard update">
             <h2>Update Price</h2>
             <form onSubmit={handlePriceUpdate}>
@@ -138,16 +197,19 @@ const SetTeaPricePage = () => {
                   <input
                     id="price-input"
                     type="number"
-                    min="0"
-                    step="1"
+                    min={averagePrice || 0}
+                    step="0.01"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
                     placeholder="Enter new price"
-                    disabled={isSubmitting}
                     required
                   />
                 </div>
               </div>
+              
+              {errorMessage && (
+                <div className="errorMessage">{errorMessage}</div>
+              )}
               
               {successMessage && (
                 <div className="successMessage">{successMessage}</div>
@@ -155,7 +217,7 @@ const SetTeaPricePage = () => {
               
               <button 
                 type="submit" 
-                className="updateButton"
+                className="submitBtn"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Updating...' : 'Update Price'}
@@ -174,4 +236,4 @@ const SetTeaPricePage = () => {
   );
 };
 
-export default SetTeaPricePage; 
+export default SetTeaPricePage;

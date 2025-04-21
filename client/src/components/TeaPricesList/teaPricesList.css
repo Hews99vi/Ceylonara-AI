@@ -1,0 +1,120 @@
+.teaPricesList {
+  padding: 20px;
+  color: white;
+}
+
+.teaPricesList h1 {
+  margin-bottom: 10px;
+  color: #4CAF50;
+}
+
+.subtitle {
+  font-size: 16px;
+  margin-bottom: 30px;
+  color: #b0b0b0;
+}
+
+.viewAnnouncementsBtn {
+  display: inline-block;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.2s;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.viewAnnouncementsBtn:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.viewAnnouncementsBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.loading, .noPrices {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  font-size: 18px;
+  color: #b0b0b0;
+}
+
+.pricesContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.priceCard {
+  background-color: #1e1e1e;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: transform 0.2s;
+  border-left: 4px solid #4CAF50;
+}
+
+.priceCard:hover {
+  transform: translateY(-5px);
+}
+
+.priceCard h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  color: white;
+}
+
+.priceAmount {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #4CAF50;
+}
+
+.perKg {
+  font-size: 16px;
+  font-weight: normal;
+  color: #b0b0b0;
+}
+
+.updateDate {
+  font-size: 14px;
+  color: #b0b0b0;
+}
+
+.requestCollectionBtn {
+  display: inline-block;
+  width: 100%;
+  padding: 10px 0;
+  margin-top: 15px;
+  background-color: #4CAF50;
+  color: white;
+  text-align: center;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.requestCollectionBtn:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+}
+
+.requestCollectionBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+} 

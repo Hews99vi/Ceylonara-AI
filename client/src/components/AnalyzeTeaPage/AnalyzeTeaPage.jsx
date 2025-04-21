@@ -1,6 +1,8 @@
 import "./AnalyzeTeaPage.css";
 import { useNavigate } from "react-router-dom";
-import Upload from "../upload/Upload";
+import React from "react";
+import TeaQualityCheck from "../TeaQualityCheck/TeaQualityCheck";
+import TeaDiseaseDetection from "../TeaDiseaseDetection/TeaDiseaseDetection";
 
 const AnalyzeTeaPage = () => {
   const navigate = useNavigate();
@@ -21,7 +23,7 @@ const AnalyzeTeaPage = () => {
               <div className="uploadContent">
                 <h3>Quality Check</h3>
                 <p>Upload tea leaf images for quality analysis</p>
-                <Upload />
+                <TeaQualityCheck />
               </div>
             </div>
             
@@ -30,7 +32,7 @@ const AnalyzeTeaPage = () => {
               <div className="uploadContent">
                 <h3>Disease Detection</h3>
                 <p>Scan tea plants for potential diseases</p>
-                <Upload />
+                <TeaDiseaseDetection />
               </div>
             </div>
           </div>
