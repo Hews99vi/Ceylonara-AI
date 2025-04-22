@@ -195,7 +195,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="admin-dashboard">
+    <div className="admin-dashboard full-width">
       <div className="dashboard-header">
         <h1>Admin Dashboard</h1>
         <p className="subtitle">Sri Lankan Tea Board Control Panel</p>
@@ -403,4 +403,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard; 
+export default AdminDashboard;

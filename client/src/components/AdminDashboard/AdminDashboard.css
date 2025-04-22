@@ -5,6 +5,12 @@
   font-family: 'Poppins', sans-serif;
 }
 
+/* Add this style for full-width admin dashboard */
+.admin-dashboard.full-width {
+  max-width: 100%;
+  padding: 1rem 2rem;
+}
+
 .dashboard-header {
   margin-bottom: 2rem;
   text-align: center;
@@ -375,4 +381,4 @@ tr.low-price {
     padding: 0.75rem 0.5rem;
     font-size: 0.9rem;
   }
-} 
+}

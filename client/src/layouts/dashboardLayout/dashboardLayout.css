@@ -7,6 +7,11 @@
   overflow: hidden;
 }
 
+/* Add this style for admin dashboard with no sidebar */
+.dashboardLayout.admin-view {
+  grid-template-columns: 1fr;
+}
+
 .sidebar {
   background-color: rgba(44, 41, 55, 0.3);
   border-radius: 50px;
@@ -19,80 +24,12 @@
   flex-direction: column;
 }
 
-/* Add this new style for the AI experience section */
-.ai-experience {
-  margin-top: auto;
-  padding: 15px;
-  background: linear-gradient(to right, rgba(33, 134, 8, 0.1), rgba(35, 206, 126, 0.1));
-  border-radius: 25px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 15px;
-  transition: all 0.3s ease;
+/* Add style for full-width content */
+.main-content.full-width {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
 }
-
-.ai-experience:hover {
-  background: linear-gradient(to right, rgba(33, 134, 8, 0.2), rgba(35, 206, 126, 0.2));
-  transform: translateY(-2px);
-}
-
-.ai-experience img {
-  width: 20px;
-  height: 20px;
-}
-
-.ai-experience span {
-  color: #ececec;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.ai-experience img {
-  width: 24px;
-  height: 24px;
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-/* Style for the new send button */
-.send-button {
-  background: linear-gradient(to right, rgba(33, 134, 8, 0.8), rgba(35, 206, 126, 0.8));
-  border: none;
-  border-radius: 12px;
-  padding: 8px 16px;
-  color: white;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 14px;
-  font-weight: 500;
-  backdrop-filter: blur(5px);
-  box-shadow: 0 2px 8px rgba(35, 206, 126, 0.2);
-}
-
-.send-button:hover {
-  background: linear-gradient(to right, rgba(33, 134, 8, 0.9), rgba(35, 206, 126, 0.9));
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(35, 206, 126, 0.3);
-}
-
-.send-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(35, 206, 126, 0.2);
-}
-
-.send-button img {
-  width: 16px;
-  height: 16px;
-  filter: brightness(0) invert(1);
-  opacity: 0.9;
-}
-
-/* Remove these styles as they're no longer needed */
-/* .ai-experience and related styles have been removed */
 
 .main-content {
   padding: 15px;

@@ -19,13 +19,17 @@ const DashboardLayout = () => {
   // Check if user is a factory owner - also consider factory data in localStorage
   const isFactory = userRole === 'factory' || hasFactoryData;
   
+  // Check if user is an admin
+  const isAdmin = userRole === 'admin' || location.pathname.includes('/dashboard/admin');
+
   // Enhanced logging
   console.log("User role detection:", { 
     userRole, 
     publicRole: user?.publicMetadata?.role,
     unsafeRole: user?.unsafeMetadata?.role,
     hasFactoryData,
-    isFactory
+    isFactory,
+    isAdmin
   });
 
   useEffect(() => {
@@ -45,29 +49,27 @@ const DashboardLayout = () => {
       if (location.pathname === "/dashboard" && role === "factory") {
         navigate("/dashboard/factory");
       }
+
+      // If we're at the dashboard root and user is an admin, redirect to admin dashboard
+      if (location.pathname === "/dashboard" && role === "admin") {
+        navigate("/dashboard/admin");
+      }
     }
   }, [isLoaded, userId, navigate, user, location.pathname]);
-
-  useEffect(() => {
-    // Log user role on component mount
-    if (user) {
-      console.log("User metadata:", user.publicMetadata, user.unsafeMetadata);
-    }
-  }, [user]);
-
-  if (!isLoaded) return "Loading...";
 
   // Don't render dashboard features if we're on a specific page
   const isSpecificPage = location.pathname !== "/dashboard";
 
   return (
-    <div className="dashboardLayout">
-      <div className="sidebar">
-        {isFactory ? <FactorySidebar /> : <ChatList />}
-      </div>
-      <div className="main-content">
+    <div className={`dashboardLayout ${isAdmin ? 'admin-view' : ''}`}>
+      {!isAdmin && (
+        <div className="sidebar">
+          {isFactory ? <FactorySidebar /> : <ChatList />}
+        </div>
+      )}
+      <div className={`main-content ${isAdmin ? 'full-width' : ''}`}>
         {/* Only show factory header for factory users */}
-        {isFactory && (
+        {isFactory && !isAdmin && (
           <FactoryHeader />
         )}
         
