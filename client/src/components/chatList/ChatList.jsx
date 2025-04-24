@@ -10,12 +10,12 @@ const ChatList = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [selectedChatTitle, setSelectedChatTitle] = useState("");
-  
+
   // Get user role from Clerk metadata
   const userRole = user?.publicMetadata?.role || user?.unsafeMetadata?.role;
   // Fix factory detection logic - farmer should be !isFactory
   const isFactory = userRole === 'factory';
-  
+
   console.log("User role detected:", userRole); // Debug log
   console.log("Is factory:", isFactory); // Debug log
 
@@ -62,7 +62,7 @@ const ChatList = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete chat');
       }
@@ -96,11 +96,12 @@ const ChatList = () => {
   return (
     <div className="chatList">
       <span className="title">DASHBOARD</span>
-      
+
       {isFactory ? (
         // Factory-specific links
         <>
           <Link to="/dashboard" className="navLink">Create a new Chat</Link>
+          <Link to="/dashboard/direct-messages" className="navLink">Direct Messages</Link>
           <Link to="/dashboard/set-tea-price" className="navLink">Set Tea Prices</Link>
           <Link to="/dashboard/post-announcement" className="navLink">Post Announcement</Link>
           <Link to="/dashboard/request-collection" className="navLink">Collection Requests</Link>
@@ -109,13 +110,14 @@ const ChatList = () => {
         // Updated farmer links as requested
         <>
           <Link to="/dashboard" className="navLink">Create a new Chat</Link>
+          <Link to="/dashboard/direct-messages" className="navLink">Direct Messages</Link>
           <Link to="/dashboard/tea-prices" className="navLink">Monthly Tea Leaves Prices</Link>
           <Link to="/dashboard/announcements" className="navLink">Announcements</Link>
           <Link to="/dashboard/request-collection" className="navLink">Request to Collect</Link>
           <Link to="/dashboard/my-collection-requests" className="navLink">My Collection Requests</Link>
         </>
       )}
-      
+
       <hr />
       <span className="title">RECENT CHATS</span>
       <div className="List">
@@ -135,14 +137,14 @@ const ChatList = () => {
           <span className="no-chats">No chats yet. Create a new one!</span>
         ) : (
           data?.map((chat) => (
-            <Link 
-              to={`/dashboard/chats/${chat._id}`} 
-              key={chat._id} 
+            <Link
+              to={`/dashboard/chats/${chat._id}`}
+              key={chat._id}
               className="chatLink"
             >
               <span>{chat.title}</span>
-              <button 
-                className="deleteBtn" 
+              <button
+                className="deleteBtn"
                 onClick={(e) => handleDelete(e, chat._id, chat.title)}
                 title="Delete chat"
               >
@@ -166,14 +168,14 @@ const ChatList = () => {
             <h3>Delete Chat</h3>
             <p>Are you sure you want to delete "{selectedChatTitle}"?</p>
             <div className="modal-actions">
-              <button 
-                className="cancel-btn" 
+              <button
+                className="cancel-btn"
                 onClick={() => setShowModal(false)}
               >
                 Cancel
               </button>
-              <button 
-                className="confirm-btn" 
+              <button
+                className="confirm-btn"
                 onClick={confirmDelete}
               >
                 Delete

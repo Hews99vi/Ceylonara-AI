@@ -47,7 +47,7 @@ const FactorySidebar = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      
+
       if (!response.ok) {
         throw new Error('Failed to delete chat');
       }
@@ -82,6 +82,7 @@ const FactorySidebar = () => {
     <div className="chatList">
       <span className="title">DASHBOARD</span>
       <Link to="/dashboard" className="navLink">Create a new Chat</Link>
+      <Link to="/dashboard/direct-messages" className="navLink">Direct Messages</Link>
       <Link to="/dashboard/set-tea-price" className="navLink">Set Tea Price</Link>
       <Link to="/dashboard/collection-requests" className="navLink">Tea Leaves Collection Requests</Link>
       <Link to="/dashboard/post-announcement" className="navLink">Post Announcements</Link>
@@ -104,14 +105,14 @@ const FactorySidebar = () => {
           <span className="no-chats">No chats yet. Create a new one!</span>
         ) : (
           data?.map((chat) => (
-            <Link 
-              to={`/dashboard/chats/${chat._id}`} 
-              key={chat._id} 
+            <Link
+              to={`/dashboard/chats/${chat._id}`}
+              key={chat._id}
               className="chatLink"
             >
               <span>{chat.title}</span>
-              <button 
-                className="deleteBtn" 
+              <button
+                className="deleteBtn"
                 onClick={(e) => handleDelete(e, chat._id, chat.title)}
                 title="Delete chat"
               >
@@ -127,7 +128,7 @@ const FactorySidebar = () => {
         <img src="/ai-icon.png" alt="AI" />
         <span>Experience the Power of Tea AI</span>
       </div>
-      
+
       {showModal && (
         <div className="deleteModal">
           <div className="modalContent">
@@ -148,4 +149,4 @@ const FactorySidebar = () => {
   );
 };
 
-export default FactorySidebar; 
+export default FactorySidebar;

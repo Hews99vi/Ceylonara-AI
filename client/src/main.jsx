@@ -27,6 +27,7 @@ import RequestCollection from "./components/RequestCollection/RequestCollection"
 import SetTeaPricePage from "./components/SetTeaPricePage/SetTeaPricePage";
 import FarmerRequests from "./components/FarmerRequests/FarmerRequests";
 import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
+import DirectMessagesPage from "./routes/directMessagesPage/DirectMessagesPage";
 
 const router = createBrowserRouter([
   {
@@ -126,6 +127,10 @@ const router = createBrowserRouter([
           {
             path: "/dashboard/my-collection-requests",
             element: <FarmerRequests />,
+          },
+          {
+            path: "/dashboard/direct-messages",
+            element: <DirectMessagesPage />,
           },
         ],
       },

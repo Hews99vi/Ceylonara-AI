@@ -20,6 +20,15 @@ import Farmer from './models/farmer.js';
 // Import the Average Price model
 import AveragePrice from './models/averagePrice.js';
 
+// DirectChat model is imported in directChatRoutes.js
+
+// Import the User model
+import User from "./models/User.js";
+
+// Import routes
+import userRoutes from "./routes/userRoutes.js";
+import directChatRoutes from "./routes/directChatRoutes.js";
+
 // Create a new Price model for storing tea prices
 const priceSchema = new mongoose.Schema({
   factoryId: {
@@ -183,13 +192,13 @@ app.get("/api/tea-prices/average", async (req, res) => {
     const now = new Date();
     const month = parseInt(req.query.month) || now.getMonth() + 1; // 1-12
     const year = parseInt(req.query.year) || now.getFullYear();
-    
+
     // Find current month's average price
-    const averagePrice = await AveragePrice.findOne({ 
+    const averagePrice = await AveragePrice.findOne({
       month: month,
       year: year
     });
-    
+
     // Return consistent response with the price
     res.status(200).json({
       success: true,
@@ -198,12 +207,12 @@ app.get("/api/tea-prices/average", async (req, res) => {
       year: year,
       monthName: new Date(year, month - 1, 1).toLocaleString('default', { month: 'long' })
     });
-    
+
   } catch (error) {
     console.error("Error fetching tea price average:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Failed to fetch average tea price" 
+      error: "Failed to fetch average tea price"
     });
   }
 });
@@ -222,7 +231,7 @@ app.use('/api/*', (req, res, next) => {
   // Debug for incoming requests
   console.log('Incoming request:', req.method, req.path);
   console.log('Auth header:', req.headers.authorization);
-  
+
   // Use actual authentication from Clerk
   try {
     clerkMiddleware(req, res, (err) => {
@@ -237,6 +246,12 @@ app.use('/api/*', (req, res, next) => {
     res.status(401).json({ error: 'Authentication failed', details: error.message });
   }
 });
+
+// Use the user routes
+app.use(userRoutes);
+
+// Use the direct chat routes
+app.use(directChatRoutes);
 
 // Add error handling middleware
 app.use((err, req, res, next) => {
@@ -265,15 +280,15 @@ app.get("/api/userchats", async (req, res) => {
     console.log('Auth object:', req.auth); // Add this line for debugging
     const userId = req.auth.userId;
     console.log('Fetching chats for userId:', userId); // Add this line for debugging
-    
+
     // Make sure we're only fetching the chats for this specific user
     const userChats = await UserChats.findOne({ userId: userId });
-    
+
     if (!userChats) {
       console.log('No chats found for userId:', userId); // Add this line for debugging
       return res.status(200).json([]);
     }
-    
+
     console.log('Found chats:', userChats.chats); // Add this line for debugging
     res.status(200).json(userChats.chats);
   } catch (error) {
@@ -287,17 +302,17 @@ app.get("/api/chats/:id", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const chatId = req.params.id;
-    
+
     const chat = await Chat.findById(chatId);
-    
+
     if (!chat) {
       return res.status(404).json({ error: "Chat not found" });
     }
-    
+
     if (chat.userId !== userId) {
       return res.status(403).json({ error: "Unauthorized" });
     }
-    
+
     res.status(200).json(chat);
   } catch (error) {
     console.error(error);
@@ -331,20 +346,20 @@ app.post("/api/chats", async (req, res) => {
 
     // Add the chat to userChats
     let userChats = await UserChats.findOne({ userId: userId });
-    
+
     if (!userChats) {
       userChats = new UserChats({
         userId: userId,
         chats: [],
       });
     }
-    
+
     userChats.chats.push({
       _id: newChat._id.toString(),
       title: text.substring(0, 30),
       createdAt: new Date(),
     });
-    
+
     await userChats.save();
 
     res.status(201).json(newChat._id);
@@ -359,7 +374,7 @@ app.delete("/api/chats/:id", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const chatId = req.params.id;
-    
+
     console.log('Delete request for chatId:', chatId, 'from userId:', userId);
 
     const chat = await Chat.findById(chatId);
@@ -376,16 +391,16 @@ app.delete("/api/chats/:id", async (req, res) => {
 
     await Chat.findByIdAndDelete(chatId);
     console.log('Chat deleted from Chat collection');
-    
+
     await Message.deleteMany({ chatId });
     console.log('Messages deleted for chatId:', chatId);
-    
+
     // Remove from userChats
     const result = await UserChats.updateOne(
       { userId: userId },
       { $pull: { chats: { _id: chatId } } }
     );
-    
+
     console.log('UserChats update result:', result);
 
     res.status(200).json({ message: "Chat deleted successfully" });
@@ -414,7 +429,7 @@ app.get("/api/chats/:id/messages", async (req, res) => {
     }
 
     const messages = await Message.find({ chatId }).sort({ createdAt: 1 });
-    
+
     // Format messages with proper structure
     const formattedMessages = messages.map(msg => ({
       _id: msg._id,
@@ -494,10 +509,10 @@ app.post("/api/users/role", async (req, res) => {
 
     // Temporarily bypass Clerk API call for testing
     console.log(`Setting role for user ${userId} to ${role}`);
-    
+
     // Return success without actually calling Clerk API
     return res.status(200).json({ message: "Role updated successfully" });
-    
+
     /* Commented out for testing
     // Update the user's metadata in Clerk
     const updatedUser = await clerkClient.users.updateUser(userId, {
@@ -536,14 +551,14 @@ app.post("/api/harvest-data", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const { region, estateName, elevation, teaType, records } = req.body;
-    
+
     // Check if user already has data for this estate
-    let harvestData = await HarvestData.findOne({ 
-      userId, 
+    let harvestData = await HarvestData.findOne({
+      userId,
       estateName,
-      region 
+      region
     });
-    
+
     if (harvestData) {
       // Add new records to existing data
       harvestData.records.push(...records);
@@ -560,7 +575,7 @@ app.post("/api/harvest-data", async (req, res) => {
       });
       await harvestData.save();
     }
-    
+
     res.status(201).json(harvestData);
   } catch (error) {
     console.error(error);
@@ -573,13 +588,13 @@ app.get("/api/yield-prediction/:region/:month", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const { region, month } = req.params;
-    
+
     // Get user's historical data for this region
-    const harvestData = await HarvestData.find({ 
-      userId, 
-      region 
+    const harvestData = await HarvestData.find({
+      userId,
+      region
     });
-    
+
     if (!harvestData.length) {
       return res.status(200).json({
         prediction: {
@@ -589,10 +604,10 @@ app.get("/api/yield-prediction/:region/:month", async (req, res) => {
         }
       });
     }
-    
+
     // Calculate prediction based on historical data
     const prediction = calculateYieldPrediction(harvestData, parseInt(month));
-    
+
     res.status(200).json({ prediction });
   } catch (error) {
     console.error(error);
@@ -604,13 +619,13 @@ app.get("/api/yield-prediction/:region/:month", async (req, res) => {
 function calculateYieldPrediction(harvestData, targetMonth) {
   // Extract all records
   const allRecords = harvestData.flatMap(data => data.records);
-  
+
   // Filter records for the target month
   const monthRecords = allRecords.filter(record => {
     const recordDate = new Date(record.date);
     return recordDate.getMonth() === targetMonth;
   });
-  
+
   if (monthRecords.length === 0) {
     return {
       current: "60%",
@@ -618,23 +633,23 @@ function calculateYieldPrediction(harvestData, targetMonth) {
       recommendation: "No historical data for this month. Using regional averages."
     };
   }
-  
+
   // Calculate average yield for this month
   const avgYield = monthRecords.reduce((sum, record) => sum + record.yield, 0) / monthRecords.length;
-  
+
   // Get records from previous month to determine trend
   const prevMonthRecords = allRecords.filter(record => {
     const recordDate = new Date(record.date);
     return recordDate.getMonth() === (targetMonth === 0 ? 11 : targetMonth - 1);
   });
-  
+
   let trend = "stable";
   let percentage = "75%";
   let recommendation = "Maintain regular harvesting schedule.";
-  
+
   if (prevMonthRecords.length > 0) {
     const prevAvgYield = prevMonthRecords.reduce((sum, record) => sum + record.yield, 0) / prevMonthRecords.length;
-    
+
     if (avgYield > prevAvgYield * 1.1) {
       trend = "increasing";
       percentage = "85%";
@@ -645,20 +660,20 @@ function calculateYieldPrediction(harvestData, targetMonth) {
       recommendation = "Yield may be lower than usual. Consider adjusting harvest schedule.";
     }
   }
-  
+
   // Factor in weather conditions if available
   const recentRecords = monthRecords.sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
   const hasWeatherData = recentRecords.some(r => r.rainfall !== undefined || r.temperature !== undefined);
-  
+
   if (hasWeatherData) {
     const avgRainfall = recentRecords.filter(r => r.rainfall !== undefined)
-      .reduce((sum, r) => sum + r.rainfall, 0) / 
+      .reduce((sum, r) => sum + r.rainfall, 0) /
       recentRecords.filter(r => r.rainfall !== undefined).length;
-    
+
     const avgTemp = recentRecords.filter(r => r.temperature !== undefined)
-      .reduce((sum, r) => sum + r.temperature, 0) / 
+      .reduce((sum, r) => sum + r.temperature, 0) /
       recentRecords.filter(r => r.temperature !== undefined).length;
-    
+
     // Adjust prediction based on weather
     if (avgRainfall > 200) {
       percentage = Math.max(parseInt(percentage) - 10, 50) + "%";
@@ -668,7 +683,7 @@ function calculateYieldPrediction(harvestData, targetMonth) {
       recommendation += " High temperatures may stress plants. Ensure adequate irrigation.";
     }
   }
-  
+
   return {
     current: percentage,
     trend,
@@ -683,26 +698,26 @@ app.post("/api/factory/register", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const { factoryName, mfNumber, address } = req.body;
-    
+
     // Validate required fields
     if (!factoryName || !mfNumber || !address) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-    
+
     // Check if user already has a registered factory
     const existingFactory = await Factory.findOne({ userId });
-    
+
     if (existingFactory) {
       // Update existing factory
       existingFactory.factoryName = factoryName;
       existingFactory.mfNumber = mfNumber;
       existingFactory.address = address;
       existingFactory.updatedAt = new Date();
-      
+
       await existingFactory.save();
       return res.status(200).json(existingFactory);
     }
-    
+
     // Create new factory
     const factory = new Factory({
       userId,
@@ -710,10 +725,10 @@ app.post("/api/factory/register", async (req, res) => {
       mfNumber,
       address
     });
-    
+
     await factory.save();
     console.log(`Factory registered for user ${userId}: ${factoryName}`);
-    
+
     res.status(201).json(factory);
   } catch (error) {
     console.error("Error registering factory:", error);
@@ -725,13 +740,13 @@ app.post("/api/factory/register", async (req, res) => {
 app.get("/api/factory/profile", async (req, res) => {
   try {
     const userId = req.auth.userId;
-    
+
     const factory = await Factory.findOne({ userId });
-    
+
     if (!factory) {
       return res.status(404).json({ error: "Factory not found" });
     }
-    
+
     res.status(200).json(factory);
   } catch (error) {
     console.error("Error fetching factory profile:", error);
@@ -743,17 +758,17 @@ app.get("/api/factory/profile", async (req, res) => {
 const isAdmin = async (req, res, next) => {
   try {
     const userId = req.auth.userId;
-    
+
     // Get user from Clerk
     const user = await clerkClient.users.getUser(userId);
-    
+
     // Check if user has admin role
     const isUserAdmin = user.unsafeMetadata && user.unsafeMetadata.role === 'admin';
-    
+
     if (!isUserAdmin) {
       return res.status(403).json({ error: "Unauthorized. Admin access required." });
     }
-    
+
     next();
   } catch (error) {
     console.error("Error checking admin role:", error);
@@ -766,42 +781,42 @@ app.post("/api/factory/price", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const { price, factoryName, date } = req.body;
-    
+
     if (!price) {
       return res.status(400).json({ error: "Price is required" });
     }
-    
+
     // Check if user has a registered factory
     const factory = await Factory.findOne({ userId });
-    
+
     if (!factory) {
       return res.status(404).json({ error: "Factory not found" });
     }
-    
+
     // Get current month and year
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
-    
+
     // Find average price record for current month/year
-    const averagePrice = await AveragePrice.findOne({ 
-      month: currentMonth, 
-      year: currentYear 
+    const averagePrice = await AveragePrice.findOne({
+      month: currentMonth,
+      year: currentYear
     });
-    
+
     // If average price is set, ensure the factory price is not lower
     if (averagePrice && parseFloat(price) < averagePrice.price) {
-      return res.status(400).json({ 
-        error: "Price below minimum average", 
+      return res.status(400).json({
+        error: "Price below minimum average",
         minimumPrice: averagePrice.price,
         message: `Your price cannot be lower than the Tea Board's minimum average price of Rs. ${averagePrice.price} for this month.`
       });
     }
-    
+
     // Create or update price record
     const priceRecord = await Price.findOneAndUpdate(
       { factoryId: userId },
-      { 
+      {
         factoryId: userId,
         factoryName: factoryName || factory.factoryName,
         price,
@@ -809,7 +824,7 @@ app.post("/api/factory/price", async (req, res) => {
       },
       { upsert: true, new: true }
     );
-    
+
     res.status(200).json(priceRecord);
   } catch (error) {
     console.error("Error updating price:", error);
@@ -821,14 +836,14 @@ app.post("/api/factory/price", async (req, res) => {
 app.get("/api/factory/price", async (req, res) => {
   try {
     const userId = req.auth.userId;
-    
+
     // Find the price for this factory
     const priceRecord = await Price.findOne({ factoryId: userId });
-    
+
     if (!priceRecord) {
       return res.status(200).json({ price: "" });
     }
-    
+
     res.status(200).json(priceRecord);
   } catch (error) {
     console.error("Error fetching price:", error);
@@ -841,7 +856,7 @@ app.get("/api/prices", async (req, res) => {
   try {
     // Find all price records
     const prices = await Price.find().sort({ date: -1 });
-    
+
     res.status(200).json(prices);
   } catch (error) {
     console.error("Error fetching prices:", error);
@@ -856,23 +871,23 @@ app.post("/api/factory/announcement", async (req, res) => {
     // First try to get the message as 'announcement' field
     const message = req.body.announcement || req.body.message;
     const { factoryName, factoryId, date, image } = req.body;
-    
+
     console.log('Announcement data received:', JSON.stringify({
       ...req.body,
-      image: req.body.image ? 'Image data received (truncated for logging)' : null 
+      image: req.body.image ? 'Image data received (truncated for logging)' : null
     }));
-    
+
     if (!message) {
       return res.status(400).json({ error: "Announcement message is required" });
     }
-    
+
     // Check if user has a registered factory
     const factory = await Factory.findOne({ userId });
-    
+
     if (!factory) {
       return res.status(404).json({ error: "Factory not found" });
     }
-    
+
     // Create new announcement record
     const newAnnouncement = new Announcement({
       factoryId: userId,
@@ -881,7 +896,7 @@ app.post("/api/factory/announcement", async (req, res) => {
       image: image || null, // Store the image data URL directly
       date: date || new Date()
     });
-    
+
     console.log('Creating announcement:', JSON.stringify({
       factoryId: userId,
       factoryName: factoryName || factory.factoryName,
@@ -889,11 +904,11 @@ app.post("/api/factory/announcement", async (req, res) => {
       hasImage: !!image,
       date: date || new Date()
     }));
-    
+
     try {
       await newAnnouncement.save();
       console.log('Announcement saved successfully with ID:', newAnnouncement._id);
-      
+
       // Verify the announcement was saved by retrieving it
       const savedAnnouncement = await Announcement.findById(newAnnouncement._id);
       console.log('Retrieved saved announcement:', JSON.stringify({
@@ -904,7 +919,7 @@ app.post("/api/factory/announcement", async (req, res) => {
         hasImage: !!savedAnnouncement.image,
         date: savedAnnouncement.date
       }));
-      
+
       res.status(201).json(newAnnouncement);
     } catch (saveError) {
       console.error("Error saving announcement:", saveError);
@@ -921,56 +936,56 @@ app.put("/api/factory/announcement/:id", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const announcementId = req.params.id;
-    
+
     // First try to get the message as 'announcement' field
     const message = req.body.announcement || req.body.message;
     const { factoryName, image, date } = req.body;
-    
+
     console.log('Announcement update data received:', JSON.stringify({
       id: announcementId,
       message: message ? message.substring(0, 30) + '...' : null,
       hasImage: !!image,
     }));
-    
+
     if (!message) {
       return res.status(400).json({ error: "Announcement message is required" });
     }
-    
+
     // Check if user has a registered factory
     const factory = await Factory.findOne({ userId });
-    
+
     if (!factory) {
       return res.status(404).json({ error: "Factory not found" });
     }
-    
+
     // Find the announcement and check if it belongs to this factory
     const announcement = await Announcement.findById(announcementId);
-    
+
     if (!announcement) {
       return res.status(404).json({ error: "Announcement not found" });
     }
-    
+
     if (announcement.factoryId !== userId) {
       return res.status(403).json({ error: "You do not have permission to update this announcement" });
     }
-    
+
     // Update the announcement
     announcement.message = message;
-    announcement.factoryName = factoryName || factory.factoryName; 
-    
+    announcement.factoryName = factoryName || factory.factoryName;
+
     // Only update image if provided
     if (image !== undefined) {
       announcement.image = image;
     }
-    
+
     // Update date if provided, otherwise keep the original
     if (date) {
       announcement.date = date;
     }
-    
+
     await announcement.save();
     console.log('Announcement updated successfully with ID:', announcement._id);
-    
+
     res.status(200).json(announcement);
   } catch (error) {
     console.error("Error updating announcement:", error);
@@ -983,25 +998,25 @@ app.delete("/api/factory/announcement/:id", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const announcementId = req.params.id;
-    
+
     console.log('Delete request for announcement:', announcementId);
-    
+
     // Check if announcement exists
     const announcement = await Announcement.findById(announcementId);
-    
+
     if (!announcement) {
       return res.status(404).json({ error: "Announcement not found" });
     }
-    
+
     // Check if announcement belongs to this factory
     if (announcement.factoryId !== userId) {
       return res.status(403).json({ error: "You do not have permission to delete this announcement" });
     }
-    
+
     // Delete the announcement
     await Announcement.findByIdAndDelete(announcementId);
     console.log('Announcement deleted successfully');
-    
+
     res.status(200).json({ message: "Announcement deleted successfully" });
   } catch (error) {
     console.error("Error deleting announcement:", error);
@@ -1014,14 +1029,14 @@ app.get("/api/factory/announcements", async (req, res) => {
   try {
     const userId = req.auth.userId;
     console.log('Fetching announcements for factory owner:', userId);
-    
+
     // Find all announcements for this factory
-    const announcements = await Announcement.find({ 
-      factoryId: userId 
+    const announcements = await Announcement.find({
+      factoryId: userId
     }).sort({ date: -1 });
-    
+
     console.log(`Found ${announcements.length} announcements for factory owner`);
-    
+
     res.status(200).json(announcements);
   } catch (error) {
     console.error("Error fetching factory announcements:", error);
@@ -1033,16 +1048,16 @@ app.get("/api/factory/announcements", async (req, res) => {
 app.get("/api/announcements", async (req, res) => {
   try {
     console.log("Fetching all announcements for farmers");
-    
+
     // Check the total count in the collection
     const totalCount = await Announcement.countDocuments();
     console.log(`Total announcements in database: ${totalCount}`);
-    
+
     // Find all announcements from all factories
     const announcements = await Announcement.find()
       .sort({ date: -1 })
       .limit(20); // Limit to most recent 20 announcements
-    
+
     console.log(`Found ${announcements.length} announcements for farmers`);
     if (announcements.length > 0) {
       // Log a sample announcement but trim image data to avoid console flooding
@@ -1058,7 +1073,7 @@ app.get("/api/announcements", async (req, res) => {
     } else {
       console.log('No announcements found in the database');
     }
-    
+
     // Format announcements to ensure consistent field names and validate image data
     const formattedAnnouncements = announcements.map(announcement => {
       // Validate image data - if it's not a proper data URL, set to null
@@ -1067,7 +1082,7 @@ app.get("/api/announcements", async (req, res) => {
         console.log(`Invalid image data found for announcement ${announcement._id}, resetting to null`);
         imageData = null;
       }
-      
+
       return {
         factoryName: announcement.factoryName,
         message: announcement.message,
@@ -1077,7 +1092,7 @@ app.get("/api/announcements", async (req, res) => {
         factoryId: announcement.factoryId
       };
     });
-    
+
     res.status(200).json(formattedAnnouncements);
   } catch (error) {
     console.error("Error fetching announcements:", error);
@@ -1090,13 +1105,13 @@ app.post("/api/collection-requests", async (req, res) => {
   try {
     const farmerId = req.auth.userId;
     const { factoryId, factoryName, quantity, date, note, farmerName, nicNumber, time, location } = req.body;
-    
+
     console.log('Collection request data received:', req.body);
-    
+
     if (!factoryId || !quantity || !date) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-    
+
     // Create new collection request
     const newRequest = new CollectionRequest({
       factoryId,
@@ -1111,11 +1126,11 @@ app.post("/api/collection-requests", async (req, res) => {
       location: location || {},
       status: 'pending'
     });
-    
+
     console.log('Creating collection request:', newRequest);
-    
+
     await newRequest.save();
-    
+
     res.status(201).json(newRequest);
   } catch (error) {
     console.error("Error creating collection request:", error);
@@ -1127,16 +1142,16 @@ app.post("/api/collection-requests", async (req, res) => {
 app.get("/api/factory/requests", async (req, res) => {
   try {
     const factoryId = req.auth.userId;
-    
+
     console.log(`Fetching collection requests for factory: ${factoryId}`);
-    
+
     // Find all requests for this factory
-    const requests = await CollectionRequest.find({ 
-      factoryId: factoryId 
+    const requests = await CollectionRequest.find({
+      factoryId: factoryId
     }).sort({ date: 1 }); // Sort by date, earliest first
-    
+
     console.log(`Found ${requests.length} collection requests`);
-    
+
     res.status(200).json(requests);
   } catch (error) {
     console.error("Error fetching requests:", error);
@@ -1150,26 +1165,26 @@ app.put("/api/factory/requests/:requestId", async (req, res) => {
     const factoryId = req.auth.userId;
     const { requestId } = req.params;
     const { status } = req.body;
-    
+
     if (!status || !['approved', 'rejected', 'completed'].includes(status)) {
       return res.status(400).json({ error: "Invalid status. Must be 'approved', 'rejected', or 'completed'" });
     }
-    
+
     // Find the request and make sure it belongs to this factory
     const request = await CollectionRequest.findById(requestId);
-    
+
     if (!request) {
       return res.status(404).json({ error: "Request not found" });
     }
-    
+
     if (request.factoryId !== factoryId) {
       return res.status(403).json({ error: "Unauthorized. This request belongs to another factory" });
     }
-    
+
     // Update the status
     request.status = status;
     await request.save();
-    
+
     res.status(200).json(request);
   } catch (error) {
     console.error("Error updating request status:", error);
@@ -1181,7 +1196,7 @@ app.put("/api/factory/requests/:requestId", async (req, res) => {
 app.get("/api/factories", async (req, res) => {
   try {
     console.log("Fetching all factories for farmers - Request received - NO AUTH REQUIRED");
-    
+
     // Skip authentication for this endpoint
     // Ensure at least one factory exists for testing
     const testFactory = {
@@ -1190,7 +1205,7 @@ app.get("/api/factories", async (req, res) => {
       mfNumber: "MF-TEST-123",
       address: "123 Test Street, Test City"
     };
-    
+
     // Check if test factory exists
     const existingTestFactory = await Factory.findOne({ userId: "test-factory-id" });
     if (!existingTestFactory) {
@@ -1198,18 +1213,18 @@ app.get("/api/factories", async (req, res) => {
       await Factory.create(testFactory);
       console.log("Created test factory for demo purposes");
     }
-    
+
     // Find all factories
     console.log("Querying MongoDB for factories");
     const factories = await Factory.find({}, {
       userId: 1,
-      factoryName: 1, 
+      factoryName: 1,
       mfNumber: 1,
       address: 1
     });
-    
+
     console.log(`Found ${factories.length} factories in the database`);
-    
+
     // If no factories found, return at least the test factory
     let formattedFactories = [];
     if (factories.length === 0) {
@@ -1229,26 +1244,26 @@ app.get("/api/factories", async (req, res) => {
         address: factory.address
       }));
     }
-    
+
     // Add some dummy factories regardless to ensure dropdown has options
     formattedFactories.push(
       { id: 'dummy1', name: 'Athukorala Tea Factory', mfNumber: 'MF123456', address: 'Kandy, Sri Lanka' },
       { id: 'dummy2', name: 'Nuwara Eliya Tea Factory', mfNumber: 'MF785412', address: 'Nuwara Eliya, Sri Lanka' },
       { id: 'dummy3', name: 'Dimbula Valley Tea', mfNumber: 'MF654987', address: 'Dimbula, Sri Lanka' }
     );
-    
+
     console.log("Sending factories to client:", formattedFactories);
     res.status(200).json(formattedFactories);
   } catch (error) {
     console.error("Error fetching factories:", error);
-    
+
     // Return dummy factories on error to ensure frontend has options
     const dummyFactories = [
       { id: 'dummy1', name: 'Athukorala Tea Factory', mfNumber: 'MF123456', address: 'Kandy, Sri Lanka' },
       { id: 'dummy2', name: 'Nuwara Eliya Tea Factory', mfNumber: 'MF785412', address: 'Nuwara Eliya, Sri Lanka' },
       { id: 'dummy3', name: 'Dimbula Valley Tea', mfNumber: 'MF654987', address: 'Dimbula, Sri Lanka' }
     ];
-    
+
     console.log("Error occurred, returning dummy factories:", dummyFactories);
     res.status(200).json(dummyFactories);
   }
@@ -1258,7 +1273,7 @@ app.get("/api/factories", async (req, res) => {
 app.post("/api/dev/create-test-factory", async (req, res) => {
   try {
     console.log("Creating test factory");
-    
+
     // Create a test factory with a fixed ID for easy testing
     const testFactory = new Factory({
       userId: "test-factory-id",
@@ -1268,23 +1283,23 @@ app.post("/api/dev/create-test-factory", async (req, res) => {
       createdAt: new Date(),
       updatedAt: new Date()
     });
-    
+
     // Only create if it doesn't exist
     const existingFactory = await Factory.findOne({ userId: "test-factory-id" });
     if (existingFactory) {
       console.log("Test factory already exists");
-      return res.status(200).json({ 
-        message: "Test factory already exists", 
-        factory: existingFactory 
+      return res.status(200).json({
+        message: "Test factory already exists",
+        factory: existingFactory
       });
     }
-    
+
     await testFactory.save();
     console.log("Test factory created successfully");
-    
-    res.status(201).json({ 
-      message: "Test factory created successfully", 
-      factory: testFactory 
+
+    res.status(201).json({
+      message: "Test factory created successfully",
+      factory: testFactory
     });
   } catch (error) {
     console.error("Error creating test factory:", error);
@@ -1299,26 +1314,26 @@ app.post("/api/farmer/register", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const { farmerName, nicNumber, address } = req.body;
-    
+
     // Validate required fields
     if (!farmerName || !nicNumber || !address) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-    
+
     // Check if user already has a registered farmer
     const existingFarmer = await Farmer.findOne({ userId });
-    
+
     if (existingFarmer) {
       // Update existing farmer
       existingFarmer.farmerName = farmerName;
       existingFarmer.nicNumber = nicNumber;
       existingFarmer.address = address;
       existingFarmer.updatedAt = new Date();
-      
+
       await existingFarmer.save();
       return res.status(200).json(existingFarmer);
     }
-    
+
     // Create new farmer
     const farmer = new Farmer({
       userId,
@@ -1326,10 +1341,10 @@ app.post("/api/farmer/register", async (req, res) => {
       nicNumber,
       address
     });
-    
+
     await farmer.save();
     console.log(`Farmer registered for user ${userId}: ${farmerName}`);
-    
+
     res.status(201).json(farmer);
   } catch (error) {
     console.error("Error registering farmer:", error);
@@ -1341,13 +1356,13 @@ app.post("/api/farmer/register", async (req, res) => {
 app.get("/api/farmer/profile", async (req, res) => {
   try {
     const userId = req.auth.userId;
-    
+
     const farmer = await Farmer.findOne({ userId });
-    
+
     if (!farmer) {
       return res.status(404).json({ error: "Farmer not found" });
     }
-    
+
     res.status(200).json(farmer);
   } catch (error) {
     console.error("Error fetching farmer profile:", error);
@@ -1359,16 +1374,16 @@ app.get("/api/farmer/profile", async (req, res) => {
 app.get("/api/farmer/collection-requests", async (req, res) => {
   try {
     const farmerId = req.auth.userId;
-    
+
     console.log(`Fetching collection requests for farmer: ${farmerId}`);
-    
+
     // Find all requests for this farmer
-    const requests = await CollectionRequest.find({ 
-      farmerId: farmerId 
+    const requests = await CollectionRequest.find({
+      farmerId: farmerId
     }).sort({ date: 1 }); // Sort by date, earliest first
-    
+
     console.log(`Found ${requests.length} collection requests for farmer`);
-    
+
     res.status(200).json(requests);
   } catch (error) {
     console.error("Error fetching farmer's requests:", error);
@@ -1401,7 +1416,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ 
+const upload = multer({
   storage: storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: (req, file, cb) => {
@@ -1454,64 +1469,64 @@ import teaDiseaseRoutes from './routes/teaDisease.js';
 app.post('/api/test-tea-disease', upload.single('image'), (req, res) => {
   console.log('TEST ENDPOINT CALLED');
   console.log('File:', req.file);
-  
+
   if (!req.file) {
     return res.status(400).json({ success: false, error: 'No file uploaded' });
   }
-  
+
   // Run Python directly with full path to Python
   const pythonProcess = spawn('python', [
     path.join(__dirname, './ml/simple_test.py'),
     req.file.path
   ]);
-  
+
   let result = '';
   let error = '';
-  
+
   pythonProcess.stdout.on('data', (data) => {
     console.log('Python output:', data.toString());
     result += data.toString();
   });
-  
+
   pythonProcess.stderr.on('data', (data) => {
     console.error('Python error:', data.toString());
     error += data.toString();
   });
-  
+
   pythonProcess.on('close', (code) => {
     console.log(`Python process exited with code ${code}`);
-    
+
     if (code !== 0) {
-      return res.status(500).json({ 
-        success: false, 
+      return res.status(500).json({
+        success: false,
         error: 'Error processing image',
-        details: error 
+        details: error
       });
     }
-    
+
     try {
       // Find JSON in output
       const jsonStart = result.indexOf('{');
       const jsonEnd = result.lastIndexOf('}') + 1;
-      
+
       if (jsonStart === -1 || jsonEnd <= 0) {
-        return res.status(500).json({ 
-          success: false, 
+        return res.status(500).json({
+          success: false,
           error: 'Invalid response format',
           raw: result
         });
       }
-      
+
       const jsonStr = result.substring(jsonStart, jsonEnd);
       const prediction = JSON.parse(jsonStr);
-      
+
       return res.status(200).json({
         success: true,
         result: prediction
       });
     } catch (err) {
-      return res.status(500).json({ 
-        success: false, 
+      return res.status(500).json({
+        success: false,
         error: 'Error parsing result',
         details: err.message,
         raw: result
@@ -1528,36 +1543,36 @@ app.post("/api/admin/set-average-price", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const { price, month, year, notes } = req.body;
-    
+
     console.log(`POST /api/admin/set-average-price - price: ${price}, month: ${month}, year: ${year}`);
-    
+
     if (!price || price <= 0) {
       return res.status(400).json({ error: "Valid price is required" });
     }
-    
+
     if (!month || month < 1 || month > 12) {
       return res.status(400).json({ error: "Valid month is required (1-12)" });
     }
-    
+
     if (!year) {
       return res.status(400).json({ error: "Valid year is required" });
     }
-    
+
     // Check if user has admin role
     const user = await clerkClient.users.getUser(userId);
     const isUserAdmin = user.unsafeMetadata && user.unsafeMetadata.role === 'admin';
-    
+
     if (!isUserAdmin) {
       return res.status(403).json({ error: "Unauthorized. Admin access required." });
     }
-    
+
     // Convert price to a number to ensure it's stored properly
     const numericPrice = parseFloat(price);
-    
+
     // Create or update average price record
     const averagePrice = await AveragePrice.findOneAndUpdate(
       { month, year },
-      { 
+      {
         price: numericPrice,
         month,
         year,
@@ -1567,14 +1582,14 @@ app.post("/api/admin/set-average-price", async (req, res) => {
       },
       { upsert: true, new: true }
     );
-    
+
     console.log(`Admin ${userId} set average price to ${numericPrice} for ${month}/${year}`);
     console.log("Saved average price data:", averagePrice);
-    
+
     // Verify the saved record by retrieving it again
     const verifyRecord = await AveragePrice.findOne({ month, year });
     console.log("Verification - Retrieved record:", verifyRecord);
-    
+
     // Return the updated record
     res.status(200).json(averagePrice);
   } catch (error) {
@@ -1587,35 +1602,35 @@ app.post("/api/admin/set-average-price", async (req, res) => {
 app.get("/api/admin/average-price", async (req, res) => {
   try {
     const { month, year } = req.query;
-    
+
     // Validate inputs
     const validMonth = parseInt(month);
     const validYear = parseInt(year);
-    
+
     if (isNaN(validMonth) || validMonth < 1 || validMonth > 12) {
       return res.status(400).json({ error: "Valid month is required (1-12)" });
     }
-    
+
     if (isNaN(validYear)) {
       return res.status(400).json({ error: "Valid year is required" });
     }
-    
+
     // Find average price record
-    const averagePrice = await AveragePrice.findOne({ 
-      month: validMonth, 
-      year: validYear 
+    const averagePrice = await AveragePrice.findOne({
+      month: validMonth,
+      year: validYear
     });
-    
+
     // Return consistent response format with clear price value
     if (!averagePrice) {
-      return res.status(200).json({ 
-        price: null, 
+      return res.status(200).json({
+        price: null,
         month: validMonth,
         year: validYear,
-        message: "No average price set for this period" 
+        message: "No average price set for this period"
       });
     }
-    
+
     res.status(200).json(averagePrice);
   } catch (error) {
     console.error("Error fetching average price:", error);
@@ -1628,53 +1643,53 @@ app.get("/api/admin/price-history", async (req, res) => {
   try {
     const { year } = req.query;
     const userId = req.auth.userId;
-    
+
     // Validate input
     const validYear = parseInt(year);
-    
+
     if (isNaN(validYear)) {
       return res.status(400).json({ error: "Valid year is required" });
     }
-    
+
     // Check if user is admin
     const user = await clerkClient.users.getUser(userId);
     const isUserAdmin = user.unsafeMetadata && user.unsafeMetadata.role === 'admin';
-    
+
     if (!isUserAdmin) {
       return res.status(403).json({ error: "Unauthorized. Admin access required." });
     }
-    
+
     // Prepare data for all months
     const priceHistory = [];
-    
+
     // Get all average prices for this year
     const averagePrices = await AveragePrice.find({ year: validYear });
-    
+
     // For each month (1-12)
     for (let month = 1; month <= 12; month++) {
       // Find the average price record for this month
       const averagePrice = averagePrices.find(p => p.month === month);
-      
+
       // Get factory prices for this month range
       const monthStart = new Date(validYear, month - 1, 1);
       const monthEnd = new Date(validYear, month, 0);
-      
+
       // Query factory prices within this month
       const factoryPrices = await Price.find({
         date: { $gte: monthStart, $lte: monthEnd }
       });
-      
+
       // Calculate min and max prices if there are any factory prices
       let lowestPrice = null;
       let highestPrice = null;
-      
+
       if (factoryPrices.length > 0) {
         // Convert string prices to numbers for comparison
         const numericPrices = factoryPrices.map(p => parseFloat(p.price));
         lowestPrice = Math.min(...numericPrices);
         highestPrice = Math.max(...numericPrices);
       }
-      
+
       // Add data for this month
       priceHistory.push({
         month,
@@ -1684,7 +1699,7 @@ app.get("/api/admin/price-history", async (req, res) => {
         factoryCount: factoryPrices.length
       });
     }
-    
+
     res.status(200).json(priceHistory);
   } catch (error) {
     console.error("Error fetching price history:", error);
@@ -1696,11 +1711,11 @@ app.get("/api/admin/price-history", async (req, res) => {
 app.get("/api/debug/average-price", async (req, res) => {
   try {
     console.log("DEBUG endpoint for average price called");
-    
+
     // Get all average price records
     const allPrices = await AveragePrice.find({});
     console.log("All average prices in database:", allPrices);
-    
+
     // Create a test record
     const now = new Date();
     const testPrice = {
@@ -1711,16 +1726,16 @@ app.get("/api/debug/average-price", async (req, res) => {
       setAt: now,
       notes: "Test record from debug endpoint"
     };
-    
+
     // Save the test record
     const testRecord = new AveragePrice(testPrice);
     await testRecord.save();
     console.log("Test record saved:", testRecord);
-    
+
     // Find the test record
     const foundRecord = await AveragePrice.findById(testRecord._id);
     console.log("Found test record:", foundRecord);
-    
+
     return res.status(200).json({
       allRecords: allPrices,
       testRecord: foundRecord,
@@ -1737,29 +1752,29 @@ app.get("/api/admin/tea-prices/averages", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const { year } = req.query;
-    
+
     // Validate year parameter
     const validYear = parseInt(year) || new Date().getFullYear();
-    
+
     // Check if user has admin role
     const user = await clerkClient.users.getUser(userId);
     const isUserAdmin = user.unsafeMetadata && user.unsafeMetadata.role === 'admin';
-    
+
     if (!isUserAdmin) {
       return res.status(403).json({ error: "Unauthorized. Admin access required." });
     }
-    
+
     // Get all average prices for the requested year
     const averagePrices = await AveragePrice.find({ year: validYear });
-    
+
     // Format the data for the frontend
     const formattedPrices = [];
-    
+
     // For each month (1-12)
     for (let month = 1; month <= 12; month++) {
       // Find the price for this month
       const monthPrice = averagePrices.find(p => p.month === month);
-      
+
       formattedPrices.push({
         month,
         monthName: new Date(validYear, month - 1, 1).toLocaleString('default', { month: 'long' }),
@@ -1768,7 +1783,7 @@ app.get("/api/admin/tea-prices/averages", async (req, res) => {
         setAt: monthPrice ? monthPrice.setAt : null
       });
     }
-    
+
     res.status(200).json({
       year: validYear,
       prices: formattedPrices
@@ -1783,26 +1798,26 @@ app.get("/api/admin/tea-prices/averages", async (req, res) => {
 app.get("/api/admin/tea-prices/statistics", async (req, res) => {
   try {
     const userId = req.auth.userId;
-    
+
     // Check if user has admin role
     const user = await clerkClient.users.getUser(userId);
     const isUserAdmin = user.unsafeMetadata && user.unsafeMetadata.role === 'admin';
-    
+
     if (!isUserAdmin) {
       return res.status(403).json({ error: "Unauthorized. Admin access required." });
     }
-    
+
     // Calculate stats for the current month
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
-    
+
     // Get the average price set by admin for current month
-    const adminPrice = await AveragePrice.findOne({ 
-      month: currentMonth, 
-      year: currentYear 
+    const adminPrice = await AveragePrice.findOne({
+      month: currentMonth,
+      year: currentYear
     });
-    
+
     // Get all factory prices
     const factoryPrices = await Price.find({
       date: {
@@ -1810,7 +1825,7 @@ app.get("/api/admin/tea-prices/statistics", async (req, res) => {
         $lt: new Date(currentYear, currentMonth, 1)
       }
     });
-    
+
     // Calculate statistics
     let stats = {
       adminAveragePrice: adminPrice ? adminPrice.price : null,
@@ -1821,21 +1836,21 @@ app.get("/api/admin/tea-prices/statistics", async (req, res) => {
       totalTransactions: 0,
       belowAverageCount: 0
     };
-    
+
     if (factoryPrices.length > 0) {
       // Convert price strings to numbers
       const prices = factoryPrices.map(p => parseFloat(p.price));
-      
+
       stats.averageFactoryPrice = (prices.reduce((a, b) => a + b, 0) / prices.length).toFixed(2);
       stats.lowestPrice = Math.min(...prices).toFixed(2);
       stats.highestPrice = Math.max(...prices).toFixed(2);
-      
+
       // Count factories below admin average
       if (adminPrice) {
         stats.belowAverageCount = prices.filter(p => p < adminPrice.price).length;
       }
     }
-    
+
     // Get total collection transactions for this month
     const transactionCount = await CollectionRequest.countDocuments({
       date: {
@@ -1844,9 +1859,9 @@ app.get("/api/admin/tea-prices/statistics", async (req, res) => {
       },
       status: 'completed'
     });
-    
+
     stats.totalTransactions = transactionCount;
-    
+
     res.status(200).json({
       success: true,
       month: currentMonth,
@@ -1856,9 +1871,9 @@ app.get("/api/admin/tea-prices/statistics", async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching tea price statistics:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Failed to fetch tea price statistics" 
+      error: "Failed to fetch tea price statistics"
     });
   }
 });
@@ -1868,23 +1883,23 @@ app.get("/api/admin/tea-prices/factory-averages", async (req, res) => {
   try {
     const userId = req.auth.userId;
     const { year, month } = req.query;
-    
+
     // Validate parameters
     const validYear = parseInt(year) || new Date().getFullYear();
     const validMonth = parseInt(month) || new Date().getMonth() + 1;
-    
+
     // Check if user has admin role
     const user = await clerkClient.users.getUser(userId);
     const isUserAdmin = user.unsafeMetadata && user.unsafeMetadata.role === 'admin';
-    
+
     if (!isUserAdmin) {
       return res.status(403).json({ error: "Unauthorized. Admin access required." });
     }
-    
+
     // Define the date range for the requested month
     const startDate = new Date(validYear, validMonth - 1, 1);
     const endDate = new Date(validYear, validMonth, 0); // Last day of the month
-    
+
     // Find all prices set by factories in this month
     const prices = await Price.find({
       date: {
@@ -1892,7 +1907,7 @@ app.get("/api/admin/tea-prices/factory-averages", async (req, res) => {
         $lte: endDate
       }
     }).sort({ date: -1 });
-    
+
     // Group by factory and calculate average if multiple prices per factory
     const factoryPrices = {};
     prices.forEach(price => {
@@ -1908,18 +1923,18 @@ app.get("/api/admin/tea-prices/factory-averages", async (req, res) => {
       }
       factoryPrices[price.factoryId].prices.push(parseFloat(price.price));
     });
-    
+
     // Calculate averages for each factory
     Object.values(factoryPrices).forEach(factory => {
       factory.averagePrice = (factory.prices.reduce((a, b) => a + b, 0) / factory.prices.length).toFixed(2);
     });
-    
+
     // Get the admin average price for comparison
-    const adminPrice = await AveragePrice.findOne({ 
-      month: validMonth, 
-      year: validYear 
+    const adminPrice = await AveragePrice.findOne({
+      month: validMonth,
+      year: validYear
     });
-    
+
     res.status(200).json({
       success: true,
       month: validMonth,
@@ -1930,9 +1945,9 @@ app.get("/api/admin/tea-prices/factory-averages", async (req, res) => {
     });
   } catch (error) {
     console.error("Error calculating factory average prices:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Failed to calculate factory average prices" 
+      error: "Failed to calculate factory average prices"
     });
   }
 });
@@ -1941,26 +1956,26 @@ app.get("/api/admin/tea-prices/factory-averages", async (req, res) => {
 app.get("/api/admin/tea-prices/compliance", async (req, res) => {
   try {
     const userId = req.auth.userId;
-    
+
     // Check if user has admin role
     const user = await clerkClient.users.getUser(userId);
     const isUserAdmin = user.unsafeMetadata && user.unsafeMetadata.role === 'admin';
-    
+
     if (!isUserAdmin) {
       return res.status(403).json({ error: "Unauthorized. Admin access required." });
     }
-    
+
     // Get current month and year
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
-    
+
     // Get the admin average price
-    const adminPrice = await AveragePrice.findOne({ 
-      month: currentMonth, 
-      year: currentYear 
+    const adminPrice = await AveragePrice.findOne({
+      month: currentMonth,
+      year: currentYear
     });
-    
+
     if (!adminPrice) {
       return res.status(200).json({
         success: true,
@@ -1968,11 +1983,11 @@ app.get("/api/admin/tea-prices/compliance", async (req, res) => {
         nonCompliantFactories: []
       });
     }
-    
+
     // Find the latest price for each factory
     const allFactories = await Factory.find({});
     const factoryPrices = await Price.find().sort({ date: -1 });
-    
+
     // Group by factory to get latest price
     const latestPrices = {};
     factoryPrices.forEach(price => {
@@ -1985,13 +2000,13 @@ app.get("/api/admin/tea-prices/compliance", async (req, res) => {
         };
       }
     });
-    
+
     // Find non-compliant factories (below minimum price or no price set)
     const nonCompliantFactories = [];
-    
+
     allFactories.forEach(factory => {
       const factoryPrice = latestPrices[factory.factoryId];
-      
+
       if (!factoryPrice) {
         // Factory has no price set
         nonCompliantFactories.push({
@@ -2015,7 +2030,7 @@ app.get("/api/admin/tea-prices/compliance", async (req, res) => {
         });
       }
     });
-    
+
     res.status(200).json({
       success: true,
       month: currentMonth,
@@ -2028,12 +2043,14 @@ app.get("/api/admin/tea-prices/compliance", async (req, res) => {
     });
   } catch (error) {
     console.error("Error generating compliance report:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: "Failed to generate compliance report" 
+      error: "Failed to generate compliance report"
     });
   }
 });
+
+// Direct messaging routes are now imported from directChatRoutes.js
 
 // Start the server
 app.listen(PORT, () => {
