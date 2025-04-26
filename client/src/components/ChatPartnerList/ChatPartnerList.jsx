@@ -3,35 +3,33 @@ import { useAuth } from '@clerk/clerk-react';
 import { FaSearch } from 'react-icons/fa';
 import './chatPartnerList.css';
 
-const ChatPartnerList = ({ onSelectPartner }) => {
+const ChatPartnerList = ({ onSelectPartner, searchQuery = '' }) => {
   const { getToken, user } = useAuth();
   const [partners, setPartners] = useState([]);
   const [filteredPartners, setFilteredPartners] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Filter partners when search term changes
+  // Filter partners when search query changes
   useEffect(() => {
-    if (searchTerm.trim() === '') {
+    if (!searchQuery.trim()) {
       setFilteredPartners(partners);
     } else {
       const filtered = partners.filter(partner =>
-        partner.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        partner.role.toLowerCase().includes(searchTerm.toLowerCase())
+        partner.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        partner.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (partner.address && partner.address.toLowerCase().includes(searchQuery.toLowerCase()))
       );
       setFilteredPartners(filtered);
     }
-  }, [searchTerm, partners]);
+  }, [searchQuery, partners]);
 
   useEffect(() => {
     const fetchPartners = async () => {
       try {
         setLoading(true);
         const token = await getToken();
-        const userRole = user?.publicMetadata?.role;
-        const partnerRole = userRole === 'farmer' ? 'factory' : 'farmer';
-
+        
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat-partners`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -66,16 +64,6 @@ const ChatPartnerList = ({ onSelectPartner }) => {
     <div className="chatPartnerList">
       <div className="partnerListHeader">
         <h3>Available Partners</h3>
-        <div className="searchContainer">
-          <input
-            type="text"
-            placeholder="Search partners..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="searchInput"
-          />
-          <FaSearch className="searchIcon" />
-        </div>
       </div>
 
       {loading ? (
@@ -92,9 +80,7 @@ const ChatPartnerList = ({ onSelectPartner }) => {
               const fetchPartners = async () => {
                 try {
                   const token = await getToken();
-                  const userRole = user?.publicMetadata?.role;
-                  const partnerRole = userRole === 'farmer' ? 'factory' : 'farmer';
-
+                  
                   const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat-partners`, {
                     headers: {
                       Authorization: `Bearer ${token}`
@@ -106,7 +92,6 @@ const ChatPartnerList = ({ onSelectPartner }) => {
                   }
 
                   const data = await response.json();
-                  // The API returns { success: true, partners } with a success flag
                   if (data.success) {
                     const partnersList = data.partners || [];
                     setPartners(partnersList);
@@ -123,18 +108,7 @@ const ChatPartnerList = ({ onSelectPartner }) => {
               };
               fetchPartners();
             }}
-            style={{
-              padding: '6px 12px',
-              marginTop: '10px',
-              background: 'linear-gradient(to right, #218608, #23ce7e)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              boxShadow: '0 2px 4px rgba(35, 206, 126, 0.3)',
-              transition: 'all 0.2s ease',
-              fontSize: '0.9rem'
-            }}
+            className="refreshButton"
           >
             Refresh Partners
           </button>
@@ -157,8 +131,13 @@ const ChatPartnerList = ({ onSelectPartner }) => {
               className="partnerItem"
               onClick={() => onSelectPartner(partner)}
             >
-              <div className="partnerName">{partner.name}</div>
-              <div className="partnerRole">{partner.role}</div>
+              <div className="partnerAvatar">
+                {partner.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="partnerInfo">
+                <div className="partnerName">{partner.name}</div>
+                <div className="partnerRole">{partner.role}</div>
+              </div>
             </div>
           ))}
         </div>

@@ -15,11 +15,43 @@ router.use(ClerkExpressRequireAuth());
 router.get('/api/direct-chats', async (req, res) => {
   try {
     const userId = req.auth.userId;
+    console.log("Fetching chats for user:", userId);
 
     // Find all chats where the user is a participant
     const chats = await DirectChat.find({
       'participants.userId': userId
     }).sort({ updatedAt: -1 });
+
+    console.log(`Found ${chats.length} chats for user ${userId}`);
+    
+    // Check user's role for debugging
+    const farmer = await Farmer.findOne({ userId });
+    const factory = await Factory.findOne({ userId });
+    console.log(`User is a farmer: ${!!farmer}, User is a factory: ${!!factory}`);
+    
+    // Log the participants of each chat for debugging
+    chats.forEach((chat, index) => {
+      console.log(`Chat ${index + 1} participants:`, chat.participants.map(p => ({ 
+        id: p.userId, 
+        name: p.name, 
+        role: p.role 
+      })));
+      
+      // Verify participant names
+      chat.participants.forEach(async (participant) => {
+        if (participant.role === 'farmer') {
+          const farmerDoc = await Farmer.findOne({ userId: participant.userId });
+          if (farmerDoc && participant.name !== farmerDoc.farmerName) {
+            console.log(`Warning: Farmer name mismatch in chat ${chat._id}. Chat has "${participant.name}" but should be "${farmerDoc.farmerName}"`);
+          }
+        } else if (participant.role === 'factory') {
+          const factoryDoc = await Factory.findOne({ userId: participant.userId });
+          if (factoryDoc && participant.name !== factoryDoc.factoryName) {
+            console.log(`Warning: Factory name mismatch in chat ${chat._id}. Chat has "${participant.name}" but should be "${factoryDoc.factoryName}"`);
+          }
+        }
+      });
+    });
 
     res.json({ chats });
   } catch (error) {
@@ -55,17 +87,17 @@ router.get('/api/direct-chats/:chatId', async (req, res) => {
 router.post('/api/direct-chats', async (req, res) => {
   try {
     const userId = req.auth.userId;
-    const { recipientId, recipientRole, recipientName, senderName, senderRole, initialMessage } = req.body;
+    const { partnerId } = req.body;
 
-    if (!recipientId) {
-      return res.status(400).json({ error: 'Recipient ID is required' });
+    if (!partnerId) {
+      return res.status(400).json({ error: 'Partner ID is required' });
     }
 
     // Check if a chat already exists between these users
     const existingChat = await DirectChat.findOne({
       $and: [
         { 'participants.userId': userId },
-        { 'participants.userId': recipientId }
+        { 'participants.userId': partnerId }
       ]
     });
 
@@ -73,15 +105,45 @@ router.post('/api/direct-chats', async (req, res) => {
       return res.json({ chat: existingChat });
     }
 
-    // Create a new chat
+    // Determine current user's role and name
+    let senderRole = '';
+    let senderName = '';
+    const currentUserFarmer = await Farmer.findOne({ userId });
+    const currentUserFactory = await Factory.findOne({ userId });
+
+    if (currentUserFarmer) {
+      senderRole = 'farmer';
+      senderName = currentUserFarmer.farmerName;
+    } else if (currentUserFactory) {
+      senderRole = 'factory';
+      senderName = currentUserFactory.factoryName;
+    } else {
+      return res.status(404).json({ error: 'Your user profile was not found' });
+    }
+
+    // Determine partner's role and name
+    let partnerRole = '';
+    let partnerName = '';
+    const partnerFarmer = await Farmer.findOne({ userId: partnerId });
+    const partnerFactory = await Factory.findOne({ userId: partnerId });
+
+    if (partnerFarmer) {
+      partnerRole = 'farmer';
+      partnerName = partnerFarmer.farmerName;
+    } else if (partnerFactory) {
+      partnerRole = 'factory';
+      partnerName = partnerFactory.factoryName;
+    } else {
+      return res.status(404).json({ error: 'Partner user profile was not found' });
+    }
+
+    // Create a new chat with actual names
     const newChat = new DirectChat({
       participants: [
         { userId, role: senderRole, name: senderName },
-        { userId: recipientId, role: recipientRole, name: recipientName }
+        { userId: partnerId, role: partnerRole, name: partnerName }
       ],
-      messages: initialMessage ? [
-        { sender: userId, text: initialMessage, timestamp: new Date(), read: false }
-      ] : []
+      messages: []
     });
 
     await newChat.save();
@@ -204,6 +266,114 @@ router.get('/api/chat-partners', async (req, res) => {
   } catch (error) {
     console.error('Error fetching chat partners:', error);
     res.status(500).json({ success: false, message: "Failed to fetch chat partners", error: error.message });
+  }
+});
+
+// Delete a direct chat
+router.delete('/api/direct-chats/:chatId', async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { chatId } = req.params;
+
+    // Find the chat and ensure the user is a participant
+    const chat = await DirectChat.findOne({
+      _id: chatId,
+      'participants.userId': userId
+    });
+
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat not found or you do not have permission to delete it' });
+    }
+
+    // Delete the chat
+    await DirectChat.findByIdAndDelete(chatId);
+
+    res.json({ success: true, message: 'Chat deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting direct chat:', error);
+    res.status(500).json({ error: 'Failed to delete chat' });
+  }
+});
+
+// Migration endpoint to fix existing chats with proper names
+router.put('/api/fix-direct-chats', async (req, res) => {
+  try {
+    console.log("Running fix-direct-chats migration");
+    const chats = await DirectChat.find({});
+    let updatedCount = 0;
+    let errors = [];
+
+    for (const chat of chats) {
+      let updated = false;
+      console.log(`Processing chat ${chat._id} with ${chat.participants.length} participants`);
+
+      // Fix each participant's name
+      for (const participant of chat.participants) {
+        const userId = participant.userId;
+        const role = participant.role;
+        
+        console.log(`Checking participant ${userId} with role ${role}`);
+        
+        try {
+          if (role === 'farmer') {
+            const farmer = await Farmer.findOne({ userId });
+            if (farmer) {
+              console.log(`Found farmer ${farmer.farmerName} for userId ${userId}`);
+              if (participant.name !== farmer.farmerName) {
+                console.log(`Updating name from "${participant.name}" to "${farmer.farmerName}"`);
+                participant.name = farmer.farmerName;
+                updated = true;
+              }
+            } else {
+              console.log(`No farmer found for userId ${userId}`);
+              errors.push(`No farmer found for userId ${userId}`);
+            }
+          } else if (role === 'factory') {
+            const factory = await Factory.findOne({ userId });
+            if (factory) {
+              console.log(`Found factory ${factory.factoryName} for userId ${userId}`);
+              if (participant.name !== factory.factoryName) {
+                console.log(`Updating name from "${participant.name}" to "${factory.factoryName}"`);
+                participant.name = factory.factoryName;
+                updated = true;
+              }
+            } else {
+              console.log(`No factory found for userId ${userId}`);
+              errors.push(`No factory found for userId ${userId}`);
+            }
+          } else {
+            console.log(`Unknown role ${role} for userId ${userId}`);
+            errors.push(`Unknown role ${role} for userId ${userId}`);
+          }
+        } catch (err) {
+          console.error(`Error processing participant ${userId}:`, err);
+          errors.push(`Error processing participant ${userId}: ${err.message}`);
+        }
+      }
+
+      if (updated) {
+        try {
+          await chat.save();
+          console.log(`Successfully updated chat ${chat._id}`);
+          updatedCount++;
+        } catch (err) {
+          console.error(`Error saving chat ${chat._id}:`, err);
+          errors.push(`Error saving chat ${chat._id}: ${err.message}`);
+        }
+      } else {
+        console.log(`No updates needed for chat ${chat._id}`);
+      }
+    }
+
+    res.json({ 
+      success: true, 
+      message: `Updated ${updatedCount} chats`,
+      totalChats: chats.length,
+      errors: errors.length > 0 ? errors : undefined
+    });
+  } catch (error) {
+    console.error('Error fixing direct chats:', error);
+    res.status(500).json({ error: 'Failed to fix direct chats', message: error.message });
   }
 });
 
