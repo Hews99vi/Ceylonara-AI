@@ -13,6 +13,35 @@
   text-align: center;
 }
 
+.announcements-link-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.view-announcements-btn {
+  display: inline-block;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.view-announcements-btn:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.view-announcements-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
 .error-message {
   background-color: rgba(198, 40, 40, 0.2);
   color: #ff8a80;
