@@ -1,0 +1,50 @@
+:root {
+  /* Primary Colors */
+  --primary-green: #23ce7e;
+  --primary-green-dark: #1fa167;
+  --primary-green-light: #a5e8c7;
+  
+  /* Secondary Colors */
+  --secondary-green: #218608;
+  --secondary-green-dark: #186406;
+  --secondary-green-light: #c9e6c0;
+  
+  /* Neutral Colors */
+  --white: #ffffff;
+  --off-white: #f8f9fa;
+  --light-gray: #e9ecef;
+  --medium-gray: #dee2e6;
+  --dark-gray: #495057;
+  --black: #212529;
+  
+  /* Accent Colors */
+  --accent-yellow: #ffc107;
+  
+  /* Functional Colors */
+  --success: #28a745;
+  --info: #17a2b8;
+  --warning: #ffc107;
+  --danger: #dc3545;
+  
+  /* Background Colors */
+  --bg-primary: var(--white);
+  --bg-secondary: var(--off-white);
+  --bg-accent: var(--primary-green);
+  
+  /* Text Colors */
+  --text-primary: var(--black);
+  --text-secondary: var(--dark-gray);
+  --text-light: var(--white);
+  
+  /* Border Colors */
+  --border-light: var(--medium-gray);
+  --border-dark: var(--primary-green);
+  
+  /* Shadow */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  
+  /* Gradient */
+  --gradient-primary: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+}

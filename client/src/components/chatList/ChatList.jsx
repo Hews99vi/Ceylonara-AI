@@ -95,26 +95,61 @@ const ChatList = () => {
 
   return (
     <div className="chatList">
+
+
       <span className="title">DASHBOARD</span>
 
       {isFactory ? (
         // Factory-specific links
         <>
-          <Link to="/dashboard" className="navLink">Create a new Chat</Link>
-          <Link to="/dashboard/direct-messages" className="navLink">Direct Messages</Link>
-          <Link to="/dashboard/set-tea-price" className="navLink">Set Tea Prices</Link>
-          <Link to="/dashboard/post-announcement" className="navLink">Post Announcement</Link>
-          <Link to="/dashboard/request-collection" className="navLink">Collection Requests</Link>
+          <Link to="/dashboard" className="navLink">
+            <i className="fas fa-comment-medical"></i>
+            Create a new Chat
+          </Link>
+          <Link to="/dashboard/direct-messages" className="navLink">
+            <i className="fas fa-envelope"></i>
+            Direct Messages
+          </Link>
+          <Link to="/dashboard/set-tea-price" className="navLink">
+            <i className="fas fa-tag"></i>
+            Set Tea Prices
+          </Link>
+          <Link to="/dashboard/post-announcement" className="navLink">
+            <i className="fas fa-bullhorn"></i>
+            Post Announcement
+          </Link>
+          <Link to="/dashboard/request-collection" className="navLink">
+            <i className="fas fa-truck"></i>
+            Collection Requests
+          </Link>
         </>
       ) : (
         // Updated farmer links as requested
         <>
-          <Link to="/dashboard" className="navLink">Create a new Chat</Link>
-          <Link to="/dashboard/direct-messages" className="navLink">Direct Messages</Link>
-          <Link to="/dashboard/tea-prices" className="navLink">Monthly Tea Leaves Prices</Link>
-          <Link to="/dashboard/announcements" className="navLink">Announcements</Link>
-          <Link to="/dashboard/request-collection" className="navLink">Request to Collect</Link>
-          <Link to="/dashboard/my-collection-requests" className="navLink">My Collection Requests</Link>
+          <Link to="/dashboard" className="navLink">
+            <i className="fas fa-comment-medical"></i>
+            Create a new Chat
+          </Link>
+          <Link to="/dashboard/direct-messages" className="navLink">
+            <i className="fas fa-envelope"></i>
+            Direct Messages
+          </Link>
+          <Link to="/dashboard/tea-prices" className="navLink">
+            <i className="fas fa-chart-line"></i>
+            Monthly Tea Prices
+          </Link>
+          <Link to="/dashboard/announcements" className="navLink">
+            <i className="fas fa-bullhorn"></i>
+            Announcements
+          </Link>
+          <Link to="/dashboard/request-collection" className="navLink">
+            <i className="fas fa-truck"></i>
+            Request Collection
+          </Link>
+          <Link to="/dashboard/my-collection-requests" className="navLink">
+            <i className="fas fa-clipboard-list"></i>
+            My Requests
+          </Link>
         </>
       )}
 
@@ -142,13 +177,16 @@ const ChatList = () => {
               key={chat._id}
               className="chatLink"
             >
-              <span>{chat.title}</span>
+              <div className="chat-title">
+                <i className="fas fa-comments"></i>
+                <span>{chat.title}</span>
+              </div>
               <button
                 className="deleteBtn"
                 onClick={(e) => handleDelete(e, chat._id, chat.title)}
                 title="Delete chat"
               >
-                🗑️
+                <i className="fas fa-trash-alt"></i>
               </button>
             </Link>
           ))
@@ -157,7 +195,7 @@ const ChatList = () => {
       <hr />
       <div style={{ flex: 1 }}></div> {/* This will push the AI experience to bottom */}
       <div className="ai-experience">
-        <img src="/ai-icon.png" alt="AI" />
+        <i className="fas fa-robot"></i>
         <span>Experience the Power of Tea AI</span>
       </div>
 

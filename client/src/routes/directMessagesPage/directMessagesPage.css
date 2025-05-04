@@ -226,7 +226,7 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(45deg, #6600ff, #8c52ff);
+  background: linear-gradient(45deg, #588b76, #85aa9b);
   color: white;
   display: flex;
   align-items: center;
@@ -280,7 +280,7 @@
 .unreadBadge {
   width: 8px;
   height: 8px;
-  background-color: #6600ff;
+  background-color: #588b76;
   border-radius: 50%;
   display: block;
 }
@@ -317,7 +317,7 @@
   height: 30px;
   border: 2px solid rgba(102, 0, 255, 0.2);
   border-radius: 50%;
-  border-top-color: #6600ff;
+  border-top-color: #588b76;
   animation: spin 1s linear infinite;
   margin-bottom: 15px;
 }
@@ -345,7 +345,7 @@
 .retryButton {
   margin-top: 15px;
   padding: 8px 16px;
-  background-color: #6600ff;
+  background-color: #588b76;
   color: white;
   border: none;
   border-radius: 20px;
@@ -404,6 +404,90 @@
   opacity: 1;
 }
 
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background-color: #ffffff;
+  border-radius: 15px;
+  padding: 25px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  animation: modalFadeIn 0.3s ease;
+}
+
+.modal-content h3 {
+  color: #333333;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+}
+
+.modal-content p {
+  color: #666666;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.modal-actions button {
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #666666;
+  border: 1px solid #e0e0e0;
+}
+
+.cancel-btn:hover {
+  background-color: #eeeeee;
+}
+
+.confirm-btn {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.confirm-btn:hover {
+  background-color: #b71c1c;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 768px) {
   .sidebar {
     position: absolute;
@@ -413,19 +497,111 @@
     transition: transform 0.3s ease;
     z-index: 200;
   }
-  
+
   .sidebar.visible {
     transform: translateX(0);
   }
-  
+
   .chatArea {
     width: 100%;
     margin: 0;
     border-radius: 0;
   }
-  
+
   .backButton {
     top: 10px;
     left: 10px;
   }
+}
+
+/* Add strong chat message styles directly to the page */
+.dm-message {
+  width: 100%;
+  clear: both;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.dm-message.my-message {
+  width: 100%;
+  text-align: right;
+}
+
+.dm-message.other-message {
+  width: 100%;
+  text-align: left;
+}
+
+.dm-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #588b76;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.dm-message.my-message .dm-avatar {
+  float: right;
+  margin-left: 8px;
+  background-color: #85aa9b;
+}
+
+.dm-message.other-message .dm-avatar {
+  float: left;
+  margin-right: 8px;
+}
+
+.dm-content {
+  display: inline-block;
+  max-width: 70%;
+  vertical-align: top;
+}
+
+.dm-message.my-message .dm-content {
+  text-align: right;
+}
+
+.dm-message.other-message .dm-content {
+  text-align: left;
+}
+
+.dm-bubble {
+  display: inline-block;
+  padding: 10px 15px;
+  border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+  position: relative;
+  max-width: 100%;
+}
+
+.dm-message.my-message .dm-bubble {
+  background-color: #588b76;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.dm-message.other-message .dm-bubble {
+  background-color: white;
+  color: #333;
+  border-bottom-left-radius: 4px;
+  border: 1px solid #eee;
+}
+
+.dm-time {
+  font-size: 11px;
+  margin-top: 3px;
+  opacity: 0.7;
+}
+
+.dm-message.my-message .dm-time {
+  color: #333;
+}
+
+.dm-message.other-message .dm-time {
+  color: #888;
 }

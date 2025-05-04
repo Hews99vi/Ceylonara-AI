@@ -4,6 +4,7 @@
   flex-direction: column;
   align-items: center;
   position: relative;
+  background-color: var(--off-white);
 }
 
 .wrapper {
@@ -11,20 +12,23 @@
   width: 100%;
   display: flex;
   justify-content: center;
-  padding-top: 30px;
-  overflow-y: scroll; /* Changed from auto to scroll to ensure scrollbar is always visible */
+  padding-top: 20px;
+  overflow-y: auto;
   overflow-x: hidden;
-  max-height: calc(100vh - 100px); /* Add max-height to enable scrolling */
+  max-height: calc(100vh - 80px);
 }
 
 .chat {
-  width: 50%;
-  padding: 20px;
+  width: 70%;
+  max-width: 900px;
+  padding: 30px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin-top: 50px;
-  padding-bottom: 100px; /* Add padding at bottom to prevent messages from being hidden by input */
+  margin-top: 20px;
+  padding-bottom: 100px;
+  background-color: transparent;
+  border-radius: 12px;
 }
 
 .messageWrapper {
@@ -49,12 +53,18 @@
 
 .loading, .error {
   text-align: center;
-  padding: 20px;
-  color: #b0b0b0;
+  padding: 30px;
+  color: var(--dark-gray);
+  background-color: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  margin: 20px 0;
+  width: 100%;
 }
 
 .error {
-  color: #ff4c4c;
+  color: var(--danger);
+  border-left: 4px solid var(--danger);
 }
 
 /* Add these new styles for the send button */

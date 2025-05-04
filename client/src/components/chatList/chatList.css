@@ -2,25 +2,31 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 20px;
+  padding: 0;
+  background-color: var(--primary-green);
+  color: var(--white);
 }
+
+
 
 hr {
   border: none;
-  height: 2px;
-  background-color: #ddd;
-  opacity: 0.1;
-  border-radius: 5px;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.2);
   margin: 20px 0px;
 }
 
 .title {
-  font-weight: 600;
-  font-size: 12px;
-  margin-bottom: 15px;
-  color: #ececec;
+  font-weight: 700;
+  font-size: 14px;
+  margin: 10px 0 15px 0;
+  color: black;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: inline-block;
 }
 
 .List {
@@ -28,36 +34,51 @@ hr {
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  gap: 8px;
+  gap: 15px;
   padding-right: 10px;
 }
 
 .List::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .List::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
 .List::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
 }
 
 .navLink {
-  padding: 12px;
-  border-radius: 10px;
+  padding: 12px 15px;
+  border-radius: 12px;
   text-decoration: none;
-  color: #b0b0b0;
+  color: black;
   transition: all 0.3s ease;
   font-size: 14px;
+  background-color: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
 }
 
+.navLink i {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+/* Removed dot indicator since we now have icons */
+
 .navLink:hover {
-  background-color: #2c2937;
-  color: #ececec;
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: translateX(5px);
+  color: black;
+  font-weight: 600;
 }
 
 .loading {
@@ -66,14 +87,14 @@ hr {
   align-items: center;
   gap: 15px;
   padding: 30px;
-  color: #b0b0b0;
+  color: #666666;
 }
 
 .loadingSpinner {
   width: 24px;
   height: 24px;
-  border: 2px solid #2c2937;
-  border-top: 2px solid #23ce7e;
+  border: 2px solid #e0e0e0;
+  border-top: 2px solid #588b76;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -93,12 +114,12 @@ hr {
 }
 
 .error span {
-  color: #ff4c4c;
+  color: #d32f2f;
   font-size: 14px;
 }
 
 .retryButton {
-  background: linear-gradient(to right, #23ce7e, #2c937d);
+  background: linear-gradient(to right, #588b76, #85aa9b);
   color: white;
   border: none;
   padding: 8px 16px;
@@ -115,7 +136,7 @@ hr {
 .no-chats {
   padding: 30px;
   text-align: center;
-  color: #b0b0b0;
+  color: black;
   font-size: 14px;
 }
 
@@ -123,16 +144,49 @@ hr {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 12px 15px;
+  border-radius: 12px;
   text-decoration: none;
-  color: #ececec;
+  color: black;
   transition: all 0.3s ease;
-  background-color: rgba(44, 41, 55, 0.3);
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  position: relative;
+}
+
+.chat-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chat-title i {
+  font-size: 14px;
+  color: black;
+}
+
+.chatLink::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 0;
+  background-color: black;
+  border-radius: 0 2px 2px 0;
+  transition: height 0.3s ease;
 }
 
 .chatLink:hover {
-  background-color: #2c2937;
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: translateX(5px);
+  color: black;
+  font-weight: 600;
+}
+
+.chatLink:hover::before {
+  height: 70%;
 }
 
 .deleteBtn {
@@ -140,8 +194,8 @@ hr {
   height: 28px;
   border-radius: 50%;
   border: none;
-  background-color: rgba(35, 206, 126, 0.1);
-  color: #b0b0b0;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: black;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -156,8 +210,7 @@ hr {
 }
 
 .deleteBtn:hover {
-  background-color: rgba(255, 76, 76, 0.1);
-  color: #ff4c4c;
+  background-color: rgba(255, 255, 255, 0.3);
   transform: scale(1.1);
 }
 
@@ -169,12 +222,12 @@ hr {
   align-items: center;
   gap: 12px;
   padding: 15px;
-  background-color: rgba(44, 41, 55, 0.3);
+  background-color: #ffffff;
+  border: 1px solid rgba(133, 170, 155, 0.3);
   border-radius: 10px;
   width: calc(100% - 40px);
   max-width: 425px;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   z-index: 100;
   transition: all 0.3s ease;
 }
@@ -185,7 +238,7 @@ hr {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,24 +247,24 @@ hr {
 }
 
 .modal-content {
-  background-color: #1e1e2d;
+  background-color: #ffffff;
   border-radius: 15px;
   padding: 25px;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
   animation: modalFadeIn 0.3s ease;
 }
 
 .modal-content h3 {
-  color: #ececec;
+  color: #333333;
   margin-top: 0;
   margin-bottom: 15px;
   font-size: 18px;
 }
 
 .modal-content p {
-  color: #b0b0b0;
+  color: #666666;
   margin-bottom: 20px;
   font-size: 14px;
   line-height: 1.5;
@@ -233,21 +286,22 @@ hr {
 }
 
 .cancel-btn {
-  background-color: #2c2937;
-  color: #b0b0b0;
+  background-color: #f5f5f5;
+  color: #666666;
+  border: 1px solid #e0e0e0;
 }
 
 .cancel-btn:hover {
-  background-color: #3a3749;
+  background-color: #eeeeee;
 }
 
 .confirm-btn {
-  background-color: #ff4c4c;
+  background-color: #d32f2f;
   color: white;
 }
 
 .confirm-btn:hover {
-  background-color: #e63e3e;
+  background-color: #b71c1c;
 }
 
 @keyframes modalFadeIn {
@@ -274,12 +328,51 @@ hr {
 
 .upgrade .texts span:first-child {
   font-weight: 600;
-  color: #ececec;
+  color: #333333;
   font-size: 14px;
 }
 
 .upgrade .texts span:last-child {
-  color: #b0b0b0;
+  color: #666666;
   font-size: 12px;
   line-height: 1.4;
+}
+
+.ai-experience {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.ai-experience:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-3px);
+}
+
+.ai-experience:hover span {
+  color: black;
+  font-weight: 600;
+}
+
+.ai-experience i {
+  font-size: 24px;
+  color: black;
+  background-color: var(--white);
+  padding: 5px;
+  border-radius: 6px;
+}
+
+.ai-experience span {
+  font-size: 14px;
+  color: black;
+  font-weight: 500;
+  white-space: nowrap;
 }

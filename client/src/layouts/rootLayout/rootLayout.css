@@ -1,35 +1,42 @@
 .rootLayout {
-  padding: 16px 64px;
   height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: var(--off-white);
 
   header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 20px;
+    background-color: var(--primary-green);
+    padding: 15px 40px;
+    box-shadow: var(--shadow-md);
+    position: relative;
+    z-index: 10;
 
     .logo {
       display: flex;
       align-items: center;
-      font-weight: bold;
-      gap: 8px;
+      font-weight: 600;
+      gap: 12px;
       text-decoration: none;
-      color: #ececec;
-      transition: opacity 0.3s ease;
+      color: var(--white);
+      transition: all 0.3s ease;
 
       &:hover {
-        opacity: 0.8;
+        transform: translateY(-2px);
       }
 
       img {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
+        background-color: var(--white);
+        padding: 5px;
+        border-radius: 8px;
       }
 
       span {
-        font-size: 20px;
+        font-size: 22px;
       }
     }
 
@@ -39,25 +46,28 @@
       align-items: center;
 
       a {
-        color: #ececec;
+        color: var(--white);
         text-decoration: none;
         font-size: 16px;
-        transition: color 0.3s ease;
+        transition: all 0.3s ease;
         position: relative;
+        opacity: 0.9;
 
         &:hover {
-          color: #23ce7e;
+          opacity: 1;
+          transform: translateY(-2px);
         }
 
         &::after {
           content: '';
           position: absolute;
-          bottom: -4px;
+          bottom: -6px;
           left: 0;
           width: 0;
-          height: 2px;
-          background: linear-gradient(to right, #218608, #23ce7e);
+          height: 3px;
+          background-color: var(--white);
           transition: width 0.3s ease;
+          border-radius: 3px;
         }
 
         &:hover::after {
@@ -69,27 +79,20 @@
     .user {
       display: flex;
       align-items: center;
+      gap: 15px;
     }
   }
 
   main {
     flex: 1;
     overflow: hidden;
+    background-color: var(--off-white);
   }
 }
 
 @media (max-width: 768px) {
-  .rootLayout {
-    padding: 16px 20px;
-
-    header {
-      nav {
-        gap: 15px;
-        
-        a {
-          font-size: 14px;
-        }
-      }
-    }
+  .rootLayout header {
+    padding: 15px 20px;
   }
 }
+

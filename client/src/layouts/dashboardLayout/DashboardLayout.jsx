@@ -12,19 +12,19 @@ const DashboardLayout = () => {
   const location = useLocation();
   // Check all possible locations for role
   const userRole = user?.publicMetadata?.role || user?.unsafeMetadata?.role;
-  
+
   // Check localStorage for factory data as another indicator
   const hasFactoryData = localStorage.getItem('factoryData') !== null;
-  
+
   // Check if user is a factory owner - also consider factory data in localStorage
   const isFactory = userRole === 'factory' || hasFactoryData;
-  
+
   // Check if user is an admin
   const isAdmin = userRole === 'admin' || location.pathname.includes('/dashboard/admin');
 
   // Enhanced logging
-  console.log("User role detection:", { 
-    userRole, 
+  console.log("User role detection:", {
+    userRole,
     publicRole: user?.publicMetadata?.role,
     unsafeRole: user?.unsafeMetadata?.role,
     hasFactoryData,
@@ -37,14 +37,14 @@ const DashboardLayout = () => {
       navigate("/sign-in");
       return;
     }
-    
+
     if (user) {
       const role = user.publicMetadata.role;
       if (!role) {
         navigate("/select-role");
         return;
       }
-      
+
       // If we're at the dashboard root and user is a factory owner, redirect to factory dashboard
       if (location.pathname === "/dashboard" && role === "factory") {
         navigate("/dashboard/factory");
@@ -72,23 +72,23 @@ const DashboardLayout = () => {
         {isFactory && !isAdmin && (
           <FactoryHeader />
         )}
-        
+
         {!isSpecificPage && userRole === 'farmer' && (
           <>
             <h1>Farmer Dashboard</h1>
             <div className="features-grid">
               <Link to="/dashboard/analyze-tea" className="feature-card">
-                <img src="/analyze-icon.png" alt="Analyze" />
+                <img src="/icons/analyze-icon.svg" alt="Analyze" />
                 <h3>Analyze Images</h3>
                 <p>Analyze tea leaf quality</p>
               </Link>
               <Link to="/dashboard/manage-state" className="feature-card">
-                <img src="/manage-icon.png" alt="Manage" />
+                <img src="/icons/estate-icon.svg" alt="Manage" />
                 <h3>Manage My Tea Data</h3>
                 <p>Track and manage your tea production</p>
               </Link>
               <Link to="/dashboard/harvest-plan" className="feature-card">
-                <img src="/harvest-icon.png" alt="Harvest" />
+                <img src="/icons/harvest-icon.svg" alt="Harvest" />
                 <h3>Harvest Planning</h3>
                 <p>Plan your harvest schedule</p>
               </Link>

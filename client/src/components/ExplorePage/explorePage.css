@@ -11,10 +11,11 @@
   position: relative;
   width: 90%;
   max-width: 1400px;
-  background-color: #1e1e2d;
+  background-color: #ffffff;
   border-radius: 20px;
   padding: 40px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(133, 170, 155, 0.2);
+  border: 1px solid #85aa9b;
 }
 
 .closeButton {
@@ -23,7 +24,7 @@
   right: 20px;
   background: none;
   border: none;
-  color: #b0b0b0;
+  color: #333333;
   font-size: 28px;
   cursor: pointer;
   width: 40px;
@@ -36,8 +37,8 @@
 }
 
 .closeButton:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ececec;
+  background-color: rgba(133, 170, 155, 0.1);
+  color: #000000;
 }
 
 .exploreHeader {
@@ -74,7 +75,7 @@
 .exploreSection h2 {
   font-size: 24px;
   margin-bottom: 30px;
-  color: #ececec;
+  color: #333333;
 }
 
 .featureGrid {
@@ -84,7 +85,9 @@
 }
 
 .featureCard {
-  background-color: rgba(44, 41, 55, 0.3);
+  background-color: #ffffff;
+  border: 1px solid #85aa9b;
+  box-shadow: 0 2px 5px rgba(133, 170, 155, 0.2);
   padding: 25px;
   border-radius: 12px;
   display: flex;
@@ -110,7 +113,7 @@
 .featureContent h3 {
   font-size: 18px;
   margin: 0 0 10px 0;
-  color: #ececec;
+  color: #333333;
 }
 
 .featureContent p {
@@ -125,7 +128,9 @@
 }
 
 .infoCard {
-  background-color: rgba(44, 41, 55, 0.3);
+  background-color: #ffffff;
+  border: 1px solid #85aa9b;
+  box-shadow: 0 2px 5px rgba(133, 170, 155, 0.2);
   padding: 30px;
   border-radius: 12px;
 }

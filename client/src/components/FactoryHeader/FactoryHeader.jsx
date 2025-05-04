@@ -8,11 +8,11 @@ const FactoryHeader = () => {
   const [mfNumber, setMfNumber] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const { getToken, user } = useAuth();
-  
+
   // Also check role here as a safety measure
   const userRole = user?.publicMetadata?.role || user?.unsafeMetadata?.role;
   const isFactory = userRole === 'factory';
-  
+
   console.log("FactoryHeader: User role check:", { userRole, isFactory });
 
   // Check for saved factory data in localStorage on component mount
@@ -26,7 +26,7 @@ const FactoryHeader = () => {
         console.error("Error parsing saved factory data:", error);
       }
     }
-    
+
     // Fetch actual factory data
     fetchFactoryData();
   }, []);
@@ -36,16 +36,16 @@ const FactoryHeader = () => {
       setIsLoading(true);
       console.log("FactoryHeader: Fetching factory data...");
       const token = await getToken();
-      
+
       // Make sure this matches the API endpoint defined in your backend
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/factory/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       console.log("FactoryHeader: Factory profile response status:", response.status);
-      
+
       if (response.ok) {
         const factoryData = await response.json();
         console.log("FactoryHeader: Factory data received:", factoryData);
@@ -99,7 +99,10 @@ const FactoryHeader = () => {
     return (
       <div className="factoryHeader">
         <div className="factoryInfo">
-          <h1 className="factoryName">Loading factory data...</h1>
+          <div className="factory-header-container">
+            <div className="factoryName">Loading...</div>
+            <div className="mfNumber">MF Number: Loading...</div>
+          </div>
         </div>
       </div>
     );
@@ -108,11 +111,13 @@ const FactoryHeader = () => {
   return (
     <div className="factoryHeader">
       <div className="factoryInfo">
-        <h1 className="factoryName">{factoryName}</h1>
-        <div className="mfNumber">MF Number: {mfNumber}</div>
+        <div className="factory-header-container">
+          <div className="factoryName">{factoryName}</div>
+          <div className="mfNumber">MF Number: {mfNumber}</div>
+        </div>
       </div>
     </div>
   );
 };
 
-export default FactoryHeader; 
+export default FactoryHeader;

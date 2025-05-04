@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import "./newPrompt.css";
+import "../../routes/chatPage/chatBubbleStyle.css";
 import Upload from "../upload/Upload";
 import { IKImage } from "imagekitio-react";
 import model from "../../lib/gemini";
@@ -90,13 +91,13 @@ const NewPrompt = ({ data }) => {
   // Simple function to check if a question is likely tea-related
   const checkIfTeaRelated = (text) => {
     const teaKeywords = [
-      'tea', 'ceylon', 'brew', 'steep', 'infuse', 'leaves', 'cup', 
+      'tea', 'ceylon', 'brew', 'steep', 'infuse', 'leaves', 'cup',
       'black tea', 'green tea', 'white tea', 'oolong', 'chai', 'matcha',
       'darjeeling', 'assam', 'earl grey', 'jasmine', 'herbal', 'teapot',
       'teacup', 'caffeine', 'antioxidant', 'camellia sinensis', 'sri lanka',
       'china tea', 'japanese tea', 'tea ceremony', 'tea estate', 'tea plantation'
     ];
-    
+
     const lowerText = text.toLowerCase();
     return teaKeywords.some(keyword => lowerText.includes(keyword.toLowerCase()));
   };
@@ -114,7 +115,7 @@ const NewPrompt = ({ data }) => {
 
     try {
       const isTeaRelated = checkIfTeaRelated(text);
-      
+
       if (!isTeaRelated && !isInitial) {
         const response = "Ayubowan,🙏 I am Ceylonara, your gentle guide through the serene world of tea...";
         setCurrentAnswer(response);
@@ -125,11 +126,11 @@ const NewPrompt = ({ data }) => {
         mutation.mutate();
         return;
       }
-      
+
       const result = await chat.sendMessageStream(
         Object.entries(img.aiData).length ? [img.aiData, text] : [text]
       );
-      
+
       let accumulatedText = "";
       for await (const chunk of result.stream) {
         const chunkText = chunk.text();
@@ -153,10 +154,10 @@ const NewPrompt = ({ data }) => {
     e.preventDefault();
     const text = e.target.text.value;
     if (!text) return;
-    
+
     // Clear the input field immediately after getting its value
     e.target.text.value = '';
-    
+
     add(text, false);
   };
 
@@ -176,21 +177,41 @@ const NewPrompt = ({ data }) => {
     <>
       {/* Only show current interaction that's not yet in messages */}
       {currentQuestion && (
-        <div className="message user">{currentQuestion}</div>
-      )}
-      {currentAnswer && (
-        <div className="message">
-          <Markdown>{currentAnswer}</Markdown>
+        <div className="message-row user" style={{ backgroundColor: 'transparent' }}>
+          <div className="avatar">Y</div>
+          <div className="message-content">
+            <div className="sender-name">You</div>
+            <div className="message-bubble">
+              {currentQuestion}
+            </div>
+            <div className="timestamp">
+              {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
         </div>
       )}
-      
+      {currentAnswer && (
+        <div className="message-row model" style={{ backgroundColor: 'transparent' }}>
+          <div className="avatar">A</div>
+          <div className="message-content">
+            <div className="sender-name">Ceylonara AI</div>
+            <div className="message-bubble">
+              <Markdown>{currentAnswer}</Markdown>
+            </div>
+            <div className="timestamp">
+              {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="endChat" ref={endRef}></div>
       <form className="newForm" onSubmit={handleSubmit} ref={formRef}>
         <Upload setImg={setImg} />
         <input id="file" type="file" multiple={false} hidden />
         <input type="text" name="text" placeholder="Ask anything about tea..." />
         <button type="submit" className="send-button">
-          <img src="/send-icon.png" alt="Send" />
+          <i className="fas fa-paper-plane"></i>
           Send
         </button>
       </form>

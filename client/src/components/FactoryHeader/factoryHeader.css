@@ -1,35 +1,62 @@
 .factoryHeader {
-  background-color: #1e1e1e;
-  color: white;
+  background-color: var(--white);
+  color: var(--text-primary);
   padding: 15px 20px;
-  border-bottom: 2px solid #4CAF50;
+  border-radius: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 50px;
+  box-shadow: var(--shadow-md);
 }
 
 .factoryInfo {
   display: flex;
-  align-items: baseline;
-  gap: 20px;
+  align-items: center;
+}
+
+.factory-header-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .factoryName {
-  font-size: 24px;
-  margin: 0;
-  color: #4CAF50;
+  font-size: 18px;
+  margin: 0 0 8px 0;
+  color: var(--primary-green);
+  font-weight: 600;
+  line-height: 1.2;
 }
 
 .mfNumber {
   font-size: 14px;
-  color: #b0b0b0;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.2;
 }
 
 @media (max-width: 768px) {
+  .factoryHeader {
+    margin-bottom: 40px;
+  }
   .factoryInfo {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .factory-header-container {
+    display: flex;
     flex-direction: column;
-    gap: 5px;
     align-items: flex-start;
   }
-} 
+
+  .factoryName {
+    font-size: 16px;
+    margin: 0 0 6px 0;
+  }
+
+  .mfNumber {
+    font-size: 13px;
+  }
+}

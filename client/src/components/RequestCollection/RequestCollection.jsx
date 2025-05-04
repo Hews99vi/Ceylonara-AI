@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './requestStyle.css';
+import './requestCollection.css';
 import LocationPicker from '../LocationPicker/LocationPicker';
 
 const RequestCollection = () => {
@@ -18,54 +18,54 @@ const RequestCollection = () => {
   const { userId } = useAuth();
   const navigate = useNavigate();
   const location_url = useLocation();
-  
+
   // Get the API URL from environment variables
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-  
+
   // Get today's date for min attribute
   const today = new Date().toISOString().split('T')[0];
-  
+
   // Fetch factories when component mounts
   useEffect(() => {
     fetchFactories();
   }, []);
-  
+
   const fetchFactories = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       console.log('Fetching factories from:', `${apiUrl}/api/factories`);
-      
+
       // Get authentication token from Clerk
       const token = await getToken();
       console.log('Auth token available:', !!token);
-      
+
       // Include the token in the request
       const response = await axios.get(`${apiUrl}/api/factories`, {
         headers: {
           Authorization: token ? `Bearer ${token}` : '',
         }
       });
-      
+
       console.log('Factories response:', response.data);
-      
+
       if (response.data && Array.isArray(response.data)) {
         setFactories(response.data);
         console.log(`Successfully loaded ${response.data.length} factories`);
-        
+
         // Check if a factory was specified in the URL query parameters
         const params = new URLSearchParams(location_url.search);
         const factoryNameFromURL = params.get('factory');
-        
+
         if (factoryNameFromURL) {
           console.log('Factory specified in URL:', factoryNameFromURL);
-          
+
           // Find the factory with the matching name
           const matchingFactory = response.data.find(
             factory => factory.name === factoryNameFromURL
           );
-          
+
           if (matchingFactory) {
             console.log('Found matching factory:', matchingFactory);
             setSelectedFactoryId(matchingFactory.id);
@@ -84,7 +84,7 @@ const RequestCollection = () => {
       setIsLoading(false);
     }
   };
-  
+
   // Helper function to get auth token
   const getToken = async () => {
     try {
@@ -94,41 +94,41 @@ const RequestCollection = () => {
       return null;
     }
   };
-  
+
   const handleFactorySelect = (e) => {
     setSelectedFactoryId(e.target.value);
   };
-  
+
   const handleLocationSelect = (selectedLocation) => {
     setLocation(selectedLocation);
     console.log('Selected location:', selectedLocation);
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedFactoryId || !selectedTime || !quantity || !date) {
       setError('Please fill in all required fields');
       return;
     }
-    
+
     if (!location || (!location.lat && !location.lng)) {
       setError('Please select a collection location on the map');
       return;
     }
-    
+
     try {
       setIsLoading(true);
       setError(null);
-      
+
       // Find the selected factory to get its name
       const selectedFactory = factories.find(factory => factory.id === selectedFactoryId);
       const factoryName = selectedFactory ? selectedFactory.name : '';
-      
+
       // Get authentication token
       const token = await getToken();
       console.log('Auth token available for submission:', !!token);
-      
+
       // Fetch farmer profile to get name and NIC number
       const farmerProfileResponse = await axios.get(
         `${apiUrl}/api/farmer/profile`,
@@ -139,13 +139,13 @@ const RequestCollection = () => {
           }
         }
       );
-      
+
       const farmerProfile = farmerProfileResponse.data;
       const farmerName = farmerProfile.farmerName || 'Unknown Farmer';
       const nicNumber = farmerProfile.nicNumber || 'N/A';
-      
+
       console.log('Farmer profile retrieved:', farmerProfile);
-      
+
       console.log('Submitting collection request:', {
         factoryId: selectedFactoryId,
         factoryName,
@@ -157,9 +157,9 @@ const RequestCollection = () => {
         nicNumber,
         location
       });
-      
+
       const response = await axios.post(
-        `${apiUrl}/api/collection-requests`, 
+        `${apiUrl}/api/collection-requests`,
         {
           factoryId: selectedFactoryId,
           factoryName,
@@ -178,7 +178,7 @@ const RequestCollection = () => {
           }
         }
       );
-      
+
       console.log('Request submitted successfully:', response.data);
       alert('Collection request submitted successfully!');
       navigate('/dashboard');
@@ -189,91 +189,95 @@ const RequestCollection = () => {
       setIsLoading(false);
     }
   };
-  
+
   return (
-    <div className="request-container">
-      <h2>Request Tea Collection</h2>
-      
+    <div className="requestCollection">
+      <h1>Request Tea Collection</h1>
+      <p className="subtitle">Schedule a tea leaf collection from your tea estate</p>
+
       {error && <div className="error-message">{error}</div>}
-      
+
       {isLoading ? (
         <div className="loading">Loading factories and preparing form...</div>
       ) : (
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="factory">Select Factory:</label>
-            <select 
-              id="factory" 
-              value={selectedFactoryId}
-              onChange={handleFactorySelect}
-              required
-              disabled={isLoading}
-            >
-              <option value="">-- Select a factory --</option>
-              {factories.map(factory => (
-                <option key={factory.id} value={factory.id}>
-                  {factory.name} ({factory.mfNumber || 'No MF Number'})
-                </option>
-              ))}
-            </select>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="time">Collection Time:</label>
-            <select 
-              id="time" 
-              value={selectedTime}
-              onChange={(e) => setSelectedTime(e.target.value)}
-              required
-            >
-              <option value="">-- Select a time --</option>
-              <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
-              <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
-              <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
-            </select>
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="quantity">Quantity (kg):</label>
-            <input 
-              type="number"
-              id="quantity"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              min="1"
-              placeholder="Enter quantity in kilograms"
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="date">Collection Date:</label>
-            <input 
-              type="date"
-              id="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              min={today}
-              required
-            />
-          </div>
-          
-          <div className="location-title">Select Collection Location:</div>
-          <div className="map-container">
-            <LocationPicker onLocationSelect={handleLocationSelect} />
-          </div>
-          
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Processing...' : 'Submit Collection Request'}
-          </button>
-        </form>
+        <div className="requestForm">
+          <form onSubmit={handleSubmit}>
+            <div className="formGroup">
+              <label htmlFor="factory">Select Factory:</label>
+              <select
+                id="factory"
+                value={selectedFactoryId}
+                onChange={handleFactorySelect}
+                required
+                disabled={isLoading}
+                className="factorySelect"
+              >
+                <option value="">-- Select a factory --</option>
+                {factories.map(factory => (
+                  <option key={factory.id} value={factory.id}>
+                    {factory.name} ({factory.mfNumber || 'No MF Number'})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="formGroup">
+              <label htmlFor="time">Collection Time:</label>
+              <select
+                id="time"
+                value={selectedTime}
+                onChange={(e) => setSelectedTime(e.target.value)}
+                required
+              >
+                <option value="">-- Select a time --</option>
+                <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
+                <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
+                <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
+              </select>
+            </div>
+
+            <div className="formGroup">
+              <label htmlFor="quantity">Quantity (kg):</label>
+              <input
+                type="number"
+                id="quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                min="1"
+                placeholder="Enter quantity in kilograms"
+                required
+              />
+            </div>
+
+            <div className="formGroup">
+              <label htmlFor="date">Collection Date:</label>
+              <input
+                type="date"
+                id="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                min={today}
+                required
+              />
+            </div>
+
+            <div className="formGroup">
+              <label>Select Collection Location:</label>
+              <div className="mapContainer">
+                <LocationPicker onLocationSelect={handleLocationSelect} />
+              </div>
+            </div>
+
+            <button type="submit" className="submitButton" disabled={isLoading}>
+              {isLoading ? 'Processing...' : 'Submit Collection Request'}
+            </button>
+          </form>
+        </div>
       )}
-      
-      <div className="back-link">
-        <Link to="/dashboard">← Back to Dashboard</Link>
-      </div>
+
+      <Link to="/dashboard" className="backLink">← Back to Dashboard</Link>
     </div>
   );
 };
 
-export default RequestCollection; 
+export default RequestCollection;

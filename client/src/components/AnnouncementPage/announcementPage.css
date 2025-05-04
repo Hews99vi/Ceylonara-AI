@@ -12,10 +12,16 @@
 }
 
 .subtitle {
-  color: #666;
-  margin-bottom: 2rem;
-  font-size: 1rem;
-  font-weight: 300;
+  font-size: 18px;
+  margin-bottom: 30px;
+  color: #000000;
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px 15px;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .announcementContainer {
@@ -414,4 +420,4 @@
 
 .postButton {
   flex: 2;
-} 
+}

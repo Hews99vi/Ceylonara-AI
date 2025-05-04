@@ -23,9 +23,16 @@
 }
 
 .dashboard-header .subtitle {
-  font-size: 1.2rem;
-  color: #666;
-  margin-top: 0;
+  font-size: 18px;
+  margin: 15px auto 30px;
+  color: #000000;
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px 15px;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  display: inline-block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-tabs {
@@ -345,20 +352,20 @@ tr.low-price {
   .admin-dashboard {
     padding: 1rem;
   }
-  
+
   .dashboard-card {
     padding: 1.5rem;
   }
-  
+
   .date-selector {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .dashboard-header h1 {
     font-size: 2rem;
   }
-  
+
   .price-display {
     font-size: 1.5rem;
   }
@@ -368,15 +375,15 @@ tr.low-price {
   .admin-dashboard {
     padding: 0.75rem;
   }
-  
+
   .dashboard-card {
     padding: 1.25rem;
   }
-  
+
   .dashboard-header h1 {
     font-size: 1.75rem;
   }
-  
+
   .tab-button {
     padding: 0.75rem 0.5rem;
     font-size: 0.9rem;

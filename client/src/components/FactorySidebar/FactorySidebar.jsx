@@ -81,11 +81,26 @@ const FactorySidebar = () => {
   return (
     <div className="chatList">
       <span className="title">DASHBOARD</span>
-      <Link to="/dashboard" className="navLink">Create a new Chat</Link>
-      <Link to="/dashboard/direct-messages" className="navLink">Direct Messages</Link>
-      <Link to="/dashboard/set-tea-price" className="navLink">Set Tea Price</Link>
-      <Link to="/dashboard/collection-requests" className="navLink">Tea Leaves Collection Requests</Link>
-      <Link to="/dashboard/post-announcement" className="navLink">Post Announcements</Link>
+      <Link to="/dashboard" className="navLink">
+        <i className="fas fa-comment-medical"></i>
+        Create a new Chat
+      </Link>
+      <Link to="/dashboard/direct-messages" className="navLink">
+        <i className="fas fa-envelope"></i>
+        Direct Messages
+      </Link>
+      <Link to="/dashboard/set-tea-price" className="navLink">
+        <i className="fas fa-tag"></i>
+        Set Tea Price
+      </Link>
+      <Link to="/dashboard/collection-requests" className="navLink">
+        <i className="fas fa-truck"></i>
+        Collection Requests
+      </Link>
+      <Link to="/dashboard/post-announcement" className="navLink">
+        <i className="fas fa-bullhorn"></i>
+        Post Announcements
+      </Link>
       <hr />
       <span className="title">RECENT CHATS</span>
       <div className="List">
@@ -110,13 +125,16 @@ const FactorySidebar = () => {
               key={chat._id}
               className="chatLink"
             >
-              <span>{chat.title}</span>
+              <div className="chat-title">
+                <i className="fas fa-comments"></i>
+                <span>{chat.title}</span>
+              </div>
               <button
                 className="deleteBtn"
                 onClick={(e) => handleDelete(e, chat._id, chat.title)}
                 title="Delete chat"
               >
-                🗑️
+                <i className="fas fa-trash-alt"></i>
               </button>
             </Link>
           ))
@@ -125,20 +143,26 @@ const FactorySidebar = () => {
       <hr />
       <div style={{ flex: 1 }}></div> {/* This will push the AI experience to bottom */}
       <div className="ai-experience">
-        <img src="/ai-icon.png" alt="AI" />
+        <i className="fas fa-robot"></i>
         <span>Experience the Power of Tea AI</span>
       </div>
 
       {showModal && (
-        <div className="deleteModal">
-          <div className="modalContent">
+        <div className="modal-overlay">
+          <div className="modal-content">
             <h3>Delete Chat</h3>
             <p>Are you sure you want to delete "{selectedChatTitle}"?</p>
-            <div className="modalButtons">
-              <button className="cancelBtn" onClick={() => setShowModal(false)}>
+            <div className="modal-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setShowModal(false)}
+              >
                 Cancel
               </button>
-              <button className="confirmBtn" onClick={confirmDelete}>
+              <button
+                className="confirm-btn"
+                onClick={confirmDelete}
+              >
                 Delete
               </button>
             </div>

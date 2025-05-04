@@ -1,5 +1,5 @@
 .requestCollection {
-  padding: 20px;
+  padding: 30px;
   color: white;
   max-width: 800px;
   margin: 0 auto;
@@ -8,12 +8,26 @@
 .requestCollection h1 {
   margin-bottom: 10px;
   color: #4CAF50;
+  font-size: 32px;
+  font-weight: 600;
+  text-align: center;
 }
 
 .subtitle {
-  font-size: 16px;
+  font-size: 18px;
   margin-bottom: 30px;
-  color: #b0b0b0;
+  color: #000000;
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px 15px;
+  border-radius: 8px;
+  border-left: 4px solid #4CAF50;
+  display: block;
+  text-align: center;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .loading {
@@ -23,6 +37,18 @@
   height: 200px;
   font-size: 18px;
   color: #b0b0b0;
+  background-color: rgba(46, 125, 50, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid #4CAF50;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 
 .requestForm {
@@ -31,6 +57,7 @@
   padding: 25px;
   margin-bottom: 20px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  border-left: 4px solid #4CAF50;
 }
 
 .formGroup {
@@ -41,19 +68,21 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
+  color: #ffffff;
 }
 
-.formGroup input, 
+.formGroup input,
 .formGroup select,
 .formGroup textarea {
   width: 100%;
-  padding: 12px;
-  border-radius: 5px;
-  border: 1px solid #333;
-  background-color: #2d2d2d;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(30, 30, 30, 0.7);
   color: white;
   font-size: 16px;
   box-sizing: border-box;
+  transition: all 0.3s ease;
 }
 
 .formGroup input:focus,
@@ -61,15 +90,17 @@
 .formGroup textarea:focus {
   outline: none;
   border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
 }
 
-.errorMessage {
-  background-color: rgba(255, 0, 0, 0.1);
-  color: #ff6b6b;
-  padding: 10px;
-  border-radius: 5px;
+.error-message {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+  padding: 15px;
+  border-radius: 8px;
   margin-bottom: 20px;
-  border-left: 4px solid #ff6b6b;
+  border-left: 4px solid #f44336;
+  font-weight: 500;
 }
 
 .successMessage {
@@ -83,24 +114,35 @@
 
 .submitButton {
   width: 100%;
-  padding: 14px;
+  padding: 16px;
   background-color: #4CAF50;
   color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-top: 10px;
 }
 
 .submitButton:hover {
   background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.submitButton:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .submitButton:disabled {
-  background-color: #767676;
+  background-color: #8aad9a;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .infoBox {
@@ -129,27 +171,25 @@
 
 .formGroup select,
 .formGroup select.factorySelect {
-  width: 100% !important;
-  padding: 14px 12px !important;
-  border-radius: 5px !important;
-  border: 2px solid #ff9900 !important; /* Make border more visible for debugging */
-  background-color: #2d2d2d !important;
-  color: white !important;
-  font-size: 16px !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  height: auto !important;
-  min-height: 45px !important;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(30, 30, 30, 0.7);
+  color: white;
+  font-size: 16px;
+  display: block;
+  height: auto;
+  min-height: 50px;
 }
 
 .formGroup select.factorySelect {
   appearance: none;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
-  background-position: right 12px center;
+  background-position: right 16px center;
   background-size: 16px;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition: all 0.3s ease;
 }
 
 .formGroup select.factorySelect:hover {
@@ -159,13 +199,13 @@
 .formGroup select.factorySelect:focus {
   outline: none;
   border-color: #4CAF50;
-  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
 }
 
 .formGroup select.factorySelect option {
   background-color: #2d2d2d;
   color: white;
-  padding: 10px;
+  padding: 12px;
 }
 
 .noFactories {
@@ -200,4 +240,32 @@
 
 .devButton:hover {
   background-color: #ffaa33;
-} 
+}
+
+.backLink {
+  display: inline-block;
+  margin-top: 20px;
+  color: #4CAF50;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.backLink:hover {
+  background-color: rgba(76, 175, 80, 0.2);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.mapContainer {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  height: 300px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import ChatPartnerList from "../../components/ChatPartnerList/ChatPartnerList";
-import ChatWindow from "../../components/chatWindow/ChatWindow";
+import DirectChatWindow from "../../components/DirectChat/DirectChatWindow";
 import "./directMessagesPage.css";
 
 const DirectMessagesPage = () => {
@@ -21,6 +21,9 @@ const DirectMessagesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   // State for partners search
   const [partnerSearchQuery, setPartnerSearchQuery] = useState("");
+  // For delete confirmation modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [chatToDelete, setChatToDelete] = useState(null);
 
   // Load user's direct chats
   useEffect(() => {
@@ -29,7 +32,7 @@ const DirectMessagesPage = () => {
         setLoading(true);
         const token = await getToken();
         console.log("Fetching direct chats with token:", token ? "Token exists" : "No token");
-        
+
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/direct-chats`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -42,12 +45,12 @@ const DirectMessagesPage = () => {
 
         const data = await response.json();
         console.log("Direct chats response:", data);
-        
+
         // Include all chats, even if they don't have messages yet
         // This ensures new chats without messages are still displayed
         const allChats = data.chats || [];
         console.log(`Found ${allChats.length} chats (including empty ones)`);
-        
+
         setChats(allChats);
         setLoading(false);
       } catch (err) {
@@ -116,16 +119,16 @@ const DirectMessagesPage = () => {
       }
 
       const data = await response.json();
-      
+
       // Check if we got a valid chat back
       if (data.chat) {
         // Set the selected chat and clear selected partner
         setSelectedChat(data.chat);
         setSelectedPartner(null);
-        
+
         // Check if the chat is already in the list
         const chatExists = chats.some(chat => chat._id === data.chat._id);
-        
+
         if (!chatExists) {
           // Add the new chat to the list
           setChats(prevChats => [data.chat, ...prevChats]);
@@ -187,18 +190,18 @@ const DirectMessagesPage = () => {
   // Get the partner name from a chat
   const getPartnerName = (chat) => {
     if (!chat || !chat.participants) return "Unknown";
-    
+
     console.log("Current user ID:", user?.id, "userId:", user?.userId);
     console.log("Chat participants:", chat.participants);
-    
+
     // Find the participant who is not the current user
-    const partner = chat.participants.find(p => 
-      p.userId !== user?.id && 
+    const partner = chat.participants.find(p =>
+      p.userId !== user?.id &&
       p.userId !== user?.userId
     );
-    
+
     console.log("Identified partner:", partner);
-    
+
     // Always return the partner's actual name
     if (partner && partner.name) {
       return partner.name;
@@ -206,7 +209,7 @@ const DirectMessagesPage = () => {
       // Fallback to capitalized role if no name
       return partner.role.charAt(0).toUpperCase() + partner.role.slice(1);
     }
-    
+
     return "Unknown";
   };
 
@@ -219,31 +222,31 @@ const DirectMessagesPage = () => {
   // Get the last message time in a formatted manner
   const getLastMessageTime = (chat) => {
     if (!chat || !chat.messages || chat.messages.length === 0) return '';
-    
+
     const lastMsg = chat.messages[chat.messages.length - 1];
     const timestamp = lastMsg.timestamp || lastMsg.createdAt || new Date();
     const msgDate = new Date(timestamp);
     const today = new Date();
-    
+
     // Check if the message is from today
     if (msgDate.toDateString() === today.toDateString()) {
       return msgDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
-    
+
     // Check if the message is from yesterday
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
     if (msgDate.toDateString() === yesterday.toDateString()) {
       return 'Yesterday';
     }
-    
+
     // Check if the message is from this week
     const weekStart = new Date(today);
     weekStart.setDate(today.getDate() - today.getDay());
     if (msgDate >= weekStart) {
       return msgDate.toLocaleDateString([], { weekday: 'short' });
     }
-    
+
     // Otherwise, show date
     return msgDate.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
@@ -273,18 +276,21 @@ const DirectMessagesPage = () => {
     return partnerName.includes(searchQuery.trim().toLowerCase());
   });
 
-  // Delete a chat
-  const deleteChat = async (chatId, e) => {
+  // Show delete confirmation modal
+  const showDeleteConfirmation = (chatId, e) => {
     // Stop event propagation to prevent selecting the chat
     e.stopPropagation();
-    
-    if (!window.confirm("Are you sure you want to delete this conversation?")) {
-      return;
-    }
-    
+    setChatToDelete(chatId);
+    setShowDeleteModal(true);
+  };
+
+  // Delete a chat
+  const deleteChat = async () => {
+    if (!chatToDelete) return;
+
     try {
       const token = await getToken();
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/direct-chats/${chatId}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/direct-chats/${chatToDelete}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`
@@ -296,15 +302,20 @@ const DirectMessagesPage = () => {
       }
 
       // Remove the deleted chat from the state
-      setChats(prevChats => prevChats.filter(chat => chat._id !== chatId));
-      
+      setChats(prevChats => prevChats.filter(chat => chat._id !== chatToDelete));
+
       // If the deleted chat was selected, clear the selection
-      if (selectedChat && selectedChat._id === chatId) {
+      if (selectedChat && selectedChat._id === chatToDelete) {
         setSelectedChat(null);
       }
+
+      // Close the modal
+      setShowDeleteModal(false);
+      setChatToDelete(null);
     } catch (err) {
       console.error("Error deleting chat:", err);
       alert("Failed to delete the conversation. Please try again.");
+      setShowDeleteModal(false);
     }
   };
 
@@ -316,7 +327,7 @@ const DirectMessagesPage = () => {
       : 'No messages yet';
     const isUnread = hasUnreadMessages(chat);
     const lastMessageTime = getLastMessageTime(chat);
-    
+
     return (
       <div
         key={chat._id}
@@ -335,9 +346,9 @@ const DirectMessagesPage = () => {
         <div className="chatMeta">
           <div className="chatTime">{lastMessageTime}</div>
           {isUnread && <div className="unreadBadge"></div>}
-          <button 
-            className="deleteButton" 
-            onClick={(e) => deleteChat(chat._id, e)}
+          <button
+            className="deleteButton"
+            onClick={(e) => showDeleteConfirmation(chat._id, e)}
             title="Delete conversation"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -356,14 +367,14 @@ const DirectMessagesPage = () => {
   useEffect(() => {
     // Save original styles
     const originalStyle = document.body.style.cssText;
-    
+
     // Set full page styles
     document.body.style.margin = '0';
     document.body.style.padding = '0';
     document.body.style.overflow = 'hidden';
     document.body.style.height = '100vh';
     document.body.style.width = '100vw';
-    
+
     // Cleanup function to restore original styles
     return () => {
       document.body.style.cssText = originalStyle;
@@ -385,9 +396,9 @@ const DirectMessagesPage = () => {
         <div className="sidebarHeader">
           <h2>Chats</h2>
           <div className={`searchContainer ${searchActive ? 'active' : ''}`}>
-            <input 
-              type="text" 
-              placeholder="Search" 
+            <input
+              type="text"
+              placeholder="Search"
               className="searchInput"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -399,14 +410,14 @@ const DirectMessagesPage = () => {
                 }
               }}
             />
-            <svg 
-              className="searchIcon" 
-              xmlns="http://www.w3.org/2000/svg" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
+            <svg
+              className="searchIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
               strokeLinejoin="round"
               onClick={toggleSearch}
             >
@@ -414,8 +425,8 @@ const DirectMessagesPage = () => {
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
             {searchActive && searchQuery && (
-              <button 
-                className="clearSearch" 
+              <button
+                className="clearSearch"
                 onClick={() => setSearchQuery("")}
                 title="Clear search"
               >
@@ -429,23 +440,23 @@ const DirectMessagesPage = () => {
         <div className="sectionTitle">New Conversation</div>
         <div className="partnersSearch">
           <div className="searchIconContainer">
-            <svg 
-              className="partnerSearchIcon" 
-              xmlns="http://www.w3.org/2000/svg" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
+            <svg
+              className="partnerSearchIcon"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
               strokeLinejoin="round"
             >
               <circle cx="11" cy="11" r="8"></circle>
               <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
             </svg>
           </div>
-          <input 
-            type="text" 
-            placeholder="Search partners..." 
+          <input
+            type="text"
+            placeholder="Search partners..."
             className="partnerSearchInput"
             value={partnerSearchQuery}
             onChange={handlePartnerSearch}
@@ -483,7 +494,7 @@ const DirectMessagesPage = () => {
                     try {
                       const token = await getToken();
                       console.log("Retrying to fetch direct chats with token:", token ? "Token exists" : "No token");
-                      
+
                       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/direct-chats`, {
                         headers: {
                           Authorization: `Bearer ${token}`
@@ -496,11 +507,11 @@ const DirectMessagesPage = () => {
 
                       const data = await response.json();
                       console.log("Retry direct chats response:", data);
-                      
+
                       // Include all chats, even if they don't have messages yet
                       const allChats = data.chats || [];
                       console.log(`Retry found ${allChats.length} chats (including empty ones)`);
-                      
+
                       setChats(allChats);
                       setLoading(false);
                     } catch (err) {
@@ -534,7 +545,7 @@ const DirectMessagesPage = () => {
       </div>
 
       <div className="chatArea">
-        <ChatWindow
+        <DirectChatWindow
           chat={selectedChat}
           onSendMessage={(messageText) => {
             if (selectedChat && messageText.trim()) {
@@ -543,6 +554,30 @@ const DirectMessagesPage = () => {
           }}
         />
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Delete Conversation</h3>
+            <p>Are you sure you want to delete this conversation?</p>
+            <div className="modal-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="confirm-btn"
+                onClick={deleteChat}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
