@@ -28,17 +28,32 @@ const ChatWindow = ({ chat, onSendMessage }) => {
   const getSenderName = (msg) => {
     if (!chat || !chat.participants) return 'Unknown';
 
+    const currentUserId = user?.id || user?.userId;
+    console.log("getSenderName - Message sender:", msg.sender, "Current user:", currentUserId);
+    console.log("getSenderName - Chat participants:", chat.participants);
+
     // Check if the message is from the current user
-    if (msg.sender === user?.id || msg.sender === user?.userId) {
+    if (msg.sender === currentUserId) {
       return "You";
     }
 
-    // Find the participant who sent this message
-    const sender = chat.participants.find(p => p.userId === msg.sender);
+    // If not the current user, it must be the partner
+    // Find the participant who is not the current user
+    const partner = chat.participants.find(p => p.userId !== currentUserId);
 
-    // Always return the sender's actual name - if for some reason it's not available,
-    // use Unknown instead of generic role names
-    return sender?.name || 'Unknown User';
+    console.log("getSenderName - Identified partner:", partner);
+
+    // Return the partner's actual name
+    if (partner && partner.name) {
+      return partner.name;
+    } else if (partner && partner.role) {
+      // Fallback to capitalized role if no name
+      return partner.role.charAt(0).toUpperCase() + partner.role.slice(1);
+    }
+
+    // Fallback to trying to find the exact sender (original approach)
+    const exactSender = chat.participants.find(p => p.userId === msg.sender);
+    return exactSender?.name || 'Unknown User';
   };
 
   // Get the partner name for the chat header

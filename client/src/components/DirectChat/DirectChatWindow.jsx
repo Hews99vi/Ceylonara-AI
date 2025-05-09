@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import { FaPaperclip, FaImage, FaFile, FaTimes } from 'react-icons/fa';
 import './DirectChatWindow.css';
 import DirectChatMessage from './DirectChatMessage';
 
-const DirectChatWindow = ({ chat, onSendMessage }) => {
-  const { user } = useAuth();
+const DirectChatWindow = ({ chat, onSendMessage, onSendFileMessage }) => {
+  const { user, getToken } = useAuth();
   const [message, setMessage] = useState('');
+  const [filePreview, setFilePreview] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -26,17 +31,32 @@ const DirectChatWindow = ({ chat, onSendMessage }) => {
   const getSenderName = (msg) => {
     if (!chat || !chat.participants) return 'Unknown';
 
+    const currentUserId = user?.id || user?.userId;
+    console.log("DirectChat getSenderName - Message sender:", msg.sender, "Current user:", currentUserId);
+    console.log("DirectChat getSenderName - Chat participants:", chat.participants);
+
     // Check if the message is from the current user
-    if (msg.sender === user?.id || msg.sender === user?.userId) {
+    if (msg.sender === currentUserId) {
       return "You";
     }
 
-    // Find the participant who sent this message
-    const sender = chat.participants.find(p => p.userId === msg.sender);
+    // If not the current user, it must be the partner
+    // Find the participant who is not the current user
+    const partner = chat.participants.find(p => p.userId !== currentUserId);
 
-    // Always return the sender's actual name - if for some reason it's not available,
-    // use Unknown instead of generic role names
-    return sender?.name || 'Unknown User';
+    console.log("DirectChat getSenderName - Identified partner:", partner);
+
+    // Return the partner's actual name
+    if (partner && partner.name) {
+      return partner.name;
+    } else if (partner && partner.role) {
+      // Fallback to capitalized role if no name
+      return partner.role.charAt(0).toUpperCase() + partner.role.slice(1);
+    }
+
+    // Fallback to trying to find the exact sender (original approach)
+    const exactSender = chat.participants.find(p => p.userId === msg.sender);
+    return exactSender?.name || 'Unknown User';
   };
 
   // Get the partner name for the chat header
@@ -44,10 +64,10 @@ const DirectChatWindow = ({ chat, onSendMessage }) => {
     if (!chat || !chat.participants) return 'Unknown';
 
     // Find the participant who is not the current user
-    const partner = chat.participants.find(p =>
-      p.userId !== user?.id &&
-      p.userId !== user?.userId
-    );
+    const currentUserId = user?.id || user?.userId;
+
+    // Find the participant who is not the current user
+    const partner = chat.participants.find(p => p.userId !== currentUserId);
 
     // Return the partner's actual name
     if (partner && partner.name) {
@@ -60,9 +80,92 @@ const DirectChatWindow = ({ chat, onSendMessage }) => {
     return 'Unknown';
   };
 
+  // Handle file selection
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check file size (5MB limit)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size exceeds 5MB limit. Please select a smaller file.');
+      return;
+    }
+
+    setSelectedFile(file);
+
+    // Create preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFilePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      // For non-image files, just show the file name
+      setFilePreview(null);
+    }
+  };
+
+  // Remove selected file
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    setFilePreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Handle file upload and message sending
+  const handleSendFile = async () => {
+    if (!selectedFile || !chat) return;
+
+    try {
+      setIsUploading(true);
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('message', message.trim());
+
+      const token = await getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/direct-chats/${chat._id}/file-messages`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload file');
+      }
+
+      const data = await response.json();
+
+      // Clear the form
+      setMessage('');
+      setSelectedFile(null);
+      setFilePreview(null);
+
+      // Update the chat with the new message
+      if (onSendFileMessage) {
+        onSendFileMessage(data.chat);
+      }
+    } catch (error) {
+      console.error('Error sending file:', error);
+      alert('Failed to send file. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (selectedFile) {
+      handleSendFile();
+      return;
+    }
 
     if (!message.trim()) return;
 
@@ -140,7 +243,8 @@ const DirectChatWindow = ({ chat, onSendMessage }) => {
               <span>Today</span>
             </div>
             {chat.messages.map((msg, index) => {
-              const isCurrentUser = msg.sender === user?.id || msg.sender === user?.userId;
+              const currentUserId = user?.id || user?.userId;
+              const isCurrentUser = msg.sender === currentUserId;
               const senderName = getSenderName(msg);
 
               return (
@@ -163,21 +267,81 @@ const DirectChatWindow = ({ chat, onSendMessage }) => {
         <div ref={messagesEndRef} />
       </div>
 
+      {selectedFile && (
+        <div className="file-preview-container">
+          <div className="file-preview-header">
+            <span className="file-preview-title">
+              {selectedFile.type.startsWith('image/') ? 'Image' : 'File'} selected
+            </span>
+            <button
+              type="button"
+              className="remove-file-button"
+              onClick={handleRemoveFile}
+            >
+              <FaTimes />
+            </button>
+          </div>
+
+          <div className="file-preview-content">
+            {filePreview ? (
+              <img src={filePreview} alt="Preview" className="image-preview" />
+            ) : (
+              <div className="file-info">
+                <FaFile className="file-icon" />
+                <span className="file-name">{selectedFile.name}</span>
+                <span className="file-size">
+                  {(selectedFile.size / 1024).toFixed(1)} KB
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <form className="message-form" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={message}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyPress}
-          placeholder="Type your message here..."
-          className="message-input"
-          autoFocus
-        />
-        <button type="submit" className="send-button">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="22" y1="2" x2="11" y2="13"></line>
-            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-          </svg>
+        <div className="message-input-container">
+          <input
+            type="text"
+            value={message}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyPress}
+            placeholder="Type your message here..."
+            className="message-input"
+            disabled={isUploading}
+            autoFocus
+          />
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileSelect}
+            style={{ display: 'none' }}
+            accept="image/jpeg,image/png,image/gif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+          />
+
+          <button
+            type="button"
+            className="attachment-button"
+            onClick={() => fileInputRef.current.click()}
+            disabled={isUploading || selectedFile !== null}
+          >
+            <FaPaperclip />
+          </button>
+        </div>
+
+        <button
+          type="submit"
+          className="send-button"
+          disabled={isUploading || (message.trim() === '' && !selectedFile)}
+        >
+          {isUploading ? (
+            <div className="spinner"></div>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          )}
         </button>
       </form>
     </div>

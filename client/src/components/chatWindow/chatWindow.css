@@ -93,11 +93,12 @@
   padding: 20px;
   padding-bottom: 80px;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   background-color: #f9f9f9;
   height: calc(100% - 130px);
   max-height: calc(100% - 130px);
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .messagesContainer::-webkit-scrollbar {

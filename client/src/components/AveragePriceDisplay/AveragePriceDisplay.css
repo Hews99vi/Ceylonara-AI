@@ -99,14 +99,18 @@
 .price-info {
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 6px;
 }
 
 .price-info p {
   margin: 0;
   font-size: 14px;
   line-height: 1.5;
-  color: #b0b0b0;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 /* Loading state */
@@ -206,4 +210,4 @@
   text-align: center;
   margin: 0;
   color: #b0b0b0;
-} 
+}

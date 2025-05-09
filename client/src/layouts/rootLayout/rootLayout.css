@@ -1,42 +1,38 @@
 .rootLayout {
+  padding: 16px 64px;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--off-white);
 
   header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: var(--primary-green);
-    padding: 15px 40px;
-    box-shadow: var(--shadow-md);
-    position: relative;
-    z-index: 10;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+    border-bottom: 1px solid #85aa9b;
+    padding-bottom: 10px;
 
     .logo {
       display: flex;
       align-items: center;
-      font-weight: 600;
-      gap: 12px;
+      font-weight: bold;
+      gap: 8px;
       text-decoration: none;
-      color: var(--white);
-      transition: all 0.3s ease;
+      color: #000000;
+      transition: opacity 0.3s ease;
 
       &:hover {
-        transform: translateY(-2px);
+        opacity: 0.8;
       }
 
       img {
-        width: 36px;
-        height: 36px;
-        background-color: var(--white);
-        padding: 5px;
-        border-radius: 8px;
+        width: 32px;
+        height: 32px;
       }
 
       span {
-        font-size: 22px;
+        font-size: 20px;
       }
     }
 
@@ -46,28 +42,25 @@
       align-items: center;
 
       a {
-        color: var(--white);
+        color: #000000;
         text-decoration: none;
         font-size: 16px;
-        transition: all 0.3s ease;
+        transition: color 0.3s ease;
         position: relative;
-        opacity: 0.9;
 
         &:hover {
-          opacity: 1;
-          transform: translateY(-2px);
+          color: #588b76;
         }
 
         &::after {
           content: '';
           position: absolute;
-          bottom: -6px;
+          bottom: -4px;
           left: 0;
           width: 0;
-          height: 3px;
-          background-color: var(--white);
+          height: 2px;
+          background: linear-gradient(to right, #85aa9b, #588b76);
           transition: width 0.3s ease;
-          border-radius: 3px;
         }
 
         &:hover::after {
@@ -79,20 +72,28 @@
     .user {
       display: flex;
       align-items: center;
-      gap: 15px;
     }
   }
 
   main {
     flex: 1;
     overflow: hidden;
-    background-color: var(--off-white);
+    background-color: #ffffff;
   }
 }
 
 @media (max-width: 768px) {
-  .rootLayout header {
-    padding: 15px 20px;
+  .rootLayout {
+    padding: 16px 20px;
+
+    header {
+      nav {
+        gap: 15px;
+        
+        a {
+          font-size: 14px;
+        }
+      }
+    }
   }
 }
-

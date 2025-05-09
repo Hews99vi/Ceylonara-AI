@@ -1,14 +1,33 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { FaSearch } from 'react-icons/fa';
+import { FaSearch, FaCircle } from 'react-icons/fa';
 import './chatPartnerList.css';
 
-const ChatPartnerList = ({ onSelectPartner, searchQuery = '' }) => {
+const ChatPartnerList = ({ onSelectPartner, searchQuery = '', activeChats = [] }) => {
   const { getToken, user } = useAuth();
   const [partners, setPartners] = useState([]);
   const [filteredPartners, setFilteredPartners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Function to format timestamp to relative time
+  const formatRelativeTime = (timestamp) => {
+    if (!timestamp) return '';
+
+    const now = new Date();
+    const messageTime = new Date(timestamp);
+    const diffMs = now - messageTime;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    return messageTime.toLocaleDateString();
+  };
 
   // Filter partners when search query changes
   useEffect(() => {
@@ -29,7 +48,7 @@ const ChatPartnerList = ({ onSelectPartner, searchQuery = '' }) => {
       try {
         setLoading(true);
         const token = await getToken();
-        
+
         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat-partners`, {
           headers: {
             Authorization: `Bearer ${token}`
@@ -80,7 +99,7 @@ const ChatPartnerList = ({ onSelectPartner, searchQuery = '' }) => {
               const fetchPartners = async () => {
                 try {
                   const token = await getToken();
-                  
+
                   const response = await fetch(`${import.meta.env.VITE_API_URL}/api/chat-partners`, {
                     headers: {
                       Authorization: `Bearer ${token}`
@@ -125,21 +144,56 @@ const ChatPartnerList = ({ onSelectPartner, searchQuery = '' }) => {
         </div>
       ) : (
         <div className="partnersList">
-          {filteredPartners.map(partner => (
-            <div
-              key={partner.userId}
-              className="partnerItem"
-              onClick={() => onSelectPartner(partner)}
-            >
-              <div className="partnerAvatar">
-                {partner.name.charAt(0).toUpperCase()}
+          {filteredPartners.map(partner => {
+            // Find if there's an active chat with this partner
+            const activeChat = activeChats.find(chat =>
+              chat.participants.some(p => p.userId === partner.userId)
+            );
+
+            // Check if there are unread messages
+            const hasUnread = activeChat?.messages?.some(msg =>
+              msg.sender === partner.userId && !msg.read
+            );
+
+            // Get last message preview and timestamp
+            const lastMessage = activeChat?.messages?.length > 0
+              ? activeChat.messages[activeChat.messages.length - 1]
+              : null;
+
+            const lastMessagePreview = activeChat?.lastMessagePreview || '';
+            const lastMessageTime = lastMessage?.timestamp || activeChat?.updatedAt;
+
+            return (
+              <div
+                key={partner.userId}
+                className={`partnerItem ${hasUnread ? 'has-unread' : ''}`}
+                onClick={() => onSelectPartner(partner)}
+              >
+                <div className="partnerAvatar">
+                  {partner.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="partnerInfo">
+                  <div className="partnerName">
+                    {partner.name}
+                    {hasUnread && <FaCircle className="unread-indicator" />}
+                  </div>
+                  <div className="partnerRole">{partner.role}</div>
+                  {lastMessagePreview && (
+                    <div className="lastMessagePreview">
+                      {lastMessagePreview.length > 30
+                        ? lastMessagePreview.substring(0, 30) + '...'
+                        : lastMessagePreview}
+                    </div>
+                  )}
+                </div>
+                {lastMessageTime && (
+                  <div className="lastMessageTime">
+                    {formatRelativeTime(lastMessageTime)}
+                  </div>
+                )}
               </div>
-              <div className="partnerInfo">
-                <div className="partnerName">{partner.name}</div>
-                <div className="partnerRole">{partner.role}</div>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

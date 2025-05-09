@@ -7,6 +7,7 @@ import DashboardPage from "./routes/dashboardPage/DashboardPage";
 import ChatPage from "./routes/chatPage/ChatPage";
 import RootLayout from "./layouts/rootLayout/RootLayout";
 import DashboardLayout from "./layouts/dashboardLayout/DashboardLayout";
+import { SocketProvider } from "./context/SocketContext";
 import SignInPage from "./routes/signInPage/signInPage";
 import SignUpPage from "./routes/signUpPage/signUpPage";
 import ExplorePage from "./components/ExplorePage/ExplorePage";
@@ -28,6 +29,8 @@ import SetTeaPricePage from "./components/SetTeaPricePage/SetTeaPricePage";
 import FarmerRequests from "./components/FarmerRequests/FarmerRequests";
 import AdminDashboard from "./components/AdminDashboard/AdminDashboard";
 import DirectMessagesPage from "./routes/directMessagesPage/DirectMessagesPage";
+import { ClerkProvider } from "@clerk/clerk-react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const router = createBrowserRouter([
   {
@@ -138,8 +141,24 @@ const router = createBrowserRouter([
   },
 ]);
 
+// Clerk configuration
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error("Missing Publishable Key");
+}
+
+// Create a new QueryClient instance
+const queryClient = new QueryClient();
+
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <QueryClientProvider client={queryClient}>
+        <SocketProvider>
+          <RouterProvider router={router} />
+        </SocketProvider>
+      </QueryClientProvider>
+    </ClerkProvider>
   </React.StrictMode>
 );

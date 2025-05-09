@@ -2,31 +2,26 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 0;
-  background-color: var(--primary-green);
-  color: var(--white);
+  padding: 20px;
+  background-color: #ffffff;
 }
-
-
 
 hr {
   border: none;
-  height: 1px;
-  background-color: rgba(255, 255, 255, 0.2);
+  height: 2px;
+  background-color: #85aa9b;
+  opacity: 0.2;
+  border-radius: 5px;
   margin: 20px 0px;
 }
 
 .title {
-  font-weight: 700;
-  font-size: 14px;
-  margin: 10px 0 15px 0;
-  color: black;
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 15px;
+  color: #333333;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  background-color: rgba(255, 255, 255, 0.1);
-  padding: 8px 12px;
-  border-radius: 8px;
-  display: inline-block;
+  letter-spacing: 0.5px;
 }
 
 .List {
@@ -34,51 +29,37 @@ hr {
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  gap: 15px;
+  gap: 8px;
   padding-right: 10px;
 }
 
 .List::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .List::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  background: rgba(133, 170, 155, 0.1);
+  border-radius: 3px;
 }
 
 .List::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 2px;
+  background: rgba(88, 139, 118, 0.3);
+  border-radius: 3px;
 }
 
 .navLink {
-  padding: 12px 15px;
-  border-radius: 12px;
+  padding: 12px;
+  border-radius: 10px;
   text-decoration: none;
-  color: black;
+  color: #333333;
   transition: all 0.3s ease;
   font-size: 14px;
-  background-color: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
+  background-color: #f5f5f5;
 }
-
-.navLink i {
-  font-size: 16px;
-  width: 20px;
-  text-align: center;
-}
-
-/* Removed dot indicator since we now have icons */
 
 .navLink:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-  transform: translateX(5px);
-  color: black;
-  font-weight: 600;
+  background-color: #85aa9b;
+  color: #ffffff;
 }
 
 .loading {
@@ -136,7 +117,7 @@ hr {
 .no-chats {
   padding: 30px;
   text-align: center;
-  color: black;
+  color: #666666;
   font-size: 14px;
 }
 
@@ -144,49 +125,18 @@ hr {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 15px;
-  border-radius: 12px;
+  padding: 12px;
+  border-radius: 10px;
   text-decoration: none;
-  color: black;
+  color: #333333;
   transition: all 0.3s ease;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: none;
-  position: relative;
-}
-
-.chat-title {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.chat-title i {
-  font-size: 14px;
-  color: black;
-}
-
-.chatLink::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 0;
-  background-color: black;
-  border-radius: 0 2px 2px 0;
-  transition: height 0.3s ease;
+  background-color: rgba(133, 170, 155, 0.1);
+  border: 1px solid rgba(133, 170, 155, 0.2);
 }
 
 .chatLink:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-  transform: translateX(5px);
-  color: black;
-  font-weight: 600;
-}
-
-.chatLink:hover::before {
-  height: 70%;
+  background-color: rgba(88, 139, 118, 0.2);
+  border-color: #588b76;
 }
 
 .deleteBtn {
@@ -194,8 +144,8 @@ hr {
   height: 28px;
   border-radius: 50%;
   border: none;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: black;
+  background-color: rgba(88, 139, 118, 0.1);
+  color: #666666;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -210,7 +160,8 @@ hr {
 }
 
 .deleteBtn:hover {
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(211, 47, 47, 0.1);
+  color: #d32f2f;
   transform: scale(1.1);
 }
 
@@ -336,43 +287,4 @@ hr {
   color: #666666;
   font-size: 12px;
   line-height: 1.4;
-}
-
-.ai-experience {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 15px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  margin-bottom: 20px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.ai-experience:hover {
-  background-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-3px);
-}
-
-.ai-experience:hover span {
-  color: black;
-  font-weight: 600;
-}
-
-.ai-experience i {
-  font-size: 24px;
-  color: black;
-  background-color: var(--white);
-  padding: 5px;
-  border-radius: 6px;
-}
-
-.ai-experience span {
-  font-size: 14px;
-  color: black;
-  font-weight: 500;
-  white-space: nowrap;
 }

@@ -26,9 +26,9 @@ const SetTeaPricePage = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/api/tea-prices/average`
       );
-      
+
       console.log("Average price API response:", response.data);
-      
+
       if (response.data.success) {
         if (response.data.averagePrice) {
           setAveragePrice(response.data.averagePrice);
@@ -51,26 +51,26 @@ const SetTeaPricePage = () => {
     try {
       setIsLoading(true);
       const token = await getToken();
-      
+
       // Get factory profile first to get the name
       const factoryRes = await fetch(`${import.meta.env.VITE_API_URL}/api/factory/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (factoryRes.ok) {
         const factoryData = await factoryRes.json();
         setFactoryName(factoryData.factoryName);
       }
-      
+
       // Get current price
       const priceRes = await fetch(`${import.meta.env.VITE_API_URL}/api/factory/price`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      
+
       if (priceRes.ok) {
         const priceData = await priceRes.json();
         setCurrentPrice(priceData.price || '');
@@ -89,36 +89,36 @@ const SetTeaPricePage = () => {
       setErrorMessage('Please enter a price');
       return;
     }
-    
+
     // Check if price is below the minimum average price
     if (averagePrice && parseFloat(price) < averagePrice) {
       setErrorMessage(`Price cannot be lower than the Tea Board's minimum average price of Rs. ${averagePrice.toFixed(2)}`);
       return;
     }
-    
+
     setIsSubmitting(true);
     setSuccessMessage('');
     setErrorMessage('');
-    
+
     try {
       const token = await getToken();
-      
+
       const priceData = {
         price,
         factoryName,
         factoryId: userId,
         date: new Date().toISOString()
       };
-      
+
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/factory/price`, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(priceData)
       });
-      
+
       if (response.ok) {
         setSuccessMessage('Price updated successfully');
         setCurrentPrice(price);
@@ -142,38 +142,40 @@ const SetTeaPricePage = () => {
 
   const formatDate = () => {
     const now = new Date();
-    return now.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return now.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
   return (
     <div className="setTeaPricePage">
-      <h1>Set Tea Price</h1>
+      <div className="pageHeader">
+        <h1>Set Tea Price</h1>
+      </div>
       <p className="subtitle">Update your factory's tea buying price for farmers</p>
-      
+
       {/* Minimum Price Alert - Update to consistently display the price */}
       {averagePrice !== null && (
         <div className="minimumPriceAlert">
           <div className="alertIcon">ℹ️</div>
           <div className="alertContent">
-            <h4>Minimum Price Notice</h4>
-            <p>
-              The Tea Board has set a minimum average price of{' '}
-              <strong>Rs. {averagePrice !== null ? parseFloat(averagePrice).toFixed(2) : '0.00'}</strong>{' '}
-              for this month. You cannot set your price below this amount.
-            </p>
+            <h4 className="alertHeading">Minimum Price Notice</h4>
+            <div className="alertMessage">
+              <span>The Tea Board has set a minimum average price of </span>
+              <strong className="alertPrice">Rs. {averagePrice !== null ? parseFloat(averagePrice).toFixed(2) : '0.00'}</strong>
+              <span> for this month. You cannot set your price below this amount.</span>
+            </div>
           </div>
         </div>
       )}
 
       {/* Average Price Display - Pass props explicitly */}
-      <AveragePriceDisplay 
-        averagePrice={averagePrice} 
-        month={new Date().getMonth() + 1} 
-        year={new Date().getFullYear()} 
+      <AveragePriceDisplay
+        averagePrice={averagePrice}
+        month={new Date().getMonth() + 1}
+        year={new Date().getFullYear()}
       />
 
       {/* Current Price Display */}
@@ -182,7 +184,7 @@ const SetTeaPricePage = () => {
         <p className="date">As of {new Date().toLocaleDateString()}</p>
         <p className="price">Rs. {currentPrice || '0'} <span className="perKg">per kg</span></p>
       </div>
-      
+
       {isLoading ? (
         <div className="loading">Loading...</div>
       ) : (
@@ -206,17 +208,17 @@ const SetTeaPricePage = () => {
                   />
                 </div>
               </div>
-              
+
               {errorMessage && (
                 <div className="errorMessage">{errorMessage}</div>
               )}
-              
+
               {successMessage && (
                 <div className="successMessage">{successMessage}</div>
               )}
-              
-              <button 
-                type="submit" 
+
+              <button
+                type="submit"
                 className="submitBtn"
                 disabled={isSubmitting}
               >
@@ -224,7 +226,7 @@ const SetTeaPricePage = () => {
               </button>
             </form>
           </div>
-          
+
           <div className="infoCard">
             <h3>Information</h3>
             <p>Setting a fair and competitive tea price helps farmers plan their harvests and ensures a sustainable supply chain.</p>

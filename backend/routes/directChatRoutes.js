@@ -1,10 +1,85 @@
 import express from 'express';
 import { ClerkExpressRequireAuth } from '@clerk/clerk-sdk-node';
 import mongoose from 'mongoose';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import DirectChat from '../models/directChat.js';
 import User from '../models/User.js';
 import Farmer from '../models/farmer.js';
 import Factory from '../models/factory.js';
+import Notification from '../models/notification.js';
+
+// Get the directory name properly in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Set up multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const uploadDir = path.join(__dirname, '../uploads/chat-files');
+    // Create directory if it doesn't exist
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    console.log(`Storing file in: ${uploadDir}`);
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const fileName = uniqueSuffix + path.extname(file.originalname);
+    console.log(`Generated filename: ${fileName} from original: ${file.originalname}`);
+    cb(null, fileName);
+  }
+});
+
+// File filter function to accept images, PDFs, and common document formats
+const fileFilter = (req, file, cb) => {
+  console.log(`Received file: ${file.originalname}, mimetype: ${file.mimetype}`);
+  const allowedTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  ];
+
+  if (allowedTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only images, PDFs, and common document formats are allowed!'), false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: fileFilter
+});
+
+// Error handler for multer
+const uploadErrorHandler = (err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    console.error(`Multer error: ${err.message}`);
+    return res.status(400).json({
+      success: false,
+      error: `File upload error: ${err.message}`
+    });
+  } else if (err) {
+    console.error(`Upload error: ${err.message}`);
+    return res.status(500).json({
+      success: false,
+      error: `Upload failed: ${err.message}`
+    });
+  }
+  next();
+};
 
 const router = express.Router();
 
@@ -23,20 +98,20 @@ router.get('/api/direct-chats', async (req, res) => {
     }).sort({ updatedAt: -1 });
 
     console.log(`Found ${chats.length} chats for user ${userId}`);
-    
+
     // Check user's role for debugging
     const farmer = await Farmer.findOne({ userId });
     const factory = await Factory.findOne({ userId });
     console.log(`User is a farmer: ${!!farmer}, User is a factory: ${!!factory}`);
-    
+
     // Log the participants of each chat for debugging
     chats.forEach((chat, index) => {
-      console.log(`Chat ${index + 1} participants:`, chat.participants.map(p => ({ 
-        id: p.userId, 
-        name: p.name, 
-        role: p.role 
+      console.log(`Chat ${index + 1} participants:`, chat.participants.map(p => ({
+        id: p.userId,
+        name: p.name,
+        role: p.role
       })));
-      
+
       // Verify participant names
       chat.participants.forEach(async (participant) => {
         if (participant.role === 'farmer') {
@@ -154,7 +229,7 @@ router.post('/api/direct-chats', async (req, res) => {
   }
 });
 
-// Send a message in a direct chat
+// Send a text message in a direct chat
 router.post('/api/direct-chats/:chatId/messages', async (req, res) => {
   try {
     const userId = req.auth.userId;
@@ -175,21 +250,135 @@ router.post('/api/direct-chats/:chatId/messages', async (req, res) => {
       return res.status(404).json({ error: 'Chat not found' });
     }
 
+    // Check if messaging is disabled for either participant
+    const isMessagingDisabled = chat.participants.some(p => p.messagingDisabled);
+    if (isMessagingDisabled) {
+      return res.status(403).json({ error: 'Messaging has been disabled for this conversation' });
+    }
+
     // Add the new message
     chat.messages.push({
       sender: userId,
       text: message,
+      messageType: 'text',
       timestamp: new Date(),
       read: false
     });
 
+    // Update last message preview for chat list
+    chat.lastMessagePreview = message.length > 30 ? message.substring(0, 30) + '...' : message;
+    chat.lastMessageAt = new Date();
     chat.updatedAt = new Date();
     await chat.save();
+
+    // Create notification for the other participant
+    const recipient = chat.participants.find(p => p.userId !== userId);
+    if (recipient) {
+      const sender = chat.participants.find(p => p.userId === userId);
+      const notification = new Notification({
+        userId: recipient.userId,
+        type: 'message',
+        title: 'New message',
+        content: `${sender.name} sent you a message: "${message.length > 30 ? message.substring(0, 30) + '...' : message}"`,
+        sourceId: sender.userId,
+        sourceName: sender.name,
+        sourceType: sender.role,
+        link: `/dashboard/direct-messages/${chat._id}`
+      });
+      await notification.save();
+    }
 
     res.json({ chat });
   } catch (error) {
     console.error('Error sending message:', error);
     res.status(500).json({ error: 'Failed to send message' });
+  }
+});
+
+// Send a file message in a direct chat
+router.post('/api/direct-chats/:chatId/file-messages', upload.single('file'), uploadErrorHandler, async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { chatId } = req.params;
+    const { message } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Find the chat and ensure the user is a participant
+    const chat = await DirectChat.findOne({
+      _id: chatId,
+      'participants.userId': userId
+    });
+
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat not found' });
+    }
+
+    // Check if messaging is disabled for either participant
+    const isMessagingDisabled = chat.participants.some(p => p.messagingDisabled);
+    if (isMessagingDisabled) {
+      // Delete the uploaded file
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Error deleting file:', err);
+      });
+      return res.status(403).json({ error: 'Messaging has been disabled for this conversation' });
+    }
+
+    // Determine file type (image or document)
+    const messageType = req.file.mimetype.startsWith('image/') ? 'image' : 'file';
+
+    // Create file URL
+    const fileUrl = `/uploads/chat-files/${req.file.filename}`;
+
+    // Add the new message
+    chat.messages.push({
+      sender: userId,
+      text: message || `Sent a ${messageType}`,
+      messageType: messageType,
+      fileUrl: fileUrl,
+      fileName: req.file.originalname,
+      fileSize: req.file.size,
+      timestamp: new Date(),
+      read: false
+    });
+
+    // Update last message preview
+    chat.lastMessagePreview = message || `Sent a ${messageType}`;
+    chat.lastMessageAt = new Date();
+    chat.updatedAt = new Date();
+    await chat.save();
+
+    // Create notification for the other participant
+    const recipient = chat.participants.find(p => p.userId !== userId);
+    if (recipient) {
+      const sender = chat.participants.find(p => p.userId === userId);
+      const notification = new Notification({
+        userId: recipient.userId,
+        type: 'message',
+        title: 'New file shared',
+        content: `${sender.name} sent you a ${messageType}: ${req.file.originalname}`,
+        sourceId: sender.userId,
+        sourceName: sender.name,
+        sourceType: sender.role,
+        link: `/dashboard/direct-messages/${chat._id}`
+      });
+      await notification.save();
+    }
+
+    res.json({ chat });
+  } catch (error) {
+    console.error('Error sending file message:', error);
+
+    // Delete the uploaded file if there was an error
+    if (req.file && req.file.path) {
+      fs.unlink(req.file.path, (err) => {
+        if (err) console.error('Error deleting file:', err);
+      });
+    }
+
+    res.status(500).json({ error: 'Failed to send file message' });
   }
 });
 
@@ -211,14 +400,23 @@ router.put('/api/direct-chats/:chatId/read', async (req, res) => {
 
     // Mark all messages from other participants as read
     let updated = false;
+    const now = new Date();
+
     chat.messages.forEach(message => {
       if (message.sender !== userId && !message.read) {
         message.read = true;
+        message.readAt = now;
         updated = true;
       }
     });
 
     if (updated) {
+      // Update the participant's last seen time
+      const participantIndex = chat.participants.findIndex(p => p.userId === userId);
+      if (participantIndex !== -1) {
+        chat.participants[participantIndex].lastSeen = now;
+      }
+
       await chat.save();
     }
 
@@ -226,6 +424,137 @@ router.put('/api/direct-chats/:chatId/read', async (req, res) => {
   } catch (error) {
     console.error('Error marking messages as read:', error);
     res.status(500).json({ error: 'Failed to mark messages as read' });
+  }
+});
+
+// Toggle messaging disabled status for a participant
+router.put('/api/direct-chats/:chatId/toggle-messaging', async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { chatId } = req.params;
+    const { disabled } = req.body;
+
+    if (disabled === undefined) {
+      return res.status(400).json({ error: 'Disabled status is required' });
+    }
+
+    // Find the chat and ensure the user is a participant
+    const chat = await DirectChat.findOne({
+      _id: chatId,
+      'participants.userId': userId
+    });
+
+    if (!chat) {
+      return res.status(404).json({ error: 'Chat not found' });
+    }
+
+    // Update the participant's messaging disabled status
+    const participantIndex = chat.participants.findIndex(p => p.userId === userId);
+    if (participantIndex !== -1) {
+      chat.participants[participantIndex].messagingDisabled = !!disabled;
+      await chat.save();
+    } else {
+      return res.status(404).json({ error: 'Participant not found in chat' });
+    }
+
+    res.json({
+      success: true,
+      message: `Messaging has been ${disabled ? 'disabled' : 'enabled'} for this conversation`
+    });
+  } catch (error) {
+    console.error('Error toggling messaging status:', error);
+    res.status(500).json({ error: 'Failed to update messaging preferences' });
+  }
+});
+
+// Get notifications for the current user
+router.get('/api/notifications', async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { limit = 20, offset = 0, unreadOnly = false } = req.query;
+
+    // Build query
+    const query = { userId };
+    if (unreadOnly === 'true') {
+      query.read = false;
+    }
+
+    // Get notifications with pagination
+    const notifications = await Notification.find(query)
+      .sort({ createdAt: -1 })
+      .skip(parseInt(offset))
+      .limit(parseInt(limit));
+
+    // Get total count for pagination
+    const total = await Notification.countDocuments(query);
+
+    // Get unread count
+    const unreadCount = await Notification.countDocuments({ userId, read: false });
+
+    res.json({
+      notifications,
+      pagination: {
+        total,
+        unreadCount,
+        limit: parseInt(limit),
+        offset: parseInt(offset)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+// Mark notifications as read
+router.put('/api/notifications/read', async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+    const { ids } = req.body;
+
+    if (!ids || !Array.isArray(ids)) {
+      return res.status(400).json({ error: 'Notification IDs array is required' });
+    }
+
+    // Mark specified notifications as read
+    const result = await Notification.updateMany(
+      {
+        _id: { $in: ids },
+        userId: userId // Ensure user can only mark their own notifications
+      },
+      {
+        $set: { read: true }
+      }
+    );
+
+    res.json({
+      success: true,
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error('Error marking notifications as read:', error);
+    res.status(500).json({ error: 'Failed to mark notifications as read' });
+  }
+});
+
+// Mark all notifications as read
+router.put('/api/notifications/read-all', async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+
+    // Mark all user's notifications as read
+    const result = await Notification.updateMany(
+      { userId, read: false },
+      { $set: { read: true } }
+    );
+
+    res.json({
+      success: true,
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    res.status(500).json({ error: 'Failed to mark all notifications as read' });
   }
 });
 
@@ -311,9 +640,9 @@ router.put('/api/fix-direct-chats', async (req, res) => {
       for (const participant of chat.participants) {
         const userId = participant.userId;
         const role = participant.role;
-        
+
         console.log(`Checking participant ${userId} with role ${role}`);
-        
+
         try {
           if (role === 'farmer') {
             const farmer = await Farmer.findOne({ userId });
@@ -365,8 +694,8 @@ router.put('/api/fix-direct-chats', async (req, res) => {
       }
     }
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: `Updated ${updatedCount} chats`,
       totalChats: chats.length,
       errors: errors.length > 0 ? errors : undefined

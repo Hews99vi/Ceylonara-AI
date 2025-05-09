@@ -7,6 +7,15 @@ import Chat from "./models/chat.js";
 import Message from "./models/message.js";
 import ImageKit from "imagekit";
 import UserChats from "./models/userChats.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import ensureDirectories from "./utils/ensureDirectories.js";
+import { spawn } from "child_process";
+import fs from "fs";
+
+// Create __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import the new HarvestData model
 import HarvestData from "./models/harvestData.js";
@@ -144,6 +153,16 @@ dotenv.config();
 const app = express();
 const PORT = 3002;
 
+// For future Socket.io implementation
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors: {
+//     origin: ['http://localhost:5173', 'http://localhost:5174'],
+//     methods: ['GET', 'POST'],
+//     credentials: true
+//   }
+// });
+
 // Connect to MongoDB
 console.log("Connecting to MongoDB...");
 // Create a connection string for local MongoDB if environment variable isn't set
@@ -169,6 +188,9 @@ const imagekit = new ImageKit({
   urlEndpoint: process.env.IMAGE_KIT_ENDPOINT,
 });
 
+// Ensure required directories exist
+ensureDirectories();
+
 // Middleware
 // Update middleware configuration
 app.use(express.json({ limit: '50mb' }));
@@ -184,6 +206,9 @@ app.use(cors({
 
 // Add body-parser middleware with increased limit for URL-encoded data
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
+// Serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Public route for getting average tea prices for farmers/factories - placed before auth middleware
 app.get("/api/tea-prices/average", async (req, res) => {
@@ -252,6 +277,36 @@ app.use(userRoutes);
 
 // Use the direct chat routes
 app.use(directChatRoutes);
+
+// Socket.io connection handling - to be implemented
+// io.on('connection', (socket) => {
+//   console.log('A user connected:', socket.id);
+//
+//   // Join a room based on user ID for private notifications
+//   socket.on('join', (userId) => {
+//     if (userId) {
+//       socket.join(userId);
+//       console.log(`User ${userId} joined their private room`);
+//     }
+//   });
+//
+//   // Handle chat message events
+//   socket.on('new_message', (data) => {
+//     // Notify the recipient
+//     if (data.recipientId) {
+//       io.to(data.recipientId).emit('message_notification', {
+//         senderId: data.senderId,
+//         senderName: data.senderName,
+//         chatId: data.chatId,
+//         messagePreview: data.messagePreview
+//       });
+//     }
+//   });
+//
+//   socket.on('disconnect', () => {
+//     console.log('User disconnected:', socket.id);
+//   });
+// });
 
 // Add error handling middleware
 app.use((err, req, res, next) => {
@@ -1393,13 +1448,6 @@ app.get("/api/farmer/collection-requests", async (req, res) => {
 
 // Import required packages for file handling if not already imported
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Configure multer for image uploads
 const storage = multer.diskStorage({
@@ -2053,6 +2101,7 @@ app.get("/api/admin/tea-prices/compliance", async (req, res) => {
 // Direct messaging routes are now imported from directChatRoutes.js
 
 // Start the server
+// Use app.listen for now, will switch to server.listen when Socket.io is implemented
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

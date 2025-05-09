@@ -15,14 +15,14 @@
 }
 
 .roleSelection h1 {
-  color: #ececec;
+  color: #212529;
   font-size: 32px;
   margin-bottom: 10px;
   text-align: center;
 }
 
 .roleSelection p {
-  color: #b0b0b0;
+  color: #495057;
   font-size: 16px;
   margin-bottom: 40px;
   text-align: center;
@@ -37,7 +37,7 @@
 }
 
 .roleCard {
-  background-color: rgba(44, 41, 55, 0.3);
+  background-color: #bfc0c5;
   border-radius: 15px;
   padding: 30px;
   text-align: center;
@@ -52,7 +52,7 @@
 
 .roleCard:hover {
   transform: translateY(-5px);
-  background-color: rgba(44, 41, 55, 0.5);
+  background-color: #d1d2d8;
 }
 
 .roleCard.selected {
@@ -66,16 +66,18 @@
 }
 
 .roleCard h2 {
-  color: #ececec;
+  color: #212529;
   font-size: 24px;
   margin-bottom: 15px;
+  font-weight: bold;
 }
 
 .roleCard p {
-  color: #b0b0b0;
+  color: #212529;
   font-size: 16px;
   line-height: 1.5;
   margin-bottom: 0;
+  font-weight: 500;
 }
 
 .continueButton {

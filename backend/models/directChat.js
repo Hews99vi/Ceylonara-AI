@@ -15,6 +15,14 @@ const directChatSchema = new mongoose.Schema(
       name: {
         type: String,
         required: true
+      },
+      messagingDisabled: {
+        type: Boolean,
+        default: false
+      },
+      lastSeen: {
+        type: Date,
+        default: null
       }
     }],
     messages: [{
@@ -26,6 +34,23 @@ const directChatSchema = new mongoose.Schema(
         type: String,
         required: true
       },
+      messageType: {
+        type: String,
+        enum: ["text", "image", "file"],
+        default: "text"
+      },
+      fileUrl: {
+        type: String,
+        default: null
+      },
+      fileName: {
+        type: String,
+        default: null
+      },
+      fileSize: {
+        type: Number,
+        default: null
+      },
       timestamp: {
         type: Date,
         default: Date.now
@@ -33,11 +58,23 @@ const directChatSchema = new mongoose.Schema(
       read: {
         type: Boolean,
         default: false
+      },
+      readAt: {
+        type: Date,
+        default: null
       }
     }],
     lastMessageAt: {
       type: Date,
       default: Date.now
+    },
+    lastMessagePreview: {
+      type: String,
+      default: ""
+    },
+    isActive: {
+      type: Boolean,
+      default: true
     }
   },
   { timestamps: true }

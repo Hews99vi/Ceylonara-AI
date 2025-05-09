@@ -3,6 +3,7 @@ import "./chatList.css";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { useAuth } from "@clerk/clerk-react";
+import NotificationBadge from "../NotificationBadge/NotificationBadge";
 
 const ChatList = () => {
   const queryClient = useQueryClient();
@@ -109,6 +110,9 @@ const ChatList = () => {
           <Link to="/dashboard/direct-messages" className="navLink">
             <i className="fas fa-envelope"></i>
             Direct Messages
+            <div className="badge-container">
+              <NotificationBadge />
+            </div>
           </Link>
           <Link to="/dashboard/set-tea-price" className="navLink">
             <i className="fas fa-tag"></i>
@@ -133,6 +137,9 @@ const ChatList = () => {
           <Link to="/dashboard/direct-messages" className="navLink">
             <i className="fas fa-envelope"></i>
             Direct Messages
+            <div className="badge-container">
+              <NotificationBadge />
+            </div>
           </Link>
           <Link to="/dashboard/tea-prices" className="navLink">
             <i className="fas fa-chart-line"></i>

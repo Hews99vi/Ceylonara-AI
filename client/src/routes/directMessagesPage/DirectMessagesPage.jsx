@@ -3,11 +3,14 @@ import { useAuth } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import ChatPartnerList from "../../components/ChatPartnerList/ChatPartnerList";
 import DirectChatWindow from "../../components/DirectChat/DirectChatWindow";
+import NotificationBadge from "../../components/NotificationBadge/NotificationBadge";
+import { useSocket } from "../../context/SocketContext";
 import "./directMessagesPage.css";
 
 const DirectMessagesPage = () => {
   const { user, getToken } = useAuth();
   const navigate = useNavigate();
+  const { notifications, clearNotifications, sendMessageNotification } = useSocket();
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -91,13 +94,16 @@ const DirectMessagesPage = () => {
             Authorization: `Bearer ${token}`
           }
         });
+
+        // Clear notifications for this chat
+        clearNotifications(selectedChat._id);
       } catch (err) {
         console.error("Error fetching chat details:", err);
       }
     };
 
     fetchChatDetails();
-  }, [selectedChat?._id, getToken]);
+  }, [selectedChat?._id, getToken, clearNotifications]);
 
   // Create a new chat with selected partner
   const createNewChat = async (partner) => {
@@ -140,8 +146,7 @@ const DirectMessagesPage = () => {
   };
 
   // Send a message to the selected chat
-  const sendMessage = async (e, messageText) => {
-    e.preventDefault();
+  const sendMessage = async (messageText) => {
     const messageToSend = messageText || message;
     if (!selectedChat || !messageToSend.trim()) return;
 
@@ -182,8 +187,93 @@ const DirectMessagesPage = () => {
           setChats(prevChats => [data.chat, ...prevChats]);
         }
       }
+
+      // Send real-time notification to the recipient
+      const recipient = selectedChat.participants.find(p => p.userId !== user?.id);
+      if (recipient) {
+        sendMessageNotification(
+          recipient.userId,
+          selectedChat._id,
+          messageToSend.length > 30 ? messageToSend.substring(0, 30) + '...' : messageToSend
+        );
+      }
     } catch (err) {
       console.error("Error sending message:", err);
+    }
+  };
+
+  // Handle file message updates
+  const handleFileMessageSent = (updatedChat) => {
+    if (!updatedChat) return;
+
+    // Update the selected chat
+    setSelectedChat(updatedChat);
+
+    // Update the chat in the list
+    setChats(prevChats =>
+      prevChats.map(chat =>
+        chat._id === updatedChat._id ? updatedChat : chat
+      )
+    );
+
+    // Send real-time notification to the recipient
+    const recipient = updatedChat.participants.find(p => p.userId !== user?.id);
+    if (recipient) {
+      const lastMessage = updatedChat.messages[updatedChat.messages.length - 1];
+      const messageType = lastMessage.messageType === 'image' ? 'an image' : 'a file';
+      sendMessageNotification(
+        recipient.userId,
+        updatedChat._id,
+        `Sent ${messageType}: ${lastMessage.fileName || ''}`
+      );
+    }
+  };
+
+  // Toggle messaging disabled status
+  const toggleMessagingDisabled = async (disabled) => {
+    if (!selectedChat) return;
+
+    try {
+      const token = await getToken();
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/direct-chats/${selectedChat._id}/toggle-messaging`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ disabled })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update messaging preferences");
+      }
+
+      const data = await response.json();
+
+      // Refresh the chat details
+      const chatResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/direct-chats/${selectedChat._id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      if (chatResponse.ok) {
+        const chatData = await chatResponse.json();
+        setSelectedChat(chatData.chat);
+
+        // Update the chat in the list
+        setChats(prevChats =>
+          prevChats.map(chat =>
+            chat._id === selectedChat._id ? chatData.chat : chat
+          )
+        );
+      }
+
+      // Show success message
+      alert(data.message);
+    } catch (err) {
+      console.error("Error toggling messaging status:", err);
+      alert("Failed to update messaging preferences. Please try again.");
     }
   };
 
@@ -191,16 +281,10 @@ const DirectMessagesPage = () => {
   const getPartnerName = (chat) => {
     if (!chat || !chat.participants) return "Unknown";
 
-    console.log("Current user ID:", user?.id, "userId:", user?.userId);
-    console.log("Chat participants:", chat.participants);
+    const currentUserId = user?.id || user?.userId;
 
     // Find the participant who is not the current user
-    const partner = chat.participants.find(p =>
-      p.userId !== user?.id &&
-      p.userId !== user?.userId
-    );
-
-    console.log("Identified partner:", partner);
+    const partner = chat.participants.find(p => p.userId !== currentUserId);
 
     // Always return the partner's actual name
     if (partner && partner.name) {
@@ -216,7 +300,27 @@ const DirectMessagesPage = () => {
   // Check if a chat has unread messages
   const hasUnreadMessages = (chat) => {
     if (!chat || !chat.messages) return false;
-    return chat.messages.some(msg => msg.sender !== user?.id && msg.sender !== user?.userId && !msg.read);
+    const currentUserId = user?.id || user?.userId;
+    return chat.messages.some(msg => msg.sender !== currentUserId && !msg.read);
+  };
+
+  // Format timestamp to relative time
+  const formatRelativeTime = (timestamp) => {
+    if (!timestamp) return '';
+
+    const now = new Date();
+    const messageTime = new Date(timestamp);
+    const diffMs = now - messageTime;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    return messageTime.toLocaleDateString();
   };
 
   // Get the last message time in a formatted manner
@@ -468,6 +572,7 @@ const DirectMessagesPage = () => {
             createNewChat(partner);
           }}
           searchQuery={partnerSearchQuery}
+          activeChats={chats}
         />
 
         {/* Chat List - Existing conversations */}
@@ -545,14 +650,69 @@ const DirectMessagesPage = () => {
       </div>
 
       <div className="chatArea">
-        <DirectChatWindow
-          chat={selectedChat}
-          onSendMessage={(messageText) => {
-            if (selectedChat && messageText.trim()) {
-              sendMessage({ preventDefault: () => {} }, messageText);
-            }
-          }}
-        />
+        {selectedChat ? (
+          <>
+            <div className="chat-header">
+              <div className="chat-partner-info">
+                <div className="chat-partner-avatar">
+                  {getPartnerName(selectedChat).charAt(0).toUpperCase()}
+                </div>
+                <div className="chat-partner-details">
+                  <div className="chat-partner-name">{getPartnerName(selectedChat)}</div>
+                  <div className="chat-partner-status">
+                    {selectedChat.participants.find(p => p.userId !== user?.id)?.lastSeen ?
+                      `Last seen ${formatRelativeTime(selectedChat.participants.find(p => p.userId !== user?.id)?.lastSeen)}` :
+                      'Online'}
+                  </div>
+                </div>
+              </div>
+              <div className="chat-actions">
+                <div className="dropdown">
+                  <button className="dropdown-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="1"></circle>
+                      <circle cx="12" cy="5" r="1"></circle>
+                      <circle cx="12" cy="19" r="1"></circle>
+                    </svg>
+                  </button>
+                  <div className="dropdown-menu">
+                    <button
+                      className="dropdown-item"
+                      onClick={() => toggleMessagingDisabled(
+                        !selectedChat.participants.find(p => p.userId === user?.id)?.messagingDisabled
+                      )}
+                    >
+                      {selectedChat.participants.find(p => p.userId === user?.id)?.messagingDisabled ?
+                        'Enable messaging' :
+                        'Disable messaging'}
+                    </button>
+                    <button
+                      className="dropdown-item delete"
+                      onClick={(e) => showDeleteConfirmation(selectedChat._id, e)}
+                    >
+                      Delete conversation
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DirectChatWindow
+              chat={selectedChat}
+              onSendMessage={sendMessage}
+              onSendFileMessage={handleFileMessageSent}
+            />
+          </>
+        ) : (
+          <div className="no-chat-selected">
+            <div className="no-chat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+            <h3>Select a conversation</h3>
+            <p>Choose an existing conversation or start a new one with a partner.</p>
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
