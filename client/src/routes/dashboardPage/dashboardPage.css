@@ -6,6 +6,18 @@
   justify-content: flex-start;
   padding: 40px;
   background-color: var(--off-white);
+  position: relative;
+}
+
+.dashboardPage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 180px;
+  background: linear-gradient(to bottom, rgba(57, 111, 4, 0.05), transparent);
+  z-index: 0;
 }
 
 .texts {
@@ -13,6 +25,9 @@
   width: 100%;
   text-align: center;
   margin-top: 20px;
+  position: relative;
+  z-index: 1;
+  background-color: transparent;
 }
 
 .features {
@@ -26,100 +41,235 @@
 .feature-button {
   background-color: var(--white);
   border: none;
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 30px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
   color: var(--text-primary);
   text-align: left;
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(222, 226, 230, 0.6);
 }
 
-.feature-button::after {
+.feature-button::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  width: 6px;
-  height: 100%;
-  background-color: var(--primary-green);
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(to right, var(--primary-green), var(--primary-green-light));
+  transition: height 0.3s ease;
 }
 
 .feature-button:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary-green-light);
+  background-color: rgba(125, 189, 7, 0.03);
+}
+
+.feature-button:hover::before {
+  height: 6px;
 }
 
 .feature-button img {
-  width: 50px;
-  height: 50px;
-  margin-bottom: 20px;
-  border-radius: 10px;
-  padding: 10px;
-  background-color: var(--primary-green-light);
+  width: 60px;
+  height: 60px;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  padding: 12px;
+  background-color: rgba(125, 189, 7, 0.1);
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border: 1px solid rgba(125, 189, 7, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.feature-button:hover img {
+  background-color: rgba(57, 111, 4, 0.1);
+  transform: scale(1.05);
+  border-color: var(--primary-green);
+  box-shadow: 0 4px 12px rgba(57, 111, 4, 0.15);
 }
 
 .feature-button h3 {
   font-size: 20px;
-  margin-bottom: 12px;
-  color: var(--text-primary);
+  margin-bottom: 16px;
+  color: var(--primary-green-dark);
   font-weight: 600;
+  position: relative;
+  padding-bottom: 12px;
+  transition: color 0.3s ease;
+}
+
+.feature-button h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background-color: var(--primary-green-light);
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.feature-button:hover h3 {
+  color: var(--primary-green);
+}
+
+.feature-button:hover h3::after {
+  width: 60px;
+  background-color: var(--primary-green);
 }
 
 .feature-button p {
   font-size: 15px;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.6;
+  transition: color 0.3s ease;
+}
+
+.feature-button:hover p {
+  color: var(--dark-gray);
 }
 
 .section-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary-green-dark);
+  margin-bottom: 35px;
   text-align: left;
   width: 100%;
+  position: relative;
+  padding-bottom: 15px;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 80px;
+  height: 3px;
+  background: linear-gradient(to right, var(--primary-green), var(--primary-green-light));
+  border-radius: 3px;
 }
 
 .search-form {
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto 40px;
   position: relative;
+  background-color: var(--white);
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  padding: 8px;
+  border: 1px solid rgba(222, 226, 230, 0.8);
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.search-form:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border-color: rgba(57, 111, 4, 0.15);
+  transform: translateY(-2px);
+}
+
+.search-form::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, var(--primary-green), var(--primary-green-light));
+  border-radius: 12px 0 0 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.search-form:hover::before {
+  opacity: 1;
 }
 
 .search-form input {
   width: 100%;
-  padding: 15px 20px 15px 50px;
-  border-radius: 12px;
-  border: 1px solid var(--medium-gray);
+  padding: 18px 20px 18px 55px;
+  border-radius: 8px;
+  border: none;
   background-color: var(--white);
   color: var(--text-primary);
   font-size: 16px;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
-.search-form::before {
+.search-form::after {
   content: '🔍';
   position: absolute;
-  left: 20px;
+  left: 22px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 18px;
   color: var(--primary-green);
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.search-form:hover::after {
+  color: var(--primary-green-dark);
 }
 
 .search-form input:focus {
   outline: none;
-  border-color: var(--primary-green);
-  box-shadow: 0 0 0 3px rgba(35, 206, 126, 0.2);
+  background-color: rgba(125, 189, 7, 0.05);
+}
+
+.search-form:focus-within {
+  box-shadow: 0 8px 28px rgba(57, 111, 4, 0.12);
+  border-color: var(--primary-green-light);
+}
+
+.search-form:focus-within::before {
+  opacity: 1;
 }
 
 .search-form input::placeholder {
-  color: black;
+  color: var(--dark-gray);
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.search-form input:focus::placeholder {
+  opacity: 0.6;
+}
+
+.search-form form {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.search-button {
+  background-color: var(--primary-green) !important;
+  color: var(--white) !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 6px 12px !important;
+  margin-left: 10px !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 4px rgba(57, 111, 4, 0.15) !important;
+}
+
+.search-button:hover {
+  background-color: var(--primary-green-dark) !important;
+  box-shadow: 0 3px 6px rgba(57, 111, 4, 0.2) !important;
 }
 
 
@@ -127,6 +277,16 @@
 @media (max-width: 992px) {
   .dashboardPage {
     padding: 30px;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  .feature-button img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 20px;
   }
 }
 
@@ -136,24 +296,82 @@
   }
 
   .feature-button {
-    padding: 20px;
+    padding: 25px 20px;
   }
 
   .feature-button h3 {
     font-size: 18px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
   }
 
-  .community-section {
-    padding: 30px 20px;
+  .feature-button p {
+    font-size: 14px;
+  }
+
+  .search-form {
+    max-width: 100%;
+    padding: 6px;
+  }
+
+  .search-form input {
+    padding: 16px 20px 16px 50px;
+    font-size: 15px;
+  }
+
+  .search-form:hover {
+    transform: translateY(-1px);
+  }
+
+  .search-button {
+    padding: 5px 10px !important;
+    font-size: 12px !important;
   }
 }
 
 @media (max-width: 576px) {
   .features {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
 
-  .challenge-cards {
-    grid-template-columns: 1fr;
+  .section-title {
+    font-size: 22px;
+    margin-bottom: 25px;
+  }
+
+  .dashboardPage::before {
+    height: 120px;
+  }
+
+  .search-form {
+    padding: 5px;
+  }
+
+  .search-form form {
+    flex-direction: column;
+  }
+
+  .search-form input {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 14px 20px 14px 45px;
+    font-size: 14px;
+  }
+
+  .search-form::after {
+    left: 18px;
+    font-size: 16px;
+  }
+
+  .search-form:hover {
+    transform: none;
+  }
+
+  .search-button {
+    width: 100%;
+    margin-left: 0 !important;
+    padding: 5px !important;
+    font-size: 12px !important;
   }
 }

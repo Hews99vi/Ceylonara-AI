@@ -66,7 +66,7 @@ const DashboardPage = () => {
           <form onSubmit={handleSubmit}>
             <input
               type="text"
-              placeholder="Ask anything about tea cultivation..."
+              placeholder="Ask anything about tea and tea related facts..."
               name="text"
             />
           </form>

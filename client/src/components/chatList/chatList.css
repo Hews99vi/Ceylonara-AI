@@ -2,26 +2,52 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 20px;
-  background-color: #ffffff;
+  padding: 25px;
+  background-color: transparent;
+  position: relative;
+}
+
+.chatList::before {
+  content: 'Ceylonara';
+  display: block;
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 30px;
+  letter-spacing: 1px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
 }
 
 hr {
   border: none;
-  height: 2px;
-  background-color: #85aa9b;
-  opacity: 0.2;
-  border-radius: 5px;
-  margin: 20px 0px;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 25px 0px;
 }
 
 .title {
-  font-weight: 600;
-  font-size: 12px;
-  margin-bottom: 15px;
-  color: #333333;
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 18px;
+  color: rgba(255, 255, 255, 0.7);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  position: relative;
+  padding-left: 12px;
+}
+
+.title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 16px;
+  background-color: var(--primary-green-light);
+  border-radius: 2px;
 }
 
 .List {
@@ -29,37 +55,74 @@ hr {
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
-  gap: 8px;
+  gap: 0;
   padding-right: 10px;
+  margin-bottom: 10px;
 }
 
 .List::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 
 .List::-webkit-scrollbar-track {
-  background: rgba(133, 170, 155, 0.1);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
 }
 
 .List::-webkit-scrollbar-thumb {
-  background: rgba(88, 139, 118, 0.3);
-  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
 }
 
 .navLink {
-  padding: 12px;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border-radius: 8px;
   text-decoration: none;
-  color: #333333;
+  color: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
   font-size: 14px;
-  background-color: #f5f5f5;
+  background-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.navLink i {
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  transition: all 0.3s ease;
 }
 
 .navLink:hover {
-  background-color: #85aa9b;
+  background-color: rgba(255, 255, 255, 0.1);
   color: #ffffff;
+  transform: translateX(3px);
+}
+
+.navLink:hover i {
+  color: var(--primary-green-light);
+}
+
+.navLink::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background-color: var(--primary-green-light);
+  opacity: 0.5;
+  transition: width 0.3s ease;
+}
+
+.navLink:hover::before {
+  width: 5px;
 }
 
 .loading {
@@ -67,15 +130,18 @@ hr {
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  padding: 30px;
-  color: #666666;
+  padding: 25px;
+  color: rgba(255, 255, 255, 0.7);
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin: 10px 0;
 }
 
 .loadingSpinner {
-  width: 24px;
-  height: 24px;
-  border: 2px solid #e0e0e0;
-  border-top: 2px solid #588b76;
+  width: 28px;
+  height: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid var(--primary-green-light);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -90,62 +156,106 @@ hr {
   flex-direction: column;
   align-items: center;
   gap: 15px;
-  padding: 30px;
+  padding: 25px;
   text-align: center;
+  background-color: rgba(211, 47, 47, 0.1);
+  border-radius: 8px;
+  margin: 10px 0;
 }
 
 .error span {
-  color: #d32f2f;
+  color: #ff5252;
   font-size: 14px;
 }
 
 .retryButton {
-  background: linear-gradient(to right, #588b76, #85aa9b);
+  background: linear-gradient(to right, var(--primary-green-light), var(--primary-green));
   color: white;
   border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 10px 18px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
-  transition: opacity 0.3s ease;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .retryButton:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .no-chats {
-  padding: 30px;
+  padding: 20px;
   text-align: center;
-  color: #666666;
+  color: rgba(255, 255, 255, 0.5);
   font-size: 14px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin: 10px 0;
 }
 
 .chatLink {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px;
-  border-radius: 10px;
+  padding: 14px 16px;
+  border-radius: 8px;
   text-decoration: none;
-  color: #333333;
+  color: rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
-  background-color: rgba(133, 170, 155, 0.1);
-  border: 1px solid rgba(133, 170, 155, 0.2);
+  background-color: rgba(255, 255, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
 }
 
 .chatLink:hover {
-  background-color: rgba(88, 139, 118, 0.2);
-  border-color: #588b76;
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(3px);
+}
+
+.chatLink::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background-color: var(--primary-green-light);
+  opacity: 0.5;
+  transition: width 0.3s ease;
+}
+
+.chatLink:hover::before {
+  width: 5px;
+}
+
+.chat-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chat-title i {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  width: 20px;
+  text-align: center;
+}
+
+.chatLink:hover .chat-title i {
+  color: var(--primary-green-light);
 }
 
 .deleteBtn {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   border: none;
-  background-color: rgba(88, 139, 118, 0.1);
-  color: #666666;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.6);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -160,9 +270,8 @@ hr {
 }
 
 .deleteBtn:hover {
-  background-color: rgba(211, 47, 47, 0.1);
-  color: #d32f2f;
-  transform: scale(1.1);
+  background-color: rgba(211, 47, 47, 0.2);
+  color: #ff5252;
 }
 
 .upgrade {
