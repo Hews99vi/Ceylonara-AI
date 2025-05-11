@@ -14,7 +14,7 @@
 }
 
 .sidebar {
-  background: linear-gradient(to bottom, #396F04, #2A5303);
+  background: linear-gradient(to bottom, rgba(14, 128, 10, 0.829), rgb(8, 83, 21));
   padding: 30px 20px;
   overflow-y: auto;
   height: 100vh;
