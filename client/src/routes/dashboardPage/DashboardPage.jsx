@@ -48,17 +48,17 @@ const DashboardPage = () => {
           <button onClick={() => navigate('/dashboard/analyze-tea')} className="feature-button">
             <img src="/icons/analyze-icon.svg" alt="Analyze" />
             <h3>Analyze Tea Quality</h3>
-            <p>Upload tea leaf images for quality analysis and get instant feedback on your harvest quality.</p>
+            <p>Upload tea leaf images for quality analysis and get instant feedback on your harvest quality. Our AI-powered system provides detailed insights.</p>
           </button>
           <button onClick={() => navigate('/dashboard/manage-estate')} className="feature-button">
             <img src="/icons/estate-icon.svg" alt="Estate" />
             <h3>Manage Estate</h3>
-            <p>Track and manage your tea estate details with comprehensive data visualization and reporting tools.</p>
+            <p>Track and manage your tea estate details with comprehensive data visualization and reporting tools. Monitor growth and optimize production.</p>
           </button>
           <button onClick={() => navigate('/dashboard/harvest-plan')} className="feature-button">
             <img src="/icons/harvest-icon.svg" alt="Harvest" />
             <h3>Harvest Planning</h3>
-            <p>Plan and optimize your tea harvesting schedule with AI-powered recommendations for maximum yield.</p>
+            <p>Plan and optimize your tea harvesting schedule with AI-powered recommendations. Maximize yield and quality through data-driven decisions.</p>
           </button>
         </div>
 
