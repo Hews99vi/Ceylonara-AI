@@ -145,8 +145,12 @@ const AnnouncementsPage = () => {
   
   return (
     <div className="announcementsPage">
-      <h1>Factory Announcements</h1>
-      <p className="subtitle">Stay updated with important announcements from tea factories</p>
+      <div className="page-header">
+        <h1>Factory Announcements</h1>
+        <div className="subtitle-container">
+          <p className="subtitle">Stay updated with important announcements from tea factories</p>
+        </div>
+      </div>
       
       {isLoading ? (
         <div className="loading">Loading announcements...</div>

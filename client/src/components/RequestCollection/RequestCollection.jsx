@@ -192,90 +192,129 @@ const RequestCollection = () => {
 
   return (
     <div className="requestCollection">
-      <h1>Request Tea Collection</h1>
-      <p className="subtitle">Schedule a tea leaf collection from your tea estate</p>
+      <div className="page-header">
+        <h1>Request Tea Collection</h1>
+        <div className="subtitle-container">
+          <p className="subtitle">Schedule a tea leaf collection from your tea estate</p>
+        </div>
+      </div>
 
       {error && <div className="error-message">{error}</div>}
 
       {isLoading ? (
-        <div className="loading">Loading factories and preparing form...</div>
+        <div className="loading">
+          <div className="loading-spinner"></div>
+          <span>Loading factories and preparing form...</span>
+        </div>
       ) : (
         <div className="requestForm">
           <form onSubmit={handleSubmit}>
-            <div className="formGroup">
-              <label htmlFor="factory">Select Factory:</label>
-              <select
-                id="factory"
-                value={selectedFactoryId}
-                onChange={handleFactorySelect}
-                required
-                disabled={isLoading}
-                className="factorySelect"
-              >
-                <option value="">-- Select a factory --</option>
-                {factories.map(factory => (
-                  <option key={factory.id} value={factory.id}>
-                    {factory.name} ({factory.mfNumber || 'No MF Number'})
-                  </option>
-                ))}
-              </select>
+            <div className="form-grid">
+              <div className="formGroup">
+                <div className="field-label">Select Factory</div>
+                <label htmlFor="factory">
+                  <i className="form-icon factory-icon"></i>
+                  Select Factory
+                </label>
+                <select
+                  id="factory"
+                  value={selectedFactoryId}
+                  onChange={handleFactorySelect}
+                  required
+                  disabled={isLoading}
+                  className="factorySelect"
+                >
+                  <option value="">-- Select a factory --</option>
+                  {factories.map(factory => (
+                    <option key={factory.id} value={factory.id}>
+                      {factory.name} ({factory.mfNumber || 'No MF Number'})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="formGroup">
+                <div className="field-label">Collection Time</div>
+                <label htmlFor="time">
+                  <i className="form-icon time-icon"></i>
+                  Collection Time
+                </label>
+                <select
+                  id="time"
+                  value={selectedTime}
+                  onChange={(e) => setSelectedTime(e.target.value)}
+                  required
+                >
+                  <option value="">-- Select a time --</option>
+                  <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
+                  <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
+                  <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
+                </select>
+              </div>
+
+              <div className="formGroup">
+                <div className="field-label">Quantity (kg)</div>
+                <label htmlFor="quantity">
+                  <i className="form-icon quantity-icon"></i>
+                  Quantity (kg)
+                </label>
+                <input
+                  type="number"
+                  id="quantity"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  min="1"
+                  placeholder="Enter quantity in kilograms"
+                  required
+                />
+              </div>
+
+              <div className="formGroup">
+                <div className="field-label">Collection Date</div>
+                <label htmlFor="date">
+                  <i className="form-icon date-icon"></i>
+                  Collection Date
+                </label>
+                <input
+                  type="date"
+                  id="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  min={today}
+                  required
+                />
+              </div>
             </div>
 
-            <div className="formGroup">
-              <label htmlFor="time">Collection Time:</label>
-              <select
-                id="time"
-                value={selectedTime}
-                onChange={(e) => setSelectedTime(e.target.value)}
-                required
-              >
-                <option value="">-- Select a time --</option>
-                <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
-                <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
-                <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
-              </select>
-            </div>
-
-            <div className="formGroup">
-              <label htmlFor="quantity">Quantity (kg):</label>
-              <input
-                type="number"
-                id="quantity"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                min="1"
-                placeholder="Enter quantity in kilograms"
-                required
-              />
-            </div>
-
-            <div className="formGroup">
-              <label htmlFor="date">Collection Date:</label>
-              <input
-                type="date"
-                id="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                min={today}
-                required
-              />
-            </div>
-
-            <div className="formGroup">
-              <label>Select Collection Location:</label>
+            <div className="formGroup location-group">
+              <div className="field-label">Select Collection Location</div>
+              <label>
+                <i className="form-icon location-icon"></i>
+                Select Collection Location
+              </label>
               <div className="mapContainer">
                 <LocationPicker onLocationSelect={handleLocationSelect} />
               </div>
             </div>
 
-            <button type="submit" className="submitButton" disabled={isLoading}>
-              {isLoading ? 'Processing...' : 'Submit Collection Request'}
-            </button>
+            <div className="form-actions submit-only">
+              <button type="submit" className="submitButton" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <span className="spinner"></span>
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <i className="submit-icon"></i>
+                    Submit Collection Request
+                  </>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       )}
-
-      <Link to="/dashboard" className="backLink">← Back to Dashboard</Link>
     </div>
   );
 };

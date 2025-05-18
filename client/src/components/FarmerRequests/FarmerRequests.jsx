@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import './farmerRequests.css';
 
@@ -82,18 +81,18 @@ const FarmerRequests = () => {
   
   return (
     <div className="farmer-requests-container">
-      <h2>My Collection Requests</h2>
-      
-      <div className="announcements-link-container">
-        <Link to="/dashboard/announcements" className="view-announcements-btn">
-          View Latest Announcements
-        </Link>
+      <div className="page-header">
+        <h1>My Collection Requests</h1>
+        <div className="subtitle-container">
+          <p className="subtitle">Track and manage your tea collection requests</p>
+        </div>
       </div>
       
       {error && <div className="error-message">{error}</div>}
-      {isLoading && <div className="loading">Loading your requests...</div>}
       
-      {!isLoading && requests.length === 0 ? (
+      {isLoading ? (
+        <div className="loading">Loading your requests...</div>
+      ) : requests.length === 0 ? (
         <div className="no-requests">
           <p>You haven't submitted any collection requests yet.</p>
         </div>
