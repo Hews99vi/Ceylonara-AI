@@ -1,12 +1,14 @@
 .chatList {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-height: 100vh;
+  height: calc(100vh - 40px);
+  max-height: calc(100vh - 40px);
   padding: 25px;
   background-color: transparent;
   position: relative;
   overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 
 .chatList::before {
@@ -51,17 +53,12 @@ hr {
 .List {
   display: flex;
   flex-direction: column;
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  gap: 0;
-  padding-right: 10px;
-  margin-bottom: 10px;
-  max-height: calc(100vh - 250px);
+  gap: 10px;
+  padding: 10px;
 }
 
 .List::-webkit-scrollbar {
-  width: 4px;
+  display: none; /* Chrome, Safari and Opera */
 }
 
 .List::-webkit-scrollbar-track {
@@ -129,19 +126,16 @@ hr {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
-  padding: 25px;
-  color: rgba(255, 255, 255, 0.7);
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  margin: 10px 0;
+  gap: 10px;
+  padding: 20px;
+  color: #b0b0b0;
 }
 
 .loadingSpinner {
-  width: 28px;
-  height: 28px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-top: 2px solid var(--primary-green-light);
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(76, 175, 80, 0.2);
+  border-top: 3px solid #4CAF50;
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -152,115 +146,68 @@ hr {
 }
 
 .error {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  padding: 25px;
+  padding: 15px;
+  color: #ff6b6b;
   text-align: center;
-  background-color: rgba(211, 47, 47, 0.1);
+  background-color: rgba(255, 107, 107, 0.1);
   border-radius: 8px;
-  margin: 10px 0;
-}
-
-.error span {
-  color: #ff5252;
-  font-size: 14px;
 }
 
 .retryButton {
-  background: linear-gradient(to right, var(--primary-green-light), var(--primary-green));
+  margin-top: 10px;
+  padding: 8px 16px;
+  background-color: #ff6b6b;
   color: white;
   border: none;
-  padding: 10px 18px;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s;
 }
 
 .retryButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background-color: #ff5252;
 }
 
 .no-chats {
-  padding: 20px;
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 14px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  margin: 10px 0;
+  padding: 20px;
+  color: #b0b0b0;
 }
 
 .chatLink {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 14px 16px;
+  justify-content: space-between;
+  padding: 12px 15px;
+  background-color: rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: white;
   transition: all 0.3s ease;
-  background-color: rgba(255, 255, 255, 0.05);
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 10px;
 }
 
 .chatLink:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  transform: translateX(3px);
-}
-
-.chatLink::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 0;
-  background-color: var(--primary-green-light);
-  opacity: 0.5;
-  transition: width 0.3s ease;
-}
-
-.chatLink:hover::before {
-  width: 5px;
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateX(5px);
 }
 
 .chat-title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .chat-title i {
-  font-size: 16px;
-  color: rgba(255, 255, 255, 0.7);
-  width: 20px;
-  text-align: center;
-}
-
-.chatLink:hover .chat-title i {
-  color: var(--primary-green-light);
+  color: #4CAF50;
 }
 
 .deleteBtn {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
+  background: none;
   border: none;
-  background-color: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.6);
+  color: #ff6b6b;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
+  padding: 5px;
+  border-radius: 4px;
   transition: all 0.3s ease;
   opacity: 0;
 }
@@ -270,8 +217,7 @@ hr {
 }
 
 .deleteBtn:hover {
-  background-color: rgba(211, 47, 47, 0.2);
-  color: #ff5252;
+  background-color: rgba(255, 107, 107, 0.2);
 }
 
 .upgrade {
@@ -396,4 +342,45 @@ hr {
   color: #666666;
   font-size: 12px;
   line-height: 1.4;
+}
+
+.ai-experience {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(46, 125, 50, 0.15));
+  margin: 15px 0 30px 0;
+  padding: 12px 15px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  transition: all 0.3s ease;
+  width: calc(100% - 30px);
+  overflow: visible;
+  position: relative;
+  bottom: 20px;
+  white-space: nowrap;
+}
+
+.ai-experience:hover {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(46, 125, 50, 0.2));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ai-experience i {
+  font-size: 18px;
+  color: #4CAF50;
+  background: rgba(76, 175, 80, 0.1);
+  padding: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ai-experience span {
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: ellipsis;
 }
