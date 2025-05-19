@@ -1,10 +1,10 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
-import { FaUpload, FaSpinner, FaLeaf, FaVirusSlash, FaTimes } from 'react-icons/fa';
+import { FaUpload, FaSpinner } from 'react-icons/fa';
 import './TeaDiseaseDetection.css';
 
-const TeaDiseaseDetection = () => {
+const TeaDiseaseDetection = ({ onResultUpdate }) => {
   console.log("TeaDiseaseDetection component mounted");
   
   // Get authentication from Clerk
@@ -14,7 +14,6 @@ const TeaDiseaseDetection = () => {
   const [preview, setPreview] = useState(null);
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [result, setResult] = useState(null);
   const fileInputRef = useRef(null);
 
   console.log("Auth state:", { isLoaded, isSignedIn, userId });
@@ -52,7 +51,7 @@ const TeaDiseaseDetection = () => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setError(null);
-    setResult(null);
+    if (onResultUpdate) onResultUpdate(null);
     
     if (!selectedFile) return;
     
@@ -78,8 +77,8 @@ const TeaDiseaseDetection = () => {
   const resetForm = () => {
     setFile(null);
     setPreview(null);
-    setResult(null);
     setError(null);
+    if (onResultUpdate) onResultUpdate(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -104,7 +103,10 @@ const TeaDiseaseDetection = () => {
       
       try {
         const response = await axios.post(testApiUrl, formData);
-        setResult(response.data.result || response.data);
+        const resultData = response.data.result || response.data;
+        if (onResultUpdate) {
+          onResultUpdate(resultData);
+        }
       } catch (testError) {
         const token = await getToken();
         const apiUrl = `${baseUrl}/api/tea-disease/detect`;
@@ -115,51 +117,20 @@ const TeaDiseaseDetection = () => {
           }
         });
         
-        setResult(response.data.result || response.data);
+        const resultData = response.data.result || response.data;
+        if (onResultUpdate) {
+          onResultUpdate(resultData);
+        }
       }
     } catch (err) {
       setError(err.response?.data?.error || 'Error processing image. Please try again.');
+      if (onResultUpdate) {
+        onResultUpdate(null);
+      }
     } finally {
       setProcessing(false);
     }
   };
-
-  // Helper function to convert API response format to display format
-  const processResultForDisplay = (resultData) => {
-    console.log('Processing result for display:', resultData);
-    
-    if (!resultData) return null;
-    
-    // Handle different response formats from API
-    const isHealthy = resultData.healthy || resultData.is_healthy || 
-                     (resultData.prediction && resultData.prediction.toLowerCase() === 'healthy');
-    
-    const diseaseName = isHealthy ? 'Healthy' : resultData.prediction || resultData.disease || 'Unknown';
-    
-    const treatment = resultData.treatment || 
-                     (isHealthy ? 'Continue with regular maintenance and preventive practices to keep plants healthy.' : '');
-    
-    // Build confidence scores
-    let confidenceScores = {};
-    if (resultData.all_predictions && Array.isArray(resultData.all_predictions)) {
-      resultData.all_predictions.forEach(pred => {
-        confidenceScores[pred.disease] = pred.confidence / 100; // normalize to 0-1 range
-      });
-    } else if (resultData.confidence) {
-      confidenceScores[diseaseName] = resultData.confidence / 100;
-      confidenceScores['Other'] = 1 - (resultData.confidence / 100);
-    }
-    
-    return {
-      isHealthy,
-      diseaseName,
-      treatment,
-      confidenceScores
-    };
-  };
-  
-  // Process result for display
-  const displayResult = result ? processResultForDisplay(result) : null;
 
   return (
     <div className="disease-detection-form">
@@ -215,52 +186,6 @@ const TeaDiseaseDetection = () => {
           </>
         ) : 'Detect Disease'}
       </button>
-
-      {result && (
-        <div className="result-container">
-          <h3 className="result-header">
-            {displayResult.isHealthy ? (
-              <>
-                <FaLeaf className="healthy-icon" /> 
-                <span className="disease-name healthy">Healthy Tea Leaves</span>
-              </>
-            ) : (
-              <>
-                <FaVirusSlash className="disease-icon" />
-                <span className="disease-name">{displayResult.diseaseName}</span>
-              </>
-            )}
-          </h3>
-          
-          <div className="result-details">
-            {displayResult.isHealthy ? (
-              <p>Your tea leaves appear healthy! Continue with your current care practices.</p>
-            ) : (
-              <>
-                <h4>Recommended Treatment:</h4>
-                <div className="treatment-details">
-                  <p>{displayResult.treatment}</p>
-                  <h4>General Care Tips:</h4>
-                  <ul className="treatment-tips">
-                    <li>Remove all infected leaves and dispose away from healthy plants</li>
-                    <li>Ensure 4-6 inches of space between plants for air circulation</li>
-                    <li>Water at soil level and avoid wetting leaves when possible</li>
-                    <li>Apply recommended treatments in early morning or evening</li>
-                    <li>Monitor plants regularly for signs of reinfection</li>
-                  </ul>
-                </div>
-              </>
-            )}
-            <button
-              className="check-another-btn"
-              onClick={resetForm}
-              type="button"
-            >
-              Check Another Image
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

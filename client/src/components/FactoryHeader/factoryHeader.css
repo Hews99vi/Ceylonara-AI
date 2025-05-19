@@ -1,62 +1,67 @@
 .factoryHeader {
   background-color: var(--white);
   color: var(--text-primary);
-  padding: 15px 20px;
-  border-radius: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 50px;
-  box-shadow: var(--shadow-md);
+  margin-bottom: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .factoryInfo {
   display: flex;
   align-items: center;
+  gap: 8px;
 }
 
 .factory-header-container {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
 }
 
 .factoryName {
-  font-size: 18px;
-  margin: 0 0 8px 0;
+  font-size: 14px;
+  margin: 0;
   color: var(--primary-green);
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1;
 }
 
 .mfNumber {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.2;
+  line-height: 1;
+  padding: 1px 6px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {
   .factoryHeader {
-    margin-bottom: 40px;
+    margin-bottom: 6px;
+    padding: 4px 8px;
   }
+  
   .factoryInfo {
-    flex-direction: row;
-    align-items: center;
+    gap: 6px;
   }
 
   .factory-header-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    gap: 8px;
   }
 
   .factoryName {
-    font-size: 16px;
-    margin: 0 0 6px 0;
+    font-size: 13px;
   }
 
   .mfNumber {
-    font-size: 13px;
+    font-size: 11px;
+    padding: 1px 4px;
   }
 }
