@@ -55,6 +55,11 @@
   background-color: var(--off-white);
 }
 
+/* Add this class to prevent scrolling on specific pages */
+.main-content.no-scroll {
+  overflow: hidden;
+}
+
 /* Hero section for dashboard */
 .dashboard-hero {
   background: var(--gradient-primary);

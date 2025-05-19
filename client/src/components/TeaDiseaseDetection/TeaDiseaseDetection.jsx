@@ -52,21 +52,15 @@ const TeaDiseaseDetection = () => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setError(null);
-    
-    // Reset previous results
     setResult(null);
     
-    if (!selectedFile) {
-      return;
-    }
+    if (!selectedFile) return;
     
-    // Check file type
     if (!['image/jpeg', 'image/png'].includes(selectedFile.type)) {
       setError('Please select a JPEG or PNG image file');
       return;
     }
     
-    // Check file size (max 5MB)
     if (selectedFile.size > 5 * 1024 * 1024) {
       setError('Image size should be less than 5MB');
       return;
@@ -74,7 +68,6 @@ const TeaDiseaseDetection = () => {
     
     setFile(selectedFile);
     
-    // Create preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setPreview(reader.result);
@@ -94,8 +87,6 @@ const TeaDiseaseDetection = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted. File:', file);
-
     if (!file) {
       setError('Please select an image file');
       return;
@@ -105,37 +96,18 @@ const TeaDiseaseDetection = () => {
     setError(null);
 
     try {
-      // Create form data with correct filename and content type
       const formData = new FormData();
-      // Add file with original filename to help with MIME type detection
       formData.append('image', file, file.name);
       
-      // Debug the form data
-      console.log('FormData created with file:', file.name, file.type, file.size);
-      
-      // Determine API URL - use environment variable or default to local
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
-      
-      // Try the non-authenticated test endpoint first
       const testApiUrl = `${baseUrl}/api/test-tea-disease`;
-      console.log('Sending request to test endpoint:', testApiUrl);
       
       try {
-        // Try the test endpoint without authentication
         const response = await axios.post(testApiUrl, formData);
-        console.log('Response received from test endpoint:', response.status);
-        console.log('Response data:', response.data);
-        
         setResult(response.data.result || response.data);
       } catch (testError) {
-        console.error('Test endpoint failed, trying authenticated endpoint');
-        
-        // If test endpoint fails, fall back to authenticated endpoint
         const token = await getToken();
-        console.log('Token available:', !!token);
-        
         const apiUrl = `${baseUrl}/api/tea-disease/detect`;
-        console.log('Sending request to:', apiUrl);
         
         const response = await axios.post(apiUrl, formData, {
           headers: {
@@ -143,14 +115,9 @@ const TeaDiseaseDetection = () => {
           }
         });
         
-        console.log('Response received:', response.status);
-        console.log('Response data:', response.data);
-        
         setResult(response.data.result || response.data);
       }
     } catch (err) {
-      console.error('Error detecting disease:', err);
-      console.error('Error response:', err.response?.data);
       setError(err.response?.data?.error || 'Error processing image. Please try again.');
     } finally {
       setProcessing(false);
@@ -195,94 +162,105 @@ const TeaDiseaseDetection = () => {
   const displayResult = result ? processResultForDisplay(result) : null;
 
   return (
-    <div className="tea-disease-detection">
-      <div className="detection-header">
-        <h2>Tea Leaf Disease Detection</h2>
-        <p>Upload a clear image of tea leaves to detect diseases</p>
-      </div>
+    <div className="disease-detection-form">
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/jpeg,image/png"
+        style={{ display: 'none' }}
+      />
       
-      <div className="detection-content">
-        <div className="upload-section">
-          <form onSubmit={handleSubmit}>
-            <div className="file-upload-container">
-              <input 
-                type="file" 
-                onChange={handleFileChange} 
-                className="file-input"
-                ref={fileInputRef}
-                accept="image/jpeg, image/png"
-              />
-              <div className="upload-btn">
-                <FaUpload />
-                <span>Choose Image</span>
-              </div>
-            </div>
-            
-            {error && <div className="error-message">{error}</div>}
-            
-            {preview && (
-              <div className="preview-container">
-                <img src={preview} alt="Tea leaf preview" className="image-preview" />
-                <button type="button" className="reset-btn" onClick={resetForm}>
-                  <FaTimes />
-                </button>
-              </div>
-            )}
-            
-            <button 
-              type="submit" 
-              className="submit-btn" 
-              disabled={!file || processing}
-            >
-              {processing ? (
-                <>
-                  <FaSpinner className="spinner" />
-                  Analyzing...
-                </>
-              ) : 'Detect Disease'}
-            </button>
-          </form>
+      {!preview ? (
+        <div 
+          className="upload-area"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <div className="upload-icon">📸</div>
+          <div className="upload-text">Choose an image to analyze</div>
+          <div className="upload-hint">JPG, PNG (Max: 5MB)</div>
         </div>
-        
-        {displayResult && (
-          <div className="result-container">
-            <h3 className="result-header">
-              {displayResult.isHealthy ? (
-                <>
-                  <FaLeaf className="healthy-icon" /> 
-                  <span className="disease-name healthy">Healthy Tea Leaves</span>
-                </>
-              ) : (
-                <>
-                  <FaVirusSlash className="disease-icon" />
-                  <span className="disease-name">{displayResult.diseaseName}</span>
-                </>
-              )}
-            </h3>
-            
-            <div className="result-details">
-              {displayResult.isHealthy ? (
-                <p>Your tea leaves appear healthy! Continue with your current care practices.</p>
-              ) : (
-                <>
-                  <h4>Recommended Treatment:</h4>
-                  <div className="treatment-details">
-                    <p>{displayResult.treatment}</p>
-                    <h4>General Care Tips:</h4>
-                    <ul className="treatment-tips">
-                      <li>Remove all infected leaves and dispose away from healthy plants</li>
-                      <li>Ensure 4-6 inches of space between plants for air circulation</li>
-                      <li>Water at soil level and avoid wetting leaves when possible</li>
-                      <li>Apply recommended treatments in early morning or evening</li>
-                      <li>Monitor plants regularly for signs of reinfection</li>
-                    </ul>
-                  </div>
-                </>
-              )}
-            </div>
+      ) : (
+        <div className="image-preview-container">
+          <img 
+            src={preview} 
+            alt="Preview" 
+            className="image-preview"
+          />
+          <button 
+            className="remove-image"
+            onClick={resetForm}
+            type="button"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+
+      <button
+        className="detect-disease-btn"
+        onClick={handleSubmit}
+        disabled={!file || processing}
+      >
+        {processing ? (
+          <>
+            <FaSpinner className="spinner" />
+            Analyzing...
+          </>
+        ) : 'Detect Disease'}
+      </button>
+
+      {result && (
+        <div className="result-container">
+          <h3 className="result-header">
+            {displayResult.isHealthy ? (
+              <>
+                <FaLeaf className="healthy-icon" /> 
+                <span className="disease-name healthy">Healthy Tea Leaves</span>
+              </>
+            ) : (
+              <>
+                <FaVirusSlash className="disease-icon" />
+                <span className="disease-name">{displayResult.diseaseName}</span>
+              </>
+            )}
+          </h3>
+          
+          <div className="result-details">
+            {displayResult.isHealthy ? (
+              <p>Your tea leaves appear healthy! Continue with your current care practices.</p>
+            ) : (
+              <>
+                <h4>Recommended Treatment:</h4>
+                <div className="treatment-details">
+                  <p>{displayResult.treatment}</p>
+                  <h4>General Care Tips:</h4>
+                  <ul className="treatment-tips">
+                    <li>Remove all infected leaves and dispose away from healthy plants</li>
+                    <li>Ensure 4-6 inches of space between plants for air circulation</li>
+                    <li>Water at soil level and avoid wetting leaves when possible</li>
+                    <li>Apply recommended treatments in early morning or evening</li>
+                    <li>Monitor plants regularly for signs of reinfection</li>
+                  </ul>
+                </div>
+              </>
+            )}
+            <button
+              className="check-another-btn"
+              onClick={resetForm}
+              type="button"
+            >
+              Check Another Image
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };
