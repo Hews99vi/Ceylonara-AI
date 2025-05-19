@@ -73,6 +73,9 @@ button[type="submit"]:hover {
   max-width: 1100px;
   margin: 0 auto;
   padding: 20px;
+  height: calc(100vh - 200px); /* Adjust height to leave space for header and button */
+  display: flex;
+  flex-direction: column;
 }
 
 .page-header {
@@ -378,4 +381,210 @@ button[type="submit"]:hover {
   .request-header, .request-expanded {
     padding: 14px 8px;
   }
+}
+
+/* Table View Styles */
+.table-container {
+  flex: 1;
+  overflow-y: auto;
+  margin-bottom: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.requests-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.requests-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #4CAF50;
+}
+
+.requests-table th {
+  background: #4CAF50;
+  color: white;
+  font-weight: 600;
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.requests-table td {
+  padding: 16px;
+  color: #000000;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.requests-table .status-cell {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.requests-table .status-pending {
+  background-color: #fff3e0;
+  color: #e65100;
+}
+
+.requests-table .status-approved {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.requests-table .status-rejected {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.refresh-button-container {
+  position: sticky;
+  bottom: 20px;
+  text-align: center;
+  padding-top: 20px;
+  background: transparent;
+}
+
+.refresh-button {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.9) 0%, rgba(56, 142, 60, 0.85) 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.refresh-button:hover {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 1) 0%, rgba(56, 142, 60, 0.95) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.refresh-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Expandable row styles */
+.expand-button {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.9) 0%, rgba(56, 142, 60, 0.85) 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.expand-button:hover {
+  background: linear-gradient(135deg, rgba(76, 175, 80, 1) 0%, rgba(56, 142, 60, 0.95) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.expanded-row {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.expanded-content {
+  padding: 20px;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.1);
+}
+
+.request-location, .request-note {
+  margin-bottom: 20px;
+}
+
+.request-location h4, .request-note h4 {
+  color: #2e7d32;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.no-location {
+  color: #666;
+  font-style: italic;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.request-note p {
+  margin: 0;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  color: #333;
+}
+
+.request-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 15px;
+}
+
+.approve-btn, .reject-btn, .complete-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.approve-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.approve-btn:hover {
+  background-color: #388e3c;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.reject-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.reject-btn:hover {
+  background-color: #d32f2f;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.complete-btn {
+  background-color: #2196f3;
+  color: white;
+}
+
+.complete-btn:hover {
+  background-color: #1976d2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure the map container has proper dimensions */
+.request-location .map-container {
+  height: 300px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 10px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
 }

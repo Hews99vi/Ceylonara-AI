@@ -118,85 +118,104 @@ const CollectionRequest = () => {
       {!isLoading && requests.length === 0 ? (
         <div className="no-requests">No collection requests found</div>
       ) : (
-        <div className="requests-list">
-          {requests.map(request => (
-            <div 
-              key={request._id} 
-              className={`request-card status-${request.status}`}
-            >
-              <div className="request-header" onClick={() => toggleRequestExpanded(request._id)}>
-                <div className="request-summary">
-                  <h3>{request.farmerName} <span className="nic-number">({request.nicNumber})</span></h3>
-                  <div className="request-details">
-                    <span>{request.quantity} kg</span>
-                    <span>Date: {formatDate(request.date)}</span>
-                    <span>Time: {request.time || 'Not specified'}</span>
-                  </div>
-                </div>
-                <div className="request-status">
-                  <span className={`status-badge ${request.status}`}>
-                    {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                  </span>
-                </div>
-                <div className="expand-icon">
-                  {expandedRequest === request._id ? '▼' : '▶'}
-                </div>
-              </div>
-              
-              {expandedRequest === request._id && (
-                <div className="request-expanded">
-                  <div className="request-location">
-                    <h4>Collection Location</h4>
-                    {request.location && request.location.lat ? (
-                      <LocationViewer location={request.location} />
-                    ) : (
-                      <p className="no-location">No location information provided</p>
-                    )}
-                  </div>
-                  
-                  {request.note && (
-                    <div className="request-note">
-                      <h4>Additional Notes</h4>
-                      <p>{request.note}</p>
-                    </div>
-                  )}
-                  
-                  <div className="request-actions">
-                    {request.status === 'pending' && (
-                      <>
+        <div>
+          <div className="table-container">
+            <table className="requests-table">
+              <thead>
+                <tr>
+                  <th>Factory</th>
+                  <th>Quantity (kg)</th>
+                  <th>Collection Date</th>
+                  <th>Collection Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {requests.map(request => (
+                  <>
+                    <tr key={request._id}>
+                      <td>{request.farmerName}</td>
+                      <td>{request.quantity}</td>
+                      <td>{formatDate(request.date)}</td>
+                      <td>{request.time || 'evening'}</td>
+                      <td>
+                        <span className={`status-cell status-${request.status}`}>
+                          {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                        </span>
+                      </td>
+                      <td>
                         <button 
-                          className="approve-btn"
-                          onClick={() => handleStatusChange(request._id, 'approved')}
+                          className="expand-button"
+                          onClick={() => toggleRequestExpanded(request._id)}
                         >
-                          Approve
+                          {expandedRequest === request._id ? 'Hide Details' : 'Show Details'}
                         </button>
-                        <button 
-                          className="reject-btn"
-                          onClick={() => handleStatusChange(request._id, 'rejected')}
-                        >
-                          Reject
-                        </button>
-                      </>
+                      </td>
+                    </tr>
+                    {expandedRequest === request._id && (
+                      <tr className="expanded-row">
+                        <td colSpan="6">
+                          <div className="expanded-content">
+                            <div className="request-location">
+                              <h4>Collection Location</h4>
+                              {request.location && request.location.lat ? (
+                                <LocationViewer location={request.location} />
+                              ) : (
+                                <p className="no-location">No location information provided</p>
+                              )}
+                            </div>
+                            
+                            {request.note && (
+                              <div className="request-note">
+                                <h4>Additional Notes</h4>
+                                <p>{request.note}</p>
+                              </div>
+                            )}
+                            
+                            <div className="request-actions">
+                              {request.status === 'pending' && (
+                                <>
+                                  <button 
+                                    className="approve-btn"
+                                    onClick={() => handleStatusChange(request._id, 'approved')}
+                                  >
+                                    Approve
+                                  </button>
+                                  <button 
+                                    className="reject-btn"
+                                    onClick={() => handleStatusChange(request._id, 'rejected')}
+                                  >
+                                    Reject
+                                  </button>
+                                </>
+                              )}
+                              {request.status === 'approved' && (
+                                <button 
+                                  className="complete-btn"
+                                  onClick={() => handleStatusChange(request._id, 'completed')}
+                                >
+                                  Mark as Completed
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
                     )}
-                    {request.status === 'approved' && (
-                      <button 
-                        className="complete-btn"
-                        onClick={() => handleStatusChange(request._id, 'completed')}
-                      >
-                        Mark as Completed
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+                  </>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          <div className="refresh-button-container">
+            <button className="refresh-button" onClick={fetchRequests} disabled={isLoading}>
+              {isLoading ? 'Refreshing...' : 'Refresh Requests'}
+            </button>
+          </div>
         </div>
       )}
-      
-      <button className="refresh-btn" onClick={fetchRequests} disabled={isLoading}>
-        {isLoading ? 'Refreshing...' : 'Refresh Requests'}
-      </button>
     </div>
   );
 };

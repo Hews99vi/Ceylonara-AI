@@ -37,6 +37,8 @@ import User from "./models/User.js";
 // Import routes
 import userRoutes from "./routes/userRoutes.js";
 import directChatRoutes from "./routes/directChatRoutes.js";
+import estateManagementRoutes from "./routes/estateManagement.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 // Create a new Price model for storing tea prices
 const priceSchema = new mongoose.Schema({
@@ -173,13 +175,30 @@ mongoose
   .connect(mongoConnectionString, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
+    socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+    family: 4 // Use IPv4, skip trying IPv6
   })
   .then(() => {
     console.log("Connected to MongoDB successfully");
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err);
+    process.exit(1); // Exit if MongoDB connection fails
   });
+
+// Handle MongoDB connection events
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error:', err);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
+
+mongoose.connection.on('reconnected', () => {
+  console.log('MongoDB reconnected');
+});
 
 // Initialize ImageKit
 const imagekit = new ImageKit({
@@ -272,11 +291,11 @@ app.use('/api/*', (req, res, next) => {
   }
 });
 
-// Use the user routes
-app.use(userRoutes);
-
-// Use the direct chat routes
-app.use(directChatRoutes);
+// Register routes
+app.use('/api/users', userRoutes);
+app.use('/api/direct-chats', directChatRoutes);
+app.use('/api/estate', estateManagementRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Socket.io connection handling - to be implemented
 // io.on('connection', (socket) => {

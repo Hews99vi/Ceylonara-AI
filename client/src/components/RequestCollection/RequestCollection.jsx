@@ -1,320 +1,207 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './requestCollection.css';
 import LocationPicker from '../LocationPicker/LocationPicker';
 
 const RequestCollection = () => {
+  const [formData, setFormData] = useState({
+    factoryId: '',
+    time: '',
+    quantity: '',
+    date: '',
+    location: null
+  });
   const [factories, setFactories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedFactoryId, setSelectedFactoryId] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
-  const [quantity, setQuantity] = useState('');
-  const [date, setDate] = useState('');
-  const [location, setLocation] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { userId } = useAuth();
   const navigate = useNavigate();
   const location_url = useLocation();
 
-  // Get the API URL from environment variables
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-  // Get today's date for min attribute
   const today = new Date().toISOString().split('T')[0];
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + 30);
+  const maxDateString = maxDate.toISOString().split('T')[0];
 
-  // Fetch factories when component mounts
   useEffect(() => {
     fetchFactories();
   }, []);
 
   const fetchFactories = async () => {
     try {
-      setIsLoading(true);
-      setError(null);
-
-      console.log('Fetching factories from:', `${apiUrl}/api/factories`);
-
-      // Get authentication token from Clerk
-      const token = await getToken();
-      console.log('Auth token available:', !!token);
-
-      // Include the token in the request
+      const token = await window.Clerk.session.getToken();
       const response = await axios.get(`${apiUrl}/api/factories`, {
-        headers: {
-          Authorization: token ? `Bearer ${token}` : '',
-        }
+        headers: { Authorization: token ? `Bearer ${token}` : '' }
       });
 
-      console.log('Factories response:', response.data);
-
-      if (response.data && Array.isArray(response.data)) {
+      if (response.data?.length) {
         setFactories(response.data);
-        console.log(`Successfully loaded ${response.data.length} factories`);
-
-        // Check if a factory was specified in the URL query parameters
-        const params = new URLSearchParams(location_url.search);
-        const factoryNameFromURL = params.get('factory');
-
-        if (factoryNameFromURL) {
-          console.log('Factory specified in URL:', factoryNameFromURL);
-
-          // Find the factory with the matching name
-          const matchingFactory = response.data.find(
-            factory => factory.name === factoryNameFromURL
-          );
-
-          if (matchingFactory) {
-            console.log('Found matching factory:', matchingFactory);
-            setSelectedFactoryId(matchingFactory.id);
-          } else {
-            console.log('No matching factory found for:', factoryNameFromURL);
-          }
+        const factoryFromURL = new URLSearchParams(location_url.search).get('factory');
+        if (factoryFromURL) {
+          const match = response.data.find(f => f.name === factoryFromURL);
+          if (match) setFormData(prev => ({ ...prev, factoryId: match.id }));
         }
-      } else {
-        console.error('Invalid response format from API:', response.data);
-        setError('Received invalid data from server');
       }
-    } catch (error) {
-      console.error('Error fetching factories:', error);
-      setError(`Failed to load factories: ${error.response?.status === 401 ? 'Authentication required' : error.message}`);
+    } catch (err) {
+      setError('Could not load factories. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Helper function to get auth token
-  const getToken = async () => {
-    try {
-      return await window.Clerk.session.getToken();
-    } catch (error) {
-      console.error('Error getting auth token:', error);
-      return null;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'quantity' && value !== '') {
+      const num = Number(value);
+      if (num < 1 || num > 10000) return;
     }
+    setFormData(prev => ({ ...prev, [name]: value }));
+    setError(null);
   };
 
-  const handleFactorySelect = (e) => {
-    setSelectedFactoryId(e.target.value);
-  };
-
-  const handleLocationSelect = (selectedLocation) => {
-    setLocation(selectedLocation);
-    console.log('Selected location:', selectedLocation);
+  const handleLocationSelect = (location) => {
+    setFormData(prev => ({ ...prev, location }));
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!selectedFactoryId || !selectedTime || !quantity || !date) {
-      setError('Please fill in all required fields');
-      return;
-    }
-
-    if (!location || (!location.lat && !location.lng)) {
-      setError('Please select a collection location on the map');
-      return;
-    }
+    
+    // Validate form
+    if (!formData.factoryId) return setError('Please select a factory');
+    if (!formData.time) return setError('Please select a collection time');
+    if (!formData.quantity) return setError('Please enter the quantity');
+    if (!formData.date) return setError('Please select a collection date');
+    if (!formData.location?.lat) return setError('Please select a collection location');
 
     try {
-      setIsLoading(true);
-      setError(null);
-
-      // Find the selected factory to get its name
-      const selectedFactory = factories.find(factory => factory.id === selectedFactoryId);
-      const factoryName = selectedFactory ? selectedFactory.name : '';
-
-      // Get authentication token
-      const token = await getToken();
-      console.log('Auth token available for submission:', !!token);
-
-      // Fetch farmer profile to get name and NIC number
-      const farmerProfileResponse = await axios.get(
-        `${apiUrl}/api/farmer/profile`,
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : '',
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      const farmerProfile = farmerProfileResponse.data;
-      const farmerName = farmerProfile.farmerName || 'Unknown Farmer';
-      const nicNumber = farmerProfile.nicNumber || 'N/A';
-
-      console.log('Farmer profile retrieved:', farmerProfile);
-
-      console.log('Submitting collection request:', {
-        factoryId: selectedFactoryId,
-        factoryName,
-        time: selectedTime,
-        quantity,
-        date,
-        farmerId: userId,
-        farmerName,
-        nicNumber,
-        location
+      setIsSubmitting(true);
+      const token = await window.Clerk.session.getToken();
+      
+      // Get farmer profile
+      const profileRes = await axios.get(`${apiUrl}/api/farmer/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
-      const response = await axios.post(
+      // Submit request
+      const factory = factories.find(f => f.id === formData.factoryId);
+      await axios.post(
         `${apiUrl}/api/collection-requests`,
         {
-          factoryId: selectedFactoryId,
-          factoryName,
-          time: selectedTime,
-          quantity,
-          date,
+          ...formData,
+          factoryName: factory?.name,
+          quantity: Number(formData.quantity),
           farmerId: userId,
-          farmerName,
-          nicNumber,
-          location
+          farmerName: profileRes.data.farmerName || 'Unknown Farmer',
+          nicNumber: profileRes.data.nicNumber || 'N/A'
         },
-        {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : '',
-            'Content-Type': 'application/json'
-          }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      console.log('Request submitted successfully:', response.data);
-      alert('Collection request submitted successfully!');
       navigate('/dashboard');
-    } catch (error) {
-      console.error('Error submitting collection request:', error);
-      setError(`Failed to submit request: ${error.response?.status === 401 ? 'Authentication required' : error.message}`);
+    } catch (err) {
+      setError('Failed to submit request. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="requestCollection">
+        <div className="loading">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="requestCollection">
       <div className="page-header">
         <h1>Request Tea Collection</h1>
-        <div className="subtitle-container">
-          <p className="subtitle">Schedule a tea leaf collection from your tea estate</p>
-        </div>
+        <p className="subtitle">Schedule a pickup from your estate</p>
       </div>
 
       {error && <div className="error-message">{error}</div>}
 
-      {isLoading ? (
-        <div className="loading">
-          <div className="loading-spinner"></div>
-          <span>Loading factories and preparing form...</span>
+      <form className="requestForm" onSubmit={handleSubmit}>
+        <div className="form-grid">
+          <div className="formGroup">
+            <div className="field-label">Factory</div>
+            <select
+              name="factoryId"
+              value={formData.factoryId}
+              onChange={handleInputChange}
+              disabled={isSubmitting}
+            >
+              <option value="">Select Factory</option>
+              {factories.map(f => (
+                <option key={f.id} value={f.id}>
+                  {f.name} ({f.mfNumber || 'No MF#'})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="formGroup">
+            <div className="field-label">Collection Time</div>
+            <select
+              name="time"
+              value={formData.time}
+              onChange={handleInputChange}
+              disabled={isSubmitting}
+            >
+              <option value="">Select Time</option>
+              <option value="morning">Morning (8AM-12PM)</option>
+              <option value="afternoon">Afternoon (12-4PM)</option>
+              <option value="evening">Evening (4-7PM)</option>
+            </select>
+          </div>
+
+          <div className="formGroup">
+            <div className="field-label">Quantity (kg)</div>
+            <input
+              type="number"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleInputChange}
+              placeholder="Enter quantity"
+              min="1"
+              max="10000"
+              disabled={isSubmitting}
+            />
+          </div>
+
+          <div className="formGroup">
+            <div className="field-label">Collection Date</div>
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleInputChange}
+              min={today}
+              max={maxDateString}
+              disabled={isSubmitting}
+            />
+          </div>
         </div>
-      ) : (
-        <div className="requestForm">
-          <form onSubmit={handleSubmit}>
-            <div className="form-grid">
-              <div className="formGroup">
-                <div className="field-label">Select Factory</div>
-                <label htmlFor="factory">
-                  <i className="form-icon factory-icon"></i>
-                  Select Factory
-                </label>
-                <select
-                  id="factory"
-                  value={selectedFactoryId}
-                  onChange={handleFactorySelect}
-                  required
-                  disabled={isLoading}
-                  className="factorySelect"
-                >
-                  <option value="">-- Select a factory --</option>
-                  {factories.map(factory => (
-                    <option key={factory.id} value={factory.id}>
-                      {factory.name} ({factory.mfNumber || 'No MF Number'})
-                    </option>
-                  ))}
-                </select>
-              </div>
 
-              <div className="formGroup">
-                <div className="field-label">Collection Time</div>
-                <label htmlFor="time">
-                  <i className="form-icon time-icon"></i>
-                  Collection Time
-                </label>
-                <select
-                  id="time"
-                  value={selectedTime}
-                  onChange={(e) => setSelectedTime(e.target.value)}
-                  required
-                >
-                  <option value="">-- Select a time --</option>
-                  <option value="morning">Morning (8:00 AM - 12:00 PM)</option>
-                  <option value="afternoon">Afternoon (12:00 PM - 4:00 PM)</option>
-                  <option value="evening">Evening (4:00 PM - 7:00 PM)</option>
-                </select>
-              </div>
-
-              <div className="formGroup">
-                <div className="field-label">Quantity (kg)</div>
-                <label htmlFor="quantity">
-                  <i className="form-icon quantity-icon"></i>
-                  Quantity (kg)
-                </label>
-                <input
-                  type="number"
-                  id="quantity"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  min="1"
-                  placeholder="Enter quantity in kilograms"
-                  required
-                />
-              </div>
-
-              <div className="formGroup">
-                <div className="field-label">Collection Date</div>
-                <label htmlFor="date">
-                  <i className="form-icon date-icon"></i>
-                  Collection Date
-                </label>
-                <input
-                  type="date"
-                  id="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  min={today}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="formGroup location-group">
-              <div className="field-label">Select Collection Location</div>
-              <label>
-                <i className="form-icon location-icon"></i>
-                Select Collection Location
-              </label>
-              <div className="mapContainer">
-                <LocationPicker onLocationSelect={handleLocationSelect} />
-              </div>
-            </div>
-
-            <div className="form-actions submit-only">
-              <button type="submit" className="submitButton" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <span className="spinner"></span>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <i className="submit-icon"></i>
-                    Submit Collection Request
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
+        <div className="location-group">
+          <div className="field-label">Collection Location</div>
+          <div className="mapContainer">
+            <LocationPicker onLocationSelect={handleLocationSelect} />
+          </div>
         </div>
-      )}
+
+        <div className="form-actions">
+          <button type="submit" className="submitButton" disabled={isSubmitting}>
+            {isSubmitting ? 'Processing...' : 'Submit Request'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

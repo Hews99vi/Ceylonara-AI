@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import "./i18n/i18n";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 import Homepage from "./routes/homepage/Homepage";
 import DashboardPage from "./routes/dashboardPage/DashboardPage";
@@ -81,6 +82,10 @@ const router = createBrowserRouter([
           },
           {
             path: "/dashboard/manage-state",
+            element: <ManageStatePage />,
+          },
+          {
+            path: "/dashboard/manage-estate",
             element: <ManageStatePage />,
           },
           {

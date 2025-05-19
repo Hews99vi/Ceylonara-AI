@@ -18,7 +18,6 @@ const AnnouncementsPage = () => {
       const token = await getToken();
       console.log('Fetching announcements for farmers - token obtained');
       
-      // Log API URL for debugging
       const apiUrl = `${import.meta.env.VITE_API_URL}/api/announcements`;
       console.log('Fetching from URL:', apiUrl);
       
@@ -29,24 +28,12 @@ const AnnouncementsPage = () => {
       });
       
       console.log('Announcements response status:', response.status);
-      console.log('Announcements response headers:', [...response.headers].map(h => `${h[0]}: ${h[1]}`).join(', '));
       
       if (response.ok) {
         const data = await response.json();
-        console.log('Announcements received:', data.map(a => ({
-          _id: a._id,
-          factoryName: a.factoryName,
-          message: a.message?.substring(0, 30) || a.announcement?.substring(0, 30),
-          hasImage: !!a.image,
-          imageLength: a.image ? a.image.length : 0,
-          date: a.date
-        })));
-        console.log('Number of announcements received:', data.length);
+        console.log('Announcements received:', data);
         
-        // Only use dummy data if no announcements were found
         if (data.length === 0) {
-          console.log('No announcements found in the database - using dummy data for testing');
-          // Use dummy data for testing if no real announcements exist
           setAnnouncements([
             { 
               factoryName: 'Athukorala Tea Factory', 
@@ -68,14 +55,10 @@ const AnnouncementsPage = () => {
             }
           ]);
         } else {
-          console.log('Setting real announcements data from API');
           setAnnouncements(data);
         }
       } else {
-        const errorText = await response.text();
-        console.error('Failed to fetch announcements:', errorText);
-        // Use dummy data on error
-        console.log('Using dummy data due to error response');
+        console.error('Failed to fetch announcements');
         setAnnouncements([
           { 
             factoryName: 'Athukorala Tea Factory', 
@@ -99,8 +82,6 @@ const AnnouncementsPage = () => {
       }
     } catch (error) {
       console.error('Error fetching announcements:', error);
-      // Use dummy data on error
-      console.log('Using dummy data due to caught exception');
       setAnnouncements([
         { 
           factoryName: 'Athukorala Tea Factory', 
@@ -145,56 +126,62 @@ const AnnouncementsPage = () => {
   
   return (
     <div className="announcementsPage">
-      <div className="page-header">
-        <h1>Factory Announcements</h1>
-        <div className="subtitle-container">
+      <div className="announcements-header">
+        <div className="header-content">
+          <h1>Factory Announcements</h1>
           <p className="subtitle">Stay updated with important announcements from tea factories</p>
         </div>
       </div>
-      
-      {isLoading ? (
-        <div className="loading">Loading announcements...</div>
-      ) : announcements.length === 0 ? (
-        <div className="noAnnouncements">No announcements at this time</div>
-      ) : (
-        <div className="announcementsContainer">
-          {announcements.map((announcement, index) => {
-            // Ensure image URL is valid
-            const hasValidImage = announcement.image && 
-              (announcement.image.startsWith('data:image/') || 
-               announcement.image.startsWith('http'));
-            
-            // Determine card class based on whether it has an image
-            const cardClassName = `announcementCard ${hasValidImage ? 'hasImage' : 'noImage'}`;
-               
-            return (
-              <div key={index} className={cardClassName}>
-                {hasValidImage && (
-                  <div className="announcementImage">
-                    <img 
-                      src={announcement.image} 
-                      alt={`${announcement.factoryName} announcement`}
-                      onError={(e) => {
-                        console.error(`Error loading image for announcement ${index}`);
-                        e.target.style.display = 'none';
-                        e.target.parentElement.style.display = 'none';
-                      }}
-                    />
+
+      <div className="announcements-content">
+        {isLoading ? (
+          <div className="loading">
+            <div className="loading-spinner"></div>
+            <span>Loading announcements...</span>
+          </div>
+        ) : announcements.length === 0 ? (
+          <div className="noAnnouncements">No announcements at this time</div>
+        ) : (
+          <div className="announcementsContainer">
+            {announcements.map((announcement, index) => {
+              const hasValidImage = announcement.image && 
+                (announcement.image.startsWith('data:image/') || 
+                 announcement.image.startsWith('http'));
+              
+              return (
+                <div key={index} className={`announcementCard ${hasValidImage ? 'hasImage' : 'noImage'}`}>
+                  <div className="card-header">
+                    <div className="factory-name">{announcement.factoryName}</div>
                   </div>
-                )}
-                
-                <div className="announcementContent">
-                  <div>
-                    <span className="factoryBadge">{announcement.factoryName}</span>
-                    <p>{announcement.message || announcement.announcement}</p>
+
+                  {hasValidImage && (
+                    <div className="announcement-image">
+                      <img 
+                        src={announcement.image} 
+                        alt={`${announcement.factoryName} announcement`}
+                        onError={(e) => {
+                          console.error(`Error loading image for announcement ${index}`);
+                          e.target.style.display = 'none';
+                          e.target.parentElement.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <div className="announcement-details">
+                    <div className="announcement-content">
+                      <p>{announcement.message || announcement.announcement}</p>
+                    </div>
+                    <div className="announcement-meta">
+                      <div className="updateDate">Posted: {formatDate(announcement.date)}</div>
+                    </div>
                   </div>
-                  <span className="announcementDate">{formatDate(announcement.date)}</span>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

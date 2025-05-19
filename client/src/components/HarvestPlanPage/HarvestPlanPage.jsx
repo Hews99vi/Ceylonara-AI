@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { OPENWEATHER_API_KEY } from './api-key';
+import { FaLeaf, FaCalendarAlt, FaTools, FaWater } from 'react-icons/fa';
 
 const teaRegions = [
-  "Uva",
-  "Dimbula",
   "Nuwara Eliya",
   "Kandy",
+  "Dimbula",
+  "Uva",
   "Ruhuna",
   "Uva Highlands",
   "Central Highlands"
@@ -25,73 +26,20 @@ const regionCoordinates = {
   "Central Highlands": { lat: 7.0000, lon: 80.7500 }
 };
 
+const months = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+
 const HarvestPlanPage = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [selectedRegion, setSelectedRegion] = useState("Nuwara Eliya");
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  // Add state for showing the data input form
-  const [showDataForm, setShowDataForm] = useState(false);
-  // Add state for form data
-  const [formData, setFormData] = useState({
-    estateName: "",
-    elevation: "",
-    teaType: "Black",
-    yield: "",
-    rainfall: "",
-    temperature: "",
-    humidity: "",
-    notes: ""
-  });
-  
-  // Add these state variables inside the component
   const [weatherData, setWeatherData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  
-  // Add useEffect for weather data fetching inside the component
-  useEffect(() => {
-    const fetchWeatherData = async () => {
-      try {
-        setLoading(true);
-        const coords = regionCoordinates[selectedRegion];
-        if (!coords) {
-          throw new Error('Region coordinates not found');
-        }
-  
-        // Use direct API key import instead of env variable
-        console.log("Using direct API key:", OPENWEATHER_API_KEY);
-        
-        if (!OPENWEATHER_API_KEY) {
-          throw new Error('OpenWeatherMap API key is missing');
-        }
-  
-        const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/forecast?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${OPENWEATHER_API_KEY}`
-        );
-  
-        if (!response.ok) {
-          throw new Error('Failed to fetch weather data');
-        }
-  
-        const data = await response.json();
-        setWeatherData(data.list);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching weather data:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchWeatherData();
-  }, [selectedRegion]);
-  
-  const regions = ["Nuwara Eliya", "Kandy", "Galle", "Ratnapura", "Matara"];
-  const months = ["January", "February", "March", "April", "May", "June", 
-                 "July", "August", "September", "October", "November", "December"];
-  
   // Sample data for demonstration
   const harvestData = {
     "Nuwara Eliya": [
@@ -165,101 +113,173 @@ const HarvestPlanPage = () => {
       { month: 11, status: "good", tip: "Good harvesting conditions returning. Prepare workforce." }
     ]
   };
-  
+
+  useEffect(() => {
+    const fetchWeatherData = async () => {
+      try {
+        setLoading(true);
+        const coords = regionCoordinates[selectedRegion];
+        if (!coords) {
+          throw new Error('Region coordinates not found');
+        }
+
+        const response = await fetch(
+          `https://api.openweathermap.org/data/2.5/forecast?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${OPENWEATHER_API_KEY}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch weather data');
+        }
+
+        const data = await response.json();
+        setWeatherData(data.list);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching weather data:', err);
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWeatherData();
+  }, [selectedRegion]);
+
   // Default to Nuwara Eliya if selected region doesn't have data
   const currentRegionData = harvestData[selectedRegion] || harvestData["Nuwara Eliya"];
   const currentMonthData = currentRegionData.find(item => item.month === selectedMonth);
-  
-  // Weather forecast data (sample)
-  const weatherForecast = [
-    { date: "Mon, 15", icon: "☀️", temp: "24°C" },
-    { date: "Tue, 16", icon: "🌤️", temp: "23°C" },
-    { date: "Wed, 17", icon: "🌧️", temp: "21°C" },
-    { date: "Thu, 18", icon: "🌧️", temp: "20°C" },
-    { date: "Fri, 19", icon: "🌤️", temp: "22°C" },
-    { date: "Sat, 20", icon: "☀️", temp: "25°C" },
-    { date: "Sun, 21", icon: "☀️", temp: "26°C" }
-  ];
-  
-  // Yield prediction (sample)
-  const yieldPrediction = {
-    current: "85%",
-    trend: "increasing",
-    recommendation: "Optimal harvesting time approaching. Schedule labor for next week."
+
+  // Sample AI recommendations based on region and month
+  const getAIRecommendations = (region, month) => {
+    // Get the current region's harvest data
+    const regionData = harvestData[region] || harvestData["Nuwara Eliya"];
+    const currentStatus = regionData[month].status;
+    const nextMonth = (month + 1) % 12;
+    const nextStatus = regionData[nextMonth].status;
+    
+    // Determine recommendations based on current and next month's status
+    const recommendations = {
+      upcoming: [
+        {
+          title: currentStatus === "low" ? "Prepare for Recovery" : 
+                 currentStatus === "peak" ? "Maximize Harvest Efficiency" : 
+                 "Optimize Growing Conditions",
+          description: currentStatus === "low" ? "Plan maintenance and recovery activities for the upcoming season." :
+                      currentStatus === "peak" ? "Ensure all harvesting equipment and storage facilities are ready." :
+                      "Monitor and maintain optimal growing conditions for tea plants.",
+          icon: <FaLeaf />,
+          priority: currentStatus === "peak" ? "High" : 
+                   currentStatus === "good" ? "Medium" : "Low"
+        },
+        {
+          title: nextStatus === "peak" ? "Prepare for Peak Season" :
+                 nextStatus === "low" ? "Plan Maintenance Schedule" :
+                 "Adjust Resource Allocation",
+          description: nextStatus === "peak" ? `Prepare workforce and equipment for upcoming peak season in ${months[nextMonth]}.` :
+                      nextStatus === "low" ? `Schedule maintenance activities for ${months[nextMonth]}'s low season.` :
+                      `Plan resource allocation for ${months[nextMonth]}'s regular season.`,
+          icon: <FaTools />,
+          priority: nextStatus === "peak" ? "High" : "Medium"
+        },
+        {
+          title: region === "Nuwara Eliya" || region === "Uva Highlands" ? "High Altitude Considerations" :
+                 region === "Kandy" || region === "Dimbula" ? "Mid-Elevation Management" :
+                 "Coastal Region Care",
+          description: region === "Nuwara Eliya" || region === "Uva Highlands" ? 
+                      "Monitor temperature variations and protect plants from extreme weather." :
+                      region === "Kandy" || region === "Dimbula" ? 
+                      "Balance irrigation and drainage for optimal mid-elevation growth." :
+                      "Implement humidity control measures for coastal conditions.",
+          icon: <FaWater />,
+          priority: currentStatus === "peak" || nextStatus === "peak" ? "High" : "Medium"
+        }
+      ],
+      preparations: [
+        currentStatus === "peak" ? "Optimize plucking intervals for maximum quality" :
+        currentStatus === "good" ? "Maintain regular plucking schedule" :
+        "Focus on plant maintenance and care",
+        
+        region === "Nuwara Eliya" || region === "Uva Highlands" ?
+        "Check frost protection measures" :
+        "Monitor humidity levels",
+        
+        nextStatus === "peak" ? "Prepare additional storage capacity" :
+        "Standard storage maintenance",
+        
+        currentStatus === "low" ? "Conduct thorough equipment maintenance" :
+        "Regular equipment checks",
+        
+        region === "Nuwara Eliya" || region === "Uva Highlands" ?
+        "Train workers on high-altitude harvesting techniques" :
+        region === "Kandy" || region === "Dimbula" ?
+        "Train workers on mid-elevation harvesting methods" :
+        "Train workers on coastal region harvesting practices"
+      ],
+      timeline: [
+        {
+          date: "Next Week",
+          task: currentStatus === "peak" ? "Intensive Harvesting" :
+                currentStatus === "good" ? "Regular Harvesting" :
+                "Maintenance Work",
+          status: "Pending"
+        },
+        {
+          date: "2 Weeks",
+          task: nextStatus === "peak" ? "Peak Season Preparation" :
+                nextStatus === "good" ? "Regular Season Planning" :
+                "Low Season Planning",
+          status: "Scheduled"
+        },
+        {
+          date: "3 Weeks",
+          task: region === "Nuwara Eliya" || region === "Uva Highlands" ?
+                "High-Altitude Specific Care" :
+                region === "Kandy" || region === "Dimbula" ?
+                "Mid-Elevation Maintenance" :
+                "Coastal Region Maintenance",
+          status: "Upcoming"
+        }
+      ]
+    };
+    return recommendations;
   };
 
-  // Handle form input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-  
-  // Handle form submission
-  const handleSubmitData = (e) => {
-    e.preventDefault();
-    
-    // Here you would typically send this data to your backend
-    console.log("Submitting harvest data:", {
-      region: selectedRegion,
-      month: selectedMonth,
-      ...formData
-    });
-    
-    // For now, just close the form and show a success message
-    alert("Data submitted successfully! This will improve your yield predictions.");
-    setShowDataForm(false);
-    
-    // Reset form
-    setFormData({
-      estateName: "",
-      elevation: "",
-      teaType: "Black",
-      yield: "",
-      rainfall: "",
-      temperature: "",
-      humidity: "",
-      notes: ""
-    });
-  };
+  const aiRecommendations = getAIRecommendations(selectedRegion, selectedMonth);
 
   return (
     <div className="harvestPlanPage">
       <div className="harvestPlanContainer">
         <button className="closeButton" onClick={() => navigate("/dashboard")}>×</button>
-        <div className="harvestPlanHeader">
-          <img src="/logo.png" alt="Ceylonara Logo" />
-          <h1>{t('harvestPlan.title')}</h1>
-        </div>
         
+        <div className="harvestPlanHeader">
+          <img src="/icons/harvest-icon.svg" alt="Harvest Icon" className="headerIcon" />
+          <h1>Harvest Planning</h1>
+        </div>
+
         <div className="harvestPlanLayout">
           <div className="controlPanel">
             <div className="regionSelector">
-              <h3>{t('harvestPlan.selectRegion')}</h3>
+              <h3>Select Region</h3>
               <select 
                 value={selectedRegion} 
                 onChange={(e) => setSelectedRegion(e.target.value)}
               >
                 {teaRegions.map((region) => (
-                  <option key={region} value={region}>
-                    {region}
-                  </option>
+                  <option key={region} value={region}>{region}</option>
                 ))}
               </select>
             </div>
 
             <div className="monthSelector">
-              <h3>{t('harvestPlan.selectMonth')}</h3>
+              <h3>Select Month</h3>
               <div className="monthGrid">
                 {months.map((month, index) => (
                   <div
                     key={month}
-                    className={selectedMonth === index ? "selected" : ""}
+                    className={`month-item ${selectedMonth === index ? "selected" : ""}`}
                     onClick={() => setSelectedMonth(index)}
                   >
-                    {month.slice(0, 3)}
+                    {month}
                   </div>
                 ))}
               </div>
@@ -268,18 +288,25 @@ const HarvestPlanPage = () => {
 
           <div className="contentSection">
             <div className="harvestInfoCard">
-              <h2>{t('harvestPlan.harvestStatus')} {months[selectedMonth]} {t('harvestPlan.in')} {selectedRegion}</h2>
+              <h2>
+                Harvest Status for {months[selectedMonth]} in {selectedRegion}
+              </h2>
+              
               <div className="statusIndicator">
-                <div className={`statusDot ${harvestData[selectedRegion]?.[selectedMonth]?.status || "average"}`}></div>
-                <span className="statusText">{harvestData[selectedRegion]?.[selectedMonth]?.status || "Average"} {t('harvestPlan.harvestConditions')}</span>
+                <div className={`statusDot ${currentMonthData?.status || "average"}`} />
+                <span className="statusText">
+                  {currentMonthData?.status.charAt(0).toUpperCase() + currentMonthData?.status.slice(1) || "Average"} 
+                  Harvest Conditions
+                </span>
               </div>
+              
               <div className="harvestTip">
-                <p>{harvestData[selectedRegion]?.[selectedMonth]?.tip || "Standard harvesting conditions. Follow regular protocols."}</p>
+                <p>{currentMonthData?.tip || "Standard harvesting conditions. Follow regular protocols."}</p>
               </div>
             </div>
 
             <div className="weatherForecast">
-              <h3>{t('harvestPlan.weatherForecast')}</h3>
+              <h3>Weather Forecast</h3>
               <div className="forecastGrid">
                 {error ? (
                   <div className="error-message">
@@ -289,15 +316,9 @@ const HarvestPlanPage = () => {
                       onClick={() => {
                         setError(null);
                         setLoading(true);
-                        // Trigger a re-fetch
                         const coords = regionCoordinates[selectedRegion];
-                        console.log("Retrying with direct API key:", OPENWEATHER_API_KEY);
-                        
                         fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${coords.lat}&lon=${coords.lon}&units=metric&appid=${OPENWEATHER_API_KEY}`)
-                          .then(res => {
-                            if (!res.ok) throw new Error(`Weather API error: ${res.status}`);
-                            return res.json();
-                          })
+                          .then(res => res.json())
                           .then(data => {
                             setWeatherData(data.list);
                             setError(null);
@@ -306,9 +327,7 @@ const HarvestPlanPage = () => {
                             console.error('Error on retry:', err);
                             setError(err.message);
                           })
-                          .finally(() => {
-                            setLoading(false);
-                          });
+                          .finally(() => setLoading(false));
                       }}
                     >
                       Retry
@@ -324,8 +343,8 @@ const HarvestPlanPage = () => {
                       <div className="forecastDay" key={index}>
                         <div className="date">
                           {new Date(forecast.dt * 1000).toLocaleDateString('en-US', { 
-                            weekday: 'short', 
-                            day: 'numeric' 
+                            weekday: 'short',
+                            day: 'numeric'
                           })}
                         </div>
                         <div className="icon">
@@ -335,11 +354,69 @@ const HarvestPlanPage = () => {
                           />
                         </div>
                         <div className="temp">{Math.round(forecast.main.temp)}°C</div>
+                        <div className="condition">{forecast.weather[0].description}</div>
                       </div>
                     ))
                 ) : (
-                  <div className="no-data-message">{t('harvestPlan.noWeatherData')}</div>
+                  <div className="no-data-message">No weather data available</div>
                 )}
+              </div>
+            </div>
+
+            <div className="aiRecommendationsSection">
+              <h3>
+                <FaLeaf className="sectionIcon" />
+                Recommendations
+              </h3>
+              
+              <div className="recommendationsGrid">
+                <div className="upcomingTasks">
+                  <h4>Upcoming Tasks</h4>
+                  {aiRecommendations.upcoming.map((task, index) => (
+                    <div key={index} className="taskCard">
+                      <div className="taskIcon">{task.icon}</div>
+                      <div className="taskContent">
+                        <h5>{task.title}</h5>
+                        <p>{task.description}</p>
+                        <span className={`priority ${task.priority.toLowerCase()}`}>
+                          {task.priority} Priority
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="preparationSteps">
+                  <h4>Preparation Checklist</h4>
+                  <ul className="checkList">
+                    {aiRecommendations.preparations.map((step, index) => (
+                      <li key={index}>
+                        <input type="checkbox" id={`prep-${index}`} />
+                        <label htmlFor={`prep-${index}`}>{step}</label>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="harvestTimeline">
+                  <h4>Timeline</h4>
+                  <div className="timeline">
+                    {aiRecommendations.timeline.map((item, index) => (
+                      <div key={index} className="timelineItem">
+                        <div className="timelineDate">
+                          <FaCalendarAlt />
+                          <span>{item.date}</span>
+                        </div>
+                        <div className="timelineContent">
+                          <h5>{item.task}</h5>
+                          <span className={`status ${item.status.toLowerCase()}`}>
+                            {item.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

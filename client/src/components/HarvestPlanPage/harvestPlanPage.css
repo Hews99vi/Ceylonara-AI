@@ -2,36 +2,35 @@
 .harvestPlanPage {
   display: flex;
   justify-content: center;
-  align-items: center;
-  height: 100%;
+  align-items: flex-start;
+  min-height: 100vh;
   width: 100%;
   padding: 20px;
   box-sizing: border-box;
+  background-color: #f1f8e9;
 }
 
 .harvestPlanContainer {
-  background-color: #1a1a1a;
+  background-color: rgba(76, 175, 80, 0.05);
   border-radius: 15px;
   width: 100%;
   max-width: 1200px;
-  height: 100%;
-  overflow-y: auto;
-  position: relative;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(76, 175, 80, 0.2);
 }
 
 .closeButton {
   position: absolute;
   top: 20px;
   right: 20px;
-  background: none;
+  background: rgba(76, 175, 80, 0.1);
   border: none;
-  color: #fff;
+  color: #4CAF50;
   font-size: 24px;
   cursor: pointer;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -40,241 +39,326 @@
 }
 
 .closeButton:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(76, 175, 80, 0.2);
+  transform: scale(1.1);
 }
 
 .harvestPlanHeader {
   display: flex;
   align-items: center;
   margin-bottom: 30px;
-  padding-top: 10px;
+  padding: 0 0 20px;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.2);
 }
 
-.harvestPlanHeader img {
-  width: 40px;
-  height: 40px;
+.harvestPlanHeader .headerIcon {
+  width: 32px;
+  height: 32px;
   margin-right: 15px;
+  filter: invert(57%) sepia(83%) saturate(389%) hue-rotate(84deg) brightness(95%) contrast(87%);
 }
 
 .harvestPlanHeader h1 {
-  color: #fff;
-  font-size: 24px;
+  color: #4CAF50;
+  font-size: 28px;
   font-weight: 600;
   margin: 0;
 }
 
 .harvestPlanLayout {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  gap: 20px;
-  height: calc(100% - 80px);
-}
-
-.controlPanel {
-  background-color: rgba(44, 41, 55, 0.3);
-  border-radius: 12px;
-  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-}
-
-.regionSelector, .monthSelector {
-  margin-bottom: 20px;
-}
-
-.regionSelector h3, .monthSelector h3 {
-  color: #ececec;
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.regionSelector select {
-  width: 100%;
-  padding: 10px;
-  background-color: rgba(44, 41, 55, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
-  color: #ececec;
-  font-size: 14px;
-  outline: none;
-}
-
-.monthGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.monthGrid div {
-  padding: 8px;
-  text-align: center;
-  background-color: rgba(44, 41, 55, 0.5);
-  border-radius: 6px;
-  color: #b0b0b0;
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.2s ease;
-}
-
-.monthGrid div:hover {
-  background-color: rgba(44, 41, 55, 0.8);
-}
-
-.monthGrid div.selected {
-  background-color: #23ce7e;
-  color: #fff;
+  gap: 30px;
+  margin-top: 20px;
 }
 
 .contentSection {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  overflow-y: auto;
+  gap: 25px;
+  width: 100%;
+}
+
+.controlPanel {
+  background-color: rgba(76, 175, 80, 0.08);
+  border-radius: 12px;
+  padding: 25px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-top: 10px;
+}
+
+.regionSelector, .monthSelector {
+  margin-bottom: 25px;
+}
+
+.monthSelector {
+  margin-bottom: 0;
+}
+
+.regionSelector h3, .monthSelector h3 {
+  color: #2e7d32;
+  font-size: 16px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.regionSelector h3::before {
+  content: "📍";
+  font-size: 18px;
+}
+
+.monthSelector h3::before {
+  content: "📅";
+  font-size: 18px;
+}
+
+.regionSelector select {
+  width: 100%;
+  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 8px;
+  color: #2e7d32;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.regionSelector select:hover {
+  border-color: #4CAF50;
+  background-color: #ffffff;
+}
+
+.regionSelector select:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+.monthGrid div {
+  padding: 10px;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  color: #2e7d32;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+
+.monthGrid div:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+  border-color: #4CAF50;
+  transform: translateY(-2px);
+}
+
+.monthGrid div.selected {
+  background-color: #4CAF50;
+  color: #ffffff;
+  border-color: #4CAF50;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
 }
 
 .harvestInfoCard {
-  background-color: rgba(44, 41, 55, 0.3);
+  background-color: rgba(76, 175, 80, 0.08);
   border-radius: 12px;
-  padding: 20px;
+  padding: 25px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .harvestInfoCard h2 {
-  color: #ececec;
-  font-size: 18px;
-  margin-bottom: 15px;
+  color: #2e7d32;
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: 600;
 }
 
 .statusIndicator {
   display: flex;
   align-items: center;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
 }
 
 .statusDot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 12px;
 }
 
 .statusDot.peak {
-  background-color: #23ce7e;
+  background-color: #4CAF50;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
 }
 
 .statusDot.good {
-  background-color: #3498db;
+  background-color: #8BC34A;
+  box-shadow: 0 0 10px rgba(139, 195, 74, 0.3);
 }
 
 .statusDot.average {
-  background-color: #f39c12;
+  background-color: #FFC107;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
 }
 
 .statusDot.low {
-  background-color: #e74c3c;
+  background-color: #FF5722;
+  box-shadow: 0 0 10px rgba(255, 87, 34, 0.3);
 }
 
 .statusText {
-  color: #ececec;
-  font-size: 14px;
+  color: #333333;
+  font-size: 15px;
+  font-weight: 500;
 }
 
 .harvestTip {
-  background-color: rgba(35, 206, 126, 0.1);
-  border-left: 3px solid #23ce7e;
-  padding: 15px;
-  margin: 15px 0;
-  color: #b0b0b0;
+  background-color: rgba(76, 175, 80, 0.08);
+  border-left: 3px solid #4CAF50;
+  padding: 20px;
+  margin: 20px 0;
+  color: #1b5e20;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.6;
+  border-radius: 0 8px 8px 0;
 }
 
 .weatherForecast {
-  margin-top: 20px;
+  background-color: rgba(76, 175, 80, 0.08);
+  border-radius: 12px;
+  padding: 25px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .weatherForecast h3 {
-  color: #ececec;
-  font-size: 16px;
-  margin-bottom: 10px;
+  color: #1b5e20;
+  font-size: 22px;
+  margin-bottom: 25px;
+  font-weight: 600;
+  border-bottom: 2px solid rgba(76, 175, 80, 0.3);
+  padding-bottom: 10px;
 }
 
 .forecastGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 10px;
-}
-
-.error-message {
-  background-color: rgba(231, 76, 60, 0.2);
-  border-radius: 8px;
-  padding: 15px;
-  text-align: center;
-  color: #e74c3c;
-  font-size: 14px;
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.retry-button {
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 15px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.retry-button:hover {
-  background-color: #c0392b;
-}
-
-.loading-message {
-  background-color: rgba(44, 41, 55, 0.5);
-  border-radius: 8px;
-  padding: 15px;
-  text-align: center;
-  color: #b0b0b0;
-  font-size: 14px;
-  grid-column: 1 / -1;
-}
-
-.no-data-message {
-  background-color: rgba(44, 41, 55, 0.5);
-  border-radius: 8px;
-  padding: 15px;
-  text-align: center;
-  color: #b0b0b0;
-  font-size: 14px;
-  grid-column: 1 / -1;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  padding: 10px;
 }
 
 .forecastDay {
-  background-color: rgba(44, 41, 55, 0.5);
-  border-radius: 8px;
-  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 20px 15px;
   text-align: center;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.forecastDay:hover {
+  transform: translateY(-2px);
+  border-color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .forecastDay .date {
-  color: #ececec;
-  font-size: 12px;
-  margin-bottom: 5px;
+  color: #1b5e20;
+  font-size: 16px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  background-color: rgba(76, 175, 80, 0.1);
+  padding: 5px 10px;
+  border-radius: 20px;
+  display: inline-block;
 }
 
 .forecastDay .icon {
-  font-size: 24px;
-  margin: 5px 0;
+  margin: 15px 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.forecastDay .icon img {
+  width: 45px;
+  height: 45px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 .forecastDay .temp {
-  color: #ececec;
+  color: #1b5e20;
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+/* Add weather condition text */
+.forecastDay .condition {
+  color: #2e7d32;
   font-size: 14px;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.error-message {
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #d32f2f;
+  font-size: 14px;
+  grid-column: 1 / -1;
+}
+
+.retry-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+}
+
+.retry-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+.loading-message, .no-data-message {
+  background-color: rgba(76, 175, 80, 0.05);
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #1b5e20;
+  font-size: 14px;
+  grid-column: 1 / -1;
 }
 
 .yieldPrediction {
@@ -475,12 +559,281 @@
 }
 
 @media (max-width: 768px) {
-  .harvestPlanLayout {
+  .forecastGrid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  }
+  
+  .harvestPlanContainer {
+    padding: 20px;
+  }
+  
+  .controlPanel, .harvestInfoCard, .weatherForecast {
+    padding: 20px;
+  }
+}
+
+/* AI Recommendations Section */
+.aiRecommendationsSection {
+  background-color: rgba(76, 175, 80, 0.08);
+  border-radius: 12px;
+  padding: 25px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-top: 25px;
+}
+
+.aiRecommendationsSection h3 {
+  color: #2e7d32;
+  font-size: 22px;
+  margin-bottom: 25px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 2px solid rgba(76, 175, 80, 0.3);
+  padding-bottom: 10px;
+}
+
+.aiRecommendationsSection .sectionIcon {
+  color: #4CAF50;
+  font-size: 24px;
+}
+
+.recommendationsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+}
+
+.upcomingTasks, .preparationSteps, .harvestTimeline {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  padding: 20px;
+  border: 1px solid rgba(76, 175, 80, 0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.upcomingTasks h4, .preparationSteps h4, .harvestTimeline h4 {
+  color: #2e7d32;
+  font-size: 18px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* Task Cards */
+.taskCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+  padding: 15px;
+  background-color: rgba(76, 175, 80, 0.05);
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid rgba(76, 175, 80, 0.1);
+  transition: all 0.3s ease;
+}
+
+.taskCard:hover {
+  background-color: rgba(76, 175, 80, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.taskIcon {
+  color: #4CAF50;
+  font-size: 24px;
+  padding: 10px;
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.taskContent {
+  flex: 1;
+}
+
+.taskContent h5 {
+  color: #1b5e20;
+  font-size: 16px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.taskContent p {
+  color: #2e7d32;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.priority {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.priority.high {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: #d32f2f;
+}
+
+.priority.medium {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #f57c00;
+}
+
+.priority.low {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #2e7d32;
+}
+
+/* Checklist */
+.checkList {
+  list-style: none;
+  padding: 0;
+}
+
+.checkList li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.1);
+}
+
+.checkList li:last-child {
+  border-bottom: none;
+}
+
+.checkList input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #4CAF50;
+  border-radius: 4px;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.checkList input[type="checkbox"]:checked {
+  background-color: #4CAF50;
+}
+
+.checkList input[type="checkbox"]:checked::after {
+  content: "✓";
+  position: absolute;
+  color: white;
+  font-size: 12px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.checkList label {
+  color: #2e7d32;
+  font-size: 14px;
+  cursor: pointer;
+  flex: 1;
+}
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 20px;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background-color: rgba(76, 175, 80, 0.2);
+}
+
+.timelineItem {
+  position: relative;
+  padding: 15px 0;
+}
+
+.timelineItem::before {
+  content: "";
+  position: absolute;
+  left: -24px;
+  top: 24px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #4CAF50;
+  border: 2px solid white;
+}
+
+.timelineDate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #2e7d32;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.timelineContent {
+  background-color: rgba(76, 175, 80, 0.05);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(76, 175, 80, 0.1);
+}
+
+.timelineContent h5 {
+  color: #1b5e20;
+  font-size: 15px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status.pending {
+  background-color: rgba(255, 152, 0, 0.1);
+  color: #f57c00;
+}
+
+.status.scheduled {
+  background-color: rgba(33, 150, 243, 0.1);
+  color: #1976d2;
+}
+
+.status.upcoming {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #2e7d32;
+}
+
+@media (max-width: 768px) {
+  .recommendationsGrid {
     grid-template-columns: 1fr;
   }
   
-  .formRow {
+  .taskCard {
     flex-direction: column;
-    gap: 15px;
+    align-items: flex-start;
+  }
+  
+  .taskIcon {
+    margin-bottom: 10px;
   }
 }
