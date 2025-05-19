@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/clerk-react';
+import { FiImage, FiX, FiEdit2, FiTrash2, FiCalendar, FiCheck, FiSend } from 'react-icons/fi';
 import './announcementPage.css';
 
 const AnnouncementPage = () => {
@@ -89,6 +90,10 @@ const AnnouncementPage = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert('Image size should be less than 5MB');
+        return;
+      }
       setImage(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -253,84 +258,71 @@ const AnnouncementPage = () => {
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) {
-      return 'Today';
-    } else if (diffDays === 1) {
-      return 'Yesterday';
-    } else if (diffDays < 7) {
-      return `${diffDays} days ago`;
-    } else {
-      return date.toLocaleDateString();
-    }
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
   };
 
   return (
     <div className="announcementPage">
-      <h1>Post Announcement</h1>
-      <p className="subtitle">Share important updates with farmers</p>
-      
+      <div className="headerBanner">
+        <h1>Post Announcement</h1>
+      </div>
       <div className="announcementContainer">
         <div className="newAnnouncementCard">
-          {postSuccess && (
+          <div className="formHeader">
+            <h3>{isEditing ? 'Edit Announcement' : 'Create New Announcement'}</h3>
+          </div>
+
+          {(postSuccess || updateSuccess) && (
             <div className="successMessage">
-              Announcement posted successfully!
+              <FiCheck size={20} />
+              {isEditing ? 'Announcement updated successfully!' : 'Announcement posted successfully!'}
             </div>
           )}
-          
-          {updateSuccess && (
-            <div className="successMessage">
-              Announcement updated successfully!
-            </div>
-          )}
-          
+
           {deleteSuccess && (
             <div className="successMessage deleteSuccess">
+              <FiCheck size={20} />
               Announcement deleted successfully!
             </div>
           )}
-          
+
           <form onSubmit={handleAnnouncementSubmit}>
-            <div className="formHeader">
-              {isEditing ? (
-                <h3>Edit Announcement</h3>
-              ) : (
-                <h3>Create New Announcement</h3>
-              )}
-            </div>
-            
             <div className="formGroup">
-              <label htmlFor="announcement-textarea">Announcement Text</label>
+              <label htmlFor="announcement">Announcement Message</label>
               <textarea
-                id="announcement-textarea"
+                id="announcement"
+                className="announcementTextarea"
                 value={announcement}
                 onChange={(e) => setAnnouncement(e.target.value)}
-                placeholder="Write your announcement here..."
-                rows={6}
-                className="announcementTextarea"
-                disabled={isPosting}
+                placeholder="Type your announcement here..."
                 required
               />
             </div>
-            
+
             <div className="imageUploadSection">
-              <label htmlFor="image-upload" className="imageUploadLabel">
-                <span className="uploadIcon">📷</span>
-                <span>Add Image (Optional)</span>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="imageInput"
-                  disabled={isPosting}
-                />
-              </label>
-              
+              <button
+                type="button"
+                className="changeImageBtn"
+                onClick={() => document.getElementById('imageInput').click()}
+              >
+                <FiImage />
+                {imagePreview ? 'Change Image' : 'Add Image'}
+              </button>
+              <input
+                type="file"
+                id="imageInput"
+                className="imageInput"
+                accept="image/*"
+                onChange={handleImageChange}
+                hidden
+              />
+
               {imagePreview && (
                 <div className="imagePreviewContainer">
                   <img src={imagePreview} alt="Preview" className="imagePreview" />
@@ -338,31 +330,23 @@ const AnnouncementPage = () => {
                     type="button" 
                     className="removeImageBtn" 
                     onClick={removeImage}
+                    aria-label="Remove image"
                   >
-                    ✖
+                    <FiX size={16} />
                   </button>
                 </div>
               )}
             </div>
-            
+
             <div className="buttonGroup">
               {isEditing && (
-                <button 
-                  type="button" 
-                  className="cancelButton"
-                  onClick={cancelEditing}
-                  disabled={isPosting}
-                >
+                <button type="button" className="cancelButton" onClick={cancelEditing}>
                   Cancel
                 </button>
               )}
-              
-              <button 
-                type="submit" 
-                className="postButton"
-                disabled={isPosting}
-              >
-                {isPosting ? 'Processing...' : isEditing ? 'Update Announcement' : 'Post Announcement'}
+              <button type="submit" className="postButton" disabled={isPosting}>
+                <FiSend />
+                {isPosting ? 'Posting...' : isEditing ? 'Update Announcement' : 'Post Announcement'}
               </button>
             </div>
           </form>
@@ -372,31 +356,30 @@ const AnnouncementPage = () => {
           <h2>Your Previous Announcements</h2>
           
           {isLoading ? (
-            <div className="loading">Loading your announcements...</div>
+            <div className="loading">Loading announcements...</div>
           ) : previousAnnouncements.length === 0 ? (
-            <div className="noAnnouncements">You haven't posted any announcements yet</div>
+            <div className="noAnnouncements">No announcements posted yet</div>
           ) : (
             <div className="announcementsList">
-              {previousAnnouncements.map((item, index) => (
-                <div key={index} className="previousAnnouncementCard">
+              {previousAnnouncements.map((item) => (
+                <div key={item._id} className="previousAnnouncementCard">
                   <div className="announcementHeader">
-                    <span className="dateLabel">{formatDate(item.date)}</span>
+                    <span className="dateLabel">
+                      <FiCalendar />
+                      {formatDate(item.createdAt)}
+                    </span>
                     <div className="actionButtons">
                       <button
-                        type="button"
                         className="editButton"
                         onClick={() => handleEditAnnouncement(item)}
-                        title="Edit announcement"
                       >
-                        ✏️
+                        <FiEdit2 /> Edit
                       </button>
                       <button
-                        type="button"
                         className="deleteButton"
                         onClick={() => handleDeleteAnnouncement(item._id)}
-                        title="Delete announcement"
                       >
-                        🗑️
+                        <FiTrash2 /> Delete
                       </button>
                     </div>
                   </div>

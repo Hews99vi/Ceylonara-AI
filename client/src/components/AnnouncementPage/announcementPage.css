@@ -1,197 +1,201 @@
+html, body {
+  overflow: hidden !important;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
 .announcementPage {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1.5rem;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
-.announcementPage h1 {
-  font-size: 2.2rem;
-  color: #1a4d2e;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.5px;
+.headerBanner {
+  background-color: #4CAF50;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px 8px 0 0;
 }
 
-.subtitle {
-  font-size: 18px;
-  margin-bottom: 30px;
-  color: #000000;
-  font-weight: 600;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 10px 15px;
-  border-radius: 8px;
-  border-left: 4px solid #4CAF50;
-  display: inline-block;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.headerBanner h1 {
+  color: white;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 500;
 }
 
 .announcementContainer {
+  flex: 1;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-top: none;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-@media (max-width: 768px) {
-  .announcementContainer {
-    grid-template-columns: 1fr;
-  }
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  max-height: calc(100vh - 180px);
 }
 
 .newAnnouncementCard, .previousAnnouncementsSection {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+  overflow-y: auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
 }
 
-.newAnnouncementCard:hover, .previousAnnouncementsSection:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+.newAnnouncementCard::-webkit-scrollbar,
+.previousAnnouncementsSection::-webkit-scrollbar {
+  display: none;
 }
 
 .formGroup {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .formGroup label {
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #444;
+  color: #495057;
+  font-size: 0.95rem;
 }
 
 .announcementTextarea {
   width: 100%;
-  padding: 15px;
+  padding: 0.75rem;
   border-radius: 8px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  color: #333;
-  font-size: 16px;
-  resize: vertical;
-  min-height: 180px;
+  background-color: #fff;
+  border: 1px solid #e9ecef;
+  color: #495057;
+  font-size: 1rem;
+  resize: none;
+  height: 150px;
   outline: none;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s ease;
+  font-family: inherit;
 }
 
-.announcementTextarea:focus {
-  border-color: #1a4d2e;
-  box-shadow: 0 0 0 2px rgba(26, 77, 46, 0.2);
-}
-
-.announcementTextarea::placeholder {
-  color: #999;
-}
-
-/* Image Upload Styles */
 .imageUploadSection {
-  margin-bottom: 1.5rem;
+  margin: 1rem 0;
+  background-color: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  text-align: center;
 }
 
-.imageUploadLabel {
+.changeImageBtn {
   display: inline-flex;
   align-items: center;
-  padding: 12px 18px;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  color: #555;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background-color: white;
+  border: 1px solid #4CAF50;
+  color: #4CAF50;
+  border-radius: 6px;
+  font-size: 0.95rem;
   font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.imageUploadLabel:hover {
-  border-color: #1a4d2e;
-  color: #1a4d2e;
-  background-color: #f0f7f3;
+.changeImageBtn:hover {
+  background-color: #4CAF50;
+  color: white;
 }
 
-.uploadIcon {
-  margin-right: 10px;
-  font-size: 20px;
+.changeImageBtn svg {
+  width: 18px;
+  height: 18px;
 }
 
 .imageInput {
   display: none;
 }
 
-.imagePreviewContainer {
-  margin-top: 15px;
-  position: relative;
-  display: inline-block;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #ddd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.imagePreview {
-  max-height: 240px;
-  max-width: 100%;
-  display: block;
-}
-
-.removeImageBtn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: none;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 14px;
-  padding: 0;
-  transition: background 0.2s ease;
-}
-
-.removeImageBtn:hover {
-  background: rgba(255, 0, 0, 0.7);
-}
-
 .postButton {
-  background-color: #1a4d2e;
+  background-color: #4CAF50;
   color: white;
   border: none;
-  padding: 14px 28px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 0.5rem;
 }
 
 .postButton:hover {
-  background-color: #0f3d1e;
-  transform: translateY(-2px);
+  background-color: #3d8b40;
 }
 
 .postButton:disabled {
-  background-color: #8aad9a;
+  background-color: #e9ecef;
+  color: #adb5bd;
   cursor: not-allowed;
-  transform: none;
+}
+
+.infoCard {
+  margin-top: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e9ecef;
+}
+
+/* Remove the old header styles */
+.pageHeader, .mainTitle, .mainTitle::before {
+  display: none;
+}
+
+.subtitle {
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  color: #666;
+  font-weight: 500;
+  background-color: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #1a4d2e;
+  display: block;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  max-width: 800px;
+}
+
+@media (max-width: 1024px) {
+  .announcementContainer {
+    grid-template-columns: 1fr;
+  }
 }
 
 .successMessage {
-  background-color: #e7f5e7;
-  border: 1px solid #1a4d2e;
-  color: #1a4d2e;
-  padding: 14px;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 1rem;
   border-radius: 8px;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
   text-align: center;
   font-weight: 500;
   animation: fadeIn 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 @keyframes fadeIn {
@@ -200,62 +204,51 @@
 }
 
 /* Previous Announcements Styles */
+.previousAnnouncementsSection {
+  max-height: 800px;
+  overflow-y: auto;
+}
+
 .previousAnnouncementsSection h2 {
-  font-size: 1.4rem;
   color: #1a4d2e;
-  margin-bottom: 1.2rem;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e9ecef;
 }
 
 .announcementsList {
-  max-height: 520px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-.announcementsList::-webkit-scrollbar {
-  width: 8px;
-}
-
-.announcementsList::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 8px;
-}
-
-.announcementsList::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 8px;
-}
-
-.announcementsList::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .previousAnnouncementCard {
-  background: #f9f9f9;
-  border-radius: 10px;
-  padding: 1.2rem;
-  margin-bottom: 1rem;
-  border-left: 3px solid #1a4d2e;
-  transition: transform 0.2s, box-shadow 0.2s;
+  background: #fff;
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
 }
 
 .previousAnnouncementCard:hover {
-  transform: translateX(4px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .announcementHeader {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .dateLabel {
   font-size: 0.9rem;
-  color: #777;
-  background: rgba(0, 0, 0, 0.05);
-  padding: 3px 8px;
-  border-radius: 12px;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .announcementBody {
@@ -288,27 +281,24 @@
   display: block;
 }
 
-.loading, .noAnnouncements {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 150px;
-  color: #777;
-  font-size: 0.9rem;
-  background: #f5f5f5;
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.noAnnouncements {
+  text-align: center;
+  padding: 2rem;
+  color: #6c757d;
+  font-style: italic;
+  background-color: #f8f9fa;
   border-radius: 8px;
+  margin: 1rem 0;
 }
 
 /* Info Card Style */
-.infoCard {
-  background: #f0f9ff;
-  border-radius: 12px;
-  padding: 1.5rem;
-  border-left: 4px solid #1a4d2e;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  margin-top: 2rem;
-}
-
 .infoCard h3 {
   color: #1a4d2e;
   margin-bottom: 1rem;
@@ -341,49 +331,41 @@
 /* Action buttons in announcement cards */
 .actionButtons {
   display: flex;
-  gap: 8px;
+  gap: 0.75rem;
 }
 
 .editButton, .deleteButton {
-  background: none;
-  border: none;
-  font-size: 18px;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  transition: transform 0.2s, background-color 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+}
+
+.editButton {
+  background-color: #fff;
+  color: #1a4d2e;
+  border: 2px solid #1a4d2e;
+}
+
+.deleteButton {
+  background-color: #fff;
+  color: #dc3545;
+  border: 2px solid #dc3545;
 }
 
 .editButton:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-  transform: scale(1.1);
+  background-color: #1a4d2e;
+  color: #fff;
 }
 
 .deleteButton:hover {
-  background-color: rgba(255, 0, 0, 0.1);
-  transform: scale(1.1);
-}
-
-/* Success messages */
-.successMessage {
-  background-color: #e7f5e7;
-  border: 1px solid #1a4d2e;
-  color: #1a4d2e;
-  padding: 14px;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  text-align: center;
-  font-weight: 500;
-  animation: fadeIn 0.5s ease;
-}
-
-.deleteSuccess {
-  background-color: #ffece6;
-  border-color: #d32f2f;
-  color: #d32f2f;
+  background-color: #dc3545;
+  color: #fff;
 }
 
 /* Button group for form actions */
@@ -420,4 +402,48 @@
 
 .postButton {
   flex: 2;
+}
+
+.imagePreviewContainer {
+  position: relative;
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+  max-width: 100%;
+}
+
+.imagePreview {
+  max-width: 100%;
+  max-height: 300px;
+  display: block;
+  object-fit: cover;
+}
+
+.removeImageBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  background-color: white;
+  border: 1px solid #4CAF50;
+  color: #4CAF50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.removeImageBtn:hover {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.removeImageBtn svg {
+  width: 16px;
+  height: 16px;
 }

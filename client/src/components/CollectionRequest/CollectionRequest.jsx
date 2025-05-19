@@ -105,7 +105,12 @@ const CollectionRequest = () => {
   
   return (
     <div className="collection-requests-container">
-      <h2>Tea Leaves Collection Requests</h2>
+      <div className="page-header">
+        <h1>Tea Leaves Collection Requests</h1>
+        <div className="subtitle-container">
+          <p className="subtitle">Manage and track tea leaf collection requests from farmers</p>
+        </div>
+      </div>
       
       {error && <div className="error-message">{error}</div>}
       {isLoading && <div className="loading">Loading requests...</div>}
