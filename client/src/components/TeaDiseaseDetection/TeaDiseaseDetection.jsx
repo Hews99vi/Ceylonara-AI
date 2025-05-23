@@ -2,12 +2,11 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios';
 import { useAuth } from '@clerk/clerk-react';
 import { FaUpload, FaSpinner } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 import './TeaDiseaseDetection.css';
 
 const TeaDiseaseDetection = ({ onResultUpdate }) => {
-  console.log("TeaDiseaseDetection component mounted");
-  
-  // Get authentication from Clerk
+  const { t } = useTranslation();
   const { getToken, userId, isLoaded, isSignedIn } = useAuth();
   
   const [file, setFile] = useState(null);
@@ -16,15 +15,13 @@ const TeaDiseaseDetection = ({ onResultUpdate }) => {
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
-  console.log("Auth state:", { isLoaded, isSignedIn, userId });
-
   // Show loading state while authentication is being loaded
   if (!isLoaded) {
     return (
       <div className="tea-disease-detection">
         <div className="detection-header">
-          <h2>Tea Leaf Disease Detection</h2>
-          <p>Loading authentication...</p>
+          <h2>{t('diseaseDetection.title')}</h2>
+          <p>{t('common.loading')}</p>
         </div>
         <div className="loading-indicator">
           <FaSpinner className="spinner" />
@@ -38,11 +35,11 @@ const TeaDiseaseDetection = ({ onResultUpdate }) => {
     return (
       <div className="tea-disease-detection">
         <div className="detection-header">
-          <h2>Tea Leaf Disease Detection</h2>
-          <p>Authentication required</p>
+          <h2>{t('diseaseDetection.title')}</h2>
+          <p>{t('common.unauthorized')}</p>
         </div>
         <div className="auth-message">
-          <p>Please log in to use the disease detection feature.</p>
+          <p>{t('common.unauthorized')}</p>
         </div>
       </div>
     );
@@ -56,12 +53,12 @@ const TeaDiseaseDetection = ({ onResultUpdate }) => {
     if (!selectedFile) return;
     
     if (!['image/jpeg', 'image/png'].includes(selectedFile.type)) {
-      setError('Please select a JPEG or PNG image file');
+      setError(t('diseaseDetection.invalidFileType'));
       return;
     }
     
     if (selectedFile.size > 5 * 1024 * 1024) {
-      setError('Image size should be less than 5MB');
+      setError(t('diseaseDetection.fileTooLarge'));
       return;
     }
     
@@ -87,7 +84,7 @@ const TeaDiseaseDetection = ({ onResultUpdate }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) {
-      setError('Please select an image file');
+      setError(t('diseaseDetection.noImageSelected'));
       return;
     }
 
@@ -99,31 +96,50 @@ const TeaDiseaseDetection = ({ onResultUpdate }) => {
       formData.append('image', file, file.name);
       
       const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
-      const testApiUrl = `${baseUrl}/api/test-tea-disease`;
+      const token = await getToken();
       
-      try {
-        const response = await axios.post(testApiUrl, formData);
-        const resultData = response.data.result || response.data;
-        if (onResultUpdate) {
-          onResultUpdate(resultData);
+      if (!token) {
+        throw new Error('Authentication token not available');
+      }
+
+      const apiUrl = `${baseUrl}/api/tea-disease/detect`;
+      const response = await axios.post(apiUrl, formData, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      } catch (testError) {
-        const token = await getToken();
-        const apiUrl = `${baseUrl}/api/tea-disease/detect`;
-        
-        const response = await axios.post(apiUrl, formData, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        const resultData = response.data.result || response.data;
-        if (onResultUpdate) {
-          onResultUpdate(resultData);
-        }
+      });
+      
+      const resultData = response.data.result || response.data;
+      if (onResultUpdate) {
+        onResultUpdate(resultData);
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Error processing image. Please try again.');
+      console.error('Disease detection error:', err);
+      
+      // Handle different types of errors
+      if (err.response) {
+        switch (err.response.status) {
+          case 401:
+            setError(t('common.unauthorized'));
+            break;
+          case 413:
+            setError(t('diseaseDetection.fileTooLarge'));
+            break;
+          case 415:
+            setError(t('diseaseDetection.invalidFileType'));
+            break;
+          case 500:
+            setError(t('common.serverError'));
+            break;
+          default:
+            setError(t('diseaseDetection.processingError'));
+        }
+      } else if (err.request) {
+        setError(t('common.networkError'));
+      } else {
+        setError(t('common.error'));
+      }
+      
       if (onResultUpdate) {
         onResultUpdate(null);
       }
@@ -147,8 +163,10 @@ const TeaDiseaseDetection = ({ onResultUpdate }) => {
           className="upload-area"
           onClick={() => fileInputRef.current?.click()}
         >
-          <div className="upload-icon">📸</div>
-          <div className="upload-text">Choose an image to analyze</div>
+          <div className="upload-icon">
+            <FaUpload />
+          </div>
+          <div className="upload-text">{t('diseaseDetection.uploadInstructions')}</div>
           <div className="upload-hint">JPG, PNG (Max: 5MB)</div>
         </div>
       ) : (
@@ -162,6 +180,7 @@ const TeaDiseaseDetection = ({ onResultUpdate }) => {
             className="remove-image"
             onClick={resetForm}
             type="button"
+            aria-label="Remove image"
           >
             ×
           </button>
@@ -169,7 +188,7 @@ const TeaDiseaseDetection = ({ onResultUpdate }) => {
       )}
 
       {error && (
-        <div className="error-message">
+        <div className="error-message" role="alert">
           {error}
         </div>
       )}
@@ -182,9 +201,9 @@ const TeaDiseaseDetection = ({ onResultUpdate }) => {
         {processing ? (
           <>
             <FaSpinner className="spinner" />
-            Analyzing...
+            {t('diseaseDetection.analyzing')}
           </>
-        ) : 'Detect Disease'}
+        ) : t('diseaseDetection.detectDisease')}
       </button>
     </div>
   );

@@ -5,7 +5,6 @@ import './AdminStatistics.css';
 
 const AdminStatistics = () => {
   const [stats, setStats] = useState(null);
-  const [complianceData, setComplianceData] = useState(null);
   const [factoryAverages, setFactoryAverages] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,16 +32,6 @@ const AdminStatistics = () => {
           }
         );
         setStats(response.data);
-      } else if (activeTab === 'compliance') {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/admin/tea-prices/compliance`, 
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          }
-        );
-        setComplianceData(response.data);
       } else if (activeTab === 'factory-averages') {
         const currentMonth = new Date().getMonth() + 1;
         const currentYear = new Date().getFullYear();
@@ -57,50 +46,53 @@ const AdminStatistics = () => {
         );
         setFactoryAverages(response.data);
       }
+      
+      setError(null);
     } catch (err) {
-      console.error(`Error fetching ${activeTab} data:`, err);
-      setError(`Failed to load ${activeTab} data. Please try again later.`);
+      console.error('Error fetching data:', err);
+      setError('Failed to fetch data. ' + (err.response?.data?.error || ''));
     } finally {
       setLoading(false);
     }
   };
 
   const renderStatistics = () => {
-    if (!stats || !stats.statistics) return null;
+    if (!stats) return null;
     
-    const { statistics, month, year, monthName } = stats;
-    
+    const statistics = stats.statistics;
+    if (!statistics) return null;
+
     return (
       <div className="statistics-container">
         <div className="stats-header">
           <h3>Tea Price Statistics</h3>
-          <p>{monthName} {year}</p>
+          <p>{stats.monthName} {stats.year}</p>
         </div>
         
         <div className="stats-grid">
           <div className="stat-card">
-            <div className="stat-value">{statistics.adminAveragePrice ? `Rs. ${statistics.adminAveragePrice}` : 'Not Set'}</div>
+            <div className="stat-value">Rs. {statistics.minimumPrice}</div>
             <div className="stat-label">Minimum Average Price</div>
           </div>
           
           <div className="stat-card">
-            <div className="stat-value">{statistics.factoryCount}</div>
+            <div className="stat-value">{statistics.activeFactories}</div>
             <div className="stat-label">Active Factories</div>
           </div>
           
           <div className="stat-card">
-            <div className="stat-value">{statistics.averageFactoryPrice ? `Rs. ${statistics.averageFactoryPrice}` : 'N/A'}</div>
+            <div className="stat-value">Rs. {statistics.averageFactoryPrice}</div>
             <div className="stat-label">Average Factory Price</div>
           </div>
           
           <div className="stat-card">
-            <div className="stat-value">{statistics.lowestPrice ? `Rs. ${statistics.lowestPrice}` : 'N/A'}</div>
-            <div className="stat-label">Lowest Price</div>
+            <div className="stat-value">Rs. {statistics.lowestPrice}</div>
+            <div className="stat-label">Lowest Factory Price</div>
           </div>
           
           <div className="stat-card">
-            <div className="stat-value">{statistics.highestPrice ? `Rs. ${statistics.highestPrice}` : 'N/A'}</div>
-            <div className="stat-label">Highest Price</div>
+            <div className="stat-value">Rs. {statistics.highestPrice}</div>
+            <div className="stat-label">Highest Factory Price</div>
           </div>
           
           <div className="stat-card">
@@ -117,71 +109,8 @@ const AdminStatistics = () => {
     );
   };
   
-  const renderCompliance = () => {
-    if (!complianceData) return null;
-    
-    return (
-      <div className="compliance-container">
-        <div className="compliance-header">
-          <h3>Compliance Report</h3>
-          <p>{complianceData.monthName} {complianceData.year}</p>
-        </div>
-        
-        <div className="compliance-summary">
-          <div className="summary-stat">
-            <span className="label">Minimum Price:</span>
-            <span className="value">Rs. {complianceData.minimumPrice}</span>
-          </div>
-          <div className="summary-stat">
-            <span className="label">Total Factories:</span>
-            <span className="value">{complianceData.totalFactories}</span>
-          </div>
-          <div className="summary-stat">
-            <span className="label">Non-Compliant:</span>
-            <span className="value">{complianceData.nonCompliantCount}</span>
-          </div>
-        </div>
-        
-        {complianceData.nonCompliantFactories && complianceData.nonCompliantFactories.length > 0 ? (
-          <table className="compliance-table">
-            <thead>
-              <tr>
-                <th>Factory Name</th>
-                <th>Status</th>
-                <th>Current Price</th>
-                <th>Required</th>
-                <th>Difference</th>
-                <th>Last Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {complianceData.nonCompliantFactories.map((factory, index) => (
-                <tr key={index}>
-                  <td>{factory.factoryName}</td>
-                  <td>
-                    <span className={`status-badge ${factory.status === 'No price set' ? 'no-price' : 'below-min'}`}>
-                      {factory.status}
-                    </span>
-                  </td>
-                  <td>{factory.currentPrice ? `Rs. ${factory.currentPrice}` : 'N/A'}</td>
-                  <td>Rs. {factory.requiredPrice}</td>
-                  <td>{factory.difference ? `Rs. ${factory.difference}` : 'N/A'}</td>
-                  <td>{factory.lastUpdated ? new Date(factory.lastUpdated).toLocaleDateString() : 'Never'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="no-data">
-            <p>All factories are compliant with the minimum price requirement.</p>
-          </div>
-        )}
-      </div>
-    );
-  };
-  
   const renderFactoryAverages = () => {
-    if (!factoryAverages || !factoryAverages.factories) return null;
+    if (!factoryAverages) return null;
     
     return (
       <div className="factory-averages-container">
@@ -190,44 +119,30 @@ const AdminStatistics = () => {
           <p>{factoryAverages.monthName} {factoryAverages.year}</p>
         </div>
         
-        <div className="admin-price-banner">
-          <span className="label">Admin Average Price:</span>
-          <span className="value">
-            {factoryAverages.adminAveragePrice 
-              ? `Rs. ${factoryAverages.adminAveragePrice}` 
-              : 'Not Set'}
-          </span>
-        </div>
-        
         {factoryAverages.factories.length > 0 ? (
           <table className="factory-averages-table">
             <thead>
               <tr>
-                <th>Factory</th>
+                <th>Factory Name</th>
                 <th>Average Price</th>
-                <th>Latest Price</th>
+                <th>Total Collections</th>
                 <th>Last Updated</th>
               </tr>
             </thead>
             <tbody>
               {factoryAverages.factories.map((factory, index) => (
-                <tr key={index} className={
-                  factoryAverages.adminAveragePrice && 
-                  factory.averagePrice < factoryAverages.adminAveragePrice 
-                    ? 'below-average' 
-                    : ''
-                }>
-                  <td>{factory.factoryName}</td>
-                  <td>Rs. {factory.averagePrice}</td>
-                  <td>Rs. {factory.latestPrice}</td>
-                  <td>{new Date(factory.latestDate).toLocaleDateString()}</td>
+                <tr key={index}>
+                  <td>{factory.name}</td>
+                  <td>Rs. {factory.averagePrice.toFixed(2)}</td>
+                  <td>{factory.totalCollections}</td>
+                  <td>{new Date(factory.lastUpdated).toLocaleDateString()}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         ) : (
           <div className="no-data">
-            <p>No factory price data available for this period.</p>
+            <p>No factory data available for this period.</p>
           </div>
         )}
       </div>
@@ -244,12 +159,6 @@ const AdminStatistics = () => {
           onClick={() => setActiveTab('statistics')}
         >
           Statistics
-        </button>
-        <button 
-          className={`tab-button ${activeTab === 'compliance' ? 'active' : ''}`}
-          onClick={() => setActiveTab('compliance')}
-        >
-          Compliance
         </button>
         <button 
           className={`tab-button ${activeTab === 'factory-averages' ? 'active' : ''}`}
@@ -274,7 +183,6 @@ const AdminStatistics = () => {
       ) : (
         <div className="content-container">
           {activeTab === 'statistics' && renderStatistics()}
-          {activeTab === 'compliance' && renderCompliance()}
           {activeTab === 'factory-averages' && renderFactoryAverages()}
         </div>
       )}

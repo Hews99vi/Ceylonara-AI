@@ -68,6 +68,10 @@ const uploadErrorHandler = (err, req, res, next) => {
 
 // POST - Process image for tea disease detection
 router.post('/detect', upload.single('image'), uploadErrorHandler, async (req, res) => {
+  const startTime = Date.now();
+  console.log('=== Starting new disease detection request ===');
+  console.log('Request received at:', new Date().toISOString());
+  
   try {
     // Debug log for uploaded file
     console.log('File upload request received');
@@ -77,19 +81,26 @@ router.post('/detect', upload.single('image'), uploadErrorHandler, async (req, r
     
     if (!req.file) {
       console.error('No file uploaded');
-      return res.status(400).json({ error: 'No image uploaded' });
+      return res.status(400).json({ 
+        success: false,
+        error: 'No image uploaded' 
+      });
     }
 
     const imagePath = req.file.path;
-    
     console.log(`Processing tea disease detection for image: ${imagePath}`);
+    console.log('Image file exists:', fs.existsSync(imagePath));
+    console.log('Image file size:', fs.statSync(imagePath).size);
     
-    // Run Python directly with full path to the Anaconda Python executable
-    console.log(`Running Python directly...`);
-    const pythonProcess = spawn('F:\\programs\\anaconda\\envs\\tf_env\\python.exe', [
-      path.join(__dirname, '../ml/test_model.py'),
-      imagePath
-    ]);
+    // Run Python script with proper error handling
+    const pythonPath = process.platform === 'win32' ? 'python' : 'python3';
+    const scriptPath = path.join(__dirname, '../ml/test_model.py');
+    
+    console.log('Python command:', pythonPath);
+    console.log('Script path:', scriptPath);
+    console.log('Script exists:', fs.existsSync(scriptPath));
+    
+    const pythonProcess = spawn(pythonPath, [scriptPath, imagePath]);
 
     let result = '';
     let error = '';
@@ -109,118 +120,110 @@ router.post('/detect', upload.single('image'), uploadErrorHandler, async (req, r
 
     // Handle process completion
     pythonProcess.on('close', async (code) => {
-      console.log(`Python process exited with code ${code}`);
+      const duration = Date.now() - startTime;
+      console.log(`Python process exited with code ${code} after ${duration}ms`);
+      
+      // Clean up the uploaded file
       try {
-        if (code !== 0) {
-          console.error('Python script error:', error);
+        fs.unlinkSync(imagePath);
+        console.log('Temporary file deleted successfully');
+      } catch (unlinkError) {
+        console.error('Error deleting temporary file:', unlinkError);
+      }
+
+      if (code !== 0) {
+        console.error('Python process failed:', error);
+        return res.status(500).json({
+          success: false,
+          error: 'Disease detection failed',
+          details: error || 'Unknown error occurred',
+          code: code
+        });
+      }
+
+      try {
+        // Parse the JSON result
+        const jsonStr = result.trim();
+        console.log('Raw Python output:', jsonStr);
+        
+        const prediction = JSON.parse(jsonStr);
+        console.log('Parsed prediction:', prediction);
+
+        // Check if there was an error
+        if (!prediction.success) {
+          console.error('Prediction failed:', prediction.error);
           return res.status(500).json({ 
             success: false, 
-            error: 'Error processing image',
-            details: error 
+            error: 'Disease detection failed',
+            details: prediction.error || 'Unknown error occurred'
           });
         }
 
-        console.log('Python script output:', result);
-        
-        // Parse the JSON result from the Python script
-        // First, find the JSON in the output (it might contain other log messages)
-        let jsonStart = result.indexOf('{');
-        let jsonEnd = result.lastIndexOf('}') + 1;
-        
-        if (jsonStart === -1 || jsonEnd === 0) {
-          console.error('No JSON found in output');
-          return res.status(500).json({
-            success: false,
-            error: 'No valid JSON found in model output',
-            raw_output: result
-          });
-        }
-        
-        let jsonStr = result.substring(jsonStart, jsonEnd);
-        
+        // Save detection to database if implemented
         try {
-          const prediction = JSON.parse(jsonStr);
-        
-          // Check if there was an error
-          if (prediction.error) {
-            return res.status(500).json({ 
-              success: false, 
-              error: 'Disease detection failed',
-              details: prediction.error 
-            });
-          }
+          if (req.auth && req.auth.userId) {
+            const DiseaseDetection = req.app.get('DiseaseDetection');
             
-          // Save detection to database if implemented
-          try {
-            if (req.auth && req.auth.userId) {
-              // This code assumes you have a DiseaseDetection model available
-              // in the request context, which should be set up in your main app
-              const DiseaseDetection = req.app.get('DiseaseDetection');
+            if (DiseaseDetection) {
+              const detection = new DiseaseDetection({
+                userId: req.auth.userId,
+                userType: req.auth.userType || 'Unknown',
+                imagePath: req.file.filename,
+                result: prediction
+              });
               
-              if (DiseaseDetection) {
-                const detection = new DiseaseDetection({
-                  userId: req.auth.userId,
-                  userType: req.auth.userType || 'Unknown',
-                  imagePath: req.file.filename,
-                  result: prediction
-                });
-                
-                await detection.save();
-                console.log(`Detection saved to database for user ${req.auth.userId}`);
-              }
+              await detection.save();
+              console.log(`Detection saved to database for user ${req.auth.userId}`);
             }
-          } catch (dbError) {
-            console.error('Error saving detection to database:', dbError);
-            // Continue even if DB save fails
           }
-            
-          // Delete the image file after processing
-          fs.unlink(imagePath, (err) => {
-            if (err) console.error('Error deleting temporary file:', err);
-          });
-          
-          return res.status(200).json({
-            success: true,
-            result: prediction
-          });
-        } catch (jsonError) {
-          console.error('Error parsing JSON:', jsonError);
-          console.error('Raw output:', result);
-          return res.status(500).json({ 
-            success: false, 
-            error: 'Error parsing prediction result',
-            details: `Invalid JSON format: ${jsonError.message}` 
-          });
+        } catch (dbError) {
+          console.error('Error saving detection to database:', dbError);
+          // Continue even if DB save fails
         }
-      } catch (parseError) {
-        console.error('Error parsing prediction result:', parseError);
-        
-        // Try to delete the file even if parsing failed
-        fs.unlink(imagePath, (err) => {
-          if (err) console.error('Error deleting temporary file:', err);
+
+        console.log('Sending successful response');
+        return res.status(200).json({
+          success: true,
+          result: prediction
         });
-        
-        return res.status(500).json({ 
-          success: false, 
-          error: 'Error processing prediction result',
-          details: parseError.message
+
+      } catch (parseError) {
+        console.error('Error parsing Python output:', parseError);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to parse detection results',
+          details: parseError.message,
+          rawOutput: result
         });
       }
     });
-  } catch (error) {
-    console.error('Server error:', error);
-    
-    // Clean up the uploaded file if it exists
-    if (req.file && req.file.path) {
-      fs.unlink(req.file.path, (err) => {
-        if (err) console.error('Error deleting temporary file:', err);
+
+    // Handle process error
+    pythonProcess.on('error', (err) => {
+      console.error('Failed to start Python process:', err);
+      
+      // Clean up the uploaded file
+      try {
+        fs.unlinkSync(imagePath);
+        console.log('Temporary file deleted after process error');
+      } catch (unlinkError) {
+        console.error('Error deleting temporary file:', unlinkError);
+      }
+
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to start disease detection process',
+        details: err.message
       });
-    }
-    
-    return res.status(500).json({ 
-      success: false, 
-      error: 'Server error',
-      details: error.message
+    });
+
+  } catch (err) {
+    console.error('Route handler error:', err);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      details: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
     });
   }
 });

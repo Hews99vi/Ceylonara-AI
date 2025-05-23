@@ -98,10 +98,14 @@
 .error-message {
   color: #d32f2f;
   font-size: 0.9rem;
-  margin-bottom: 1rem;
-  padding: 8px;
+  margin: 8px 0;
+  padding: 12px;
   background-color: #ffebee;
-  border-radius: 4px;
+  border-radius: 8px;
+  border-left: 4px solid #d32f2f;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .preview-container {
@@ -167,6 +171,8 @@
 
 .spinner {
   animation: spin 1s linear infinite;
+  color: #4CAF50;
+  font-size: 24px;
 }
 
 @keyframes spin {
@@ -282,17 +288,16 @@
 
 /* New styles for auth message */
 .auth-message {
-  background-color: #f3f8f1;
-  border-radius: 8px;
-  padding: 2rem;
   text-align: center;
-  color: #4a5568;
-  margin: 2rem 0;
-  border: 1px dashed #c1cfd9;
+  padding: 20px;
+  background-color: #fff3e0;
+  border-radius: 8px;
+  margin: 20px 0;
 }
 
 .auth-message p {
-  margin-bottom: 0.5rem;
+  color: #e65100;
+  margin: 0;
 }
 
 /* Loading indicator */
@@ -300,7 +305,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 200px;
+  padding: 20px;
 }
 
 .loading-indicator .spinner {
@@ -385,4 +390,108 @@
 .check-another-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.upload-area {
+  background: #F8F9FA;
+  border: 2px dashed #E0E0E0;
+  border-radius: 12px;
+  padding: 25px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.upload-area:hover {
+  border-color: #4CAF50;
+  background: #F3F8F3;
+}
+
+.upload-icon {
+  font-size: 28px;
+  color: #4CAF50;
+  margin-bottom: 10px;
+}
+
+.upload-text {
+  color: #2C5E2E;
+  font-size: 16px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.upload-hint {
+  color: #666;
+  font-size: 14px;
+}
+
+.image-preview-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.image-preview {
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #E0E0E0;
+}
+
+.remove-image {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.remove-image:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.detect-disease-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.detect-disease-btn:hover:not(:disabled) {
+  background: #43A047;
+}
+
+.detect-disease-btn:disabled {
+  background: #A5D6A7;
+  cursor: not-allowed;
+}
+
+.detect-disease-btn .spinner {
+  font-size: 16px;
+  color: white;
 } 

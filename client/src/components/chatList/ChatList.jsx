@@ -107,13 +107,6 @@ const ChatList = () => {
             <i className="fas fa-comment-medical"></i>
             Create a new Chat
           </Link>
-          <Link to="/dashboard/direct-messages" className="navLink">
-            <i className="fas fa-envelope"></i>
-            Direct Messages
-            <div className="badge-container">
-              <NotificationBadge />
-            </div>
-          </Link>
           <Link to="/dashboard/set-tea-price" className="navLink">
             <i className="fas fa-tag"></i>
             Set Tea Prices
@@ -133,13 +126,6 @@ const ChatList = () => {
           <Link to="/dashboard" className="navLink">
             <i className="fas fa-comment-medical"></i>
             Create a new Chat
-          </Link>
-          <Link to="/dashboard/direct-messages" className="navLink">
-            <i className="fas fa-envelope"></i>
-            Direct Messages
-            <div className="badge-container">
-              <NotificationBadge />
-            </div>
           </Link>
           <Link to="/dashboard/tea-prices" className="navLink">
             <i className="fas fa-chart-line"></i>
