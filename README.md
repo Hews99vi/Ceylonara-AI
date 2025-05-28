@@ -146,6 +146,22 @@ Special thanks to:
 - Local tea factories and farmers who participated in testing
 - Open source community for various tools and libraries used
 
+## 🔑 Test Account Credentials
+
+### Farmer Account
+- Email: `nimantha2002hewawasam@gmail.com`
+- Password: `Nima@19809`
+
+### Factory Account
+- Email: `nimanthavi@gmail.com`
+- Password: `Nima@2025`
+
+### Tea Board Admin Account
+- Sign up with any email address
+- Use Admin Passcode: `TEA_BOARD_SL_2024`
+
+> Note: These are test credentials provided for demonstration purposes.
+
 ---
 
 *This project is a final year submission for Plymouth University, Plymouth batch 11*
