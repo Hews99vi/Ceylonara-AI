@@ -132,7 +132,7 @@ Key research influences include:
 
 ## 👥 Team
 
-This final year project was developed by Nimantha Hewawasam under the supervision of Dulanjali Wijesekara at NSBM partnership with Plymouth University.
+This final year project was developed by Nimantha Hewawasam under the supervision of Ms.Dulanjali Wijesekara at NSBM partnership with Plymouth University.
 
 ## 📄 License
 
