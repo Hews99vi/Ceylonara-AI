@@ -63,7 +63,7 @@ The system specifically targets:
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/Ceylonara-AI.git
+   git clone https://github.com/Hews99vi/Ceylonara-AI.git
    cd Ceylonara-AI
    ```
 
